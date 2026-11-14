@@ -1,0 +1,136 @@
+# MARSBOUND: Jezero Field Expedition
+### Mars 3D Exploration, Science & Survival Simulator
+
+> **Platform:** Browser-based 3D Desktop Web Game  
+> **Built with:** React 18, TypeScript, Three.js, Tailwind CSS, Vite  
+> **NASA Science Foundation:** NASA Mars Trek (JPL), HiRISE, MOLA, CRISM, MEDA, Mars 2020 Perseverance  
+> **NASA Space Apps Challenge:** [Interplanetary Survival Guide: Martian Map](https://www.spaceappschallenge.org/2026/challenges/interplanetary-survival-guide-martian-map/?tab=resources)
+
+---
+
+## 🚀 How to Run the Project (Quick Start for Beginners)
+
+You can launch the simulator in two simple steps:
+
+### 1. Start the Local Development Server
+Open your terminal inside this folder (`d:\D_PROJECTS\MARSBOUND`) and run:
+```bash
+npm run dev
+```
+
+### 2. Open the Game in Your Browser
+Open your browser (Chrome, Edge, Firefox, or Brave) and navigate to:
+```
+http://localhost:3000
+```
+Click **"COMMENCE EXPEDITION"** on the introductory screen, then click anywhere on the 3D surface to lock your mouse and begin walking on Mars!
+
+---
+
+## 🎮 Controls Quick-Reference
+
+| Input | Action |
+|---|---|
+| **W, A, S, D** / Arrows | Move forward, backward, left, right (or steer/drive when inside Rover) |
+| **Mouse** | Look around (Click the viewport to lock; automatically re-locks upon closing any panel) |
+| **Space** | Mars low-gravity hop ($3.71\text{ m/s}^2$) / Handbrake when in Rover |
+| **Shift** | Sprint / Fast traverse across the crater floor |
+| **L** / **T** | **Toggle Helmet Flashlight / Rover Headlights** (dual high-intensity beams for nighttime exploration) |
+| **E** | **Board / Dismount Mars Rover** (approach the rover parked outside base) |
+| **B** | **Toggle Base Build Mode** (press **B** to enter, press **B** again or **Esc** to exit) |
+| **F** | **Discovery Scanner & Modal Toggle** (press **F** to scan outcrops; press **F** again to dismiss the discovery dossier!) |
+| **R** | **NASA Provenance Registry Toggle** (press **R** to open, press **R** again to close; rotates structure in Build Mode) |
+| **M** | **Tactical GIS Map Toggle** (press **M** to open full-screen GIS map, press **M** again to close) |
+| **O** | **Mission Briefings Toggle** (press **O** to open objectives panel, press **O** again to close) |
+| **J** | **Research Journal Toggle** (press **J** to open sample logs, press **J** again to close) |
+| **Esc / C / X** | **Universal Close Keys** (instantly dismisses whichever modal/scan/dossier is open and restores mouse look) |
+
+---
+
+## 🪐 Major Features & Systems
+
+### 1. Drivable 6-Wheeled Mars Rover (`src/game/rover/MarsRover.ts`)
+* Stationed at Octavia Base. Walk near the rover and press **[E]** to board.
+* Smoothly transitions to a 3rd-person vehicle driving camera.
+* Capable of high-speed long-range expeditions ($\sim 60\text{ km/h}$) to reach distant targets like Kodiak Butte (180m south) in seconds!
+* Dual forward halogen/LED headlights illuminate the dusty Martian surface.
+* Cabin life-support refills your suit oxygen while driving.
+* Electric drive motor hum pitch-shifts dynamically with speed.
+
+### 2. Outpost Base Construction (`src/game/outpost/BuildModeSystem.ts`)
+* Press **[B]** to enter Build Mode with an interactive holographic placement grid.
+* Move around within the base perimeter (55m radius); the preview glows green on valid ground and red when too far or too steep.
+* Press **[R]** to rotate the structure by 45°.
+* Left-click to construct:
+  - **Solar Array:** $+2,400\text{ W}$ generation.
+  - **Cryo-Battery Bank:** $+20,000\text{ Wh}$ energy buffer.
+  - **Surface Science Lab:** $-800\text{ W}$ demand, expands sample analytics.
+  - **High-Gain Comms Dish:** $-350\text{ W}$ demand, orbital uplink.
+  - **Secondary Habitat Pod:** Inflatable pressurized shelter.
+* Live Outpost Power Grid telemetry displays real-time generation, consumption, and battery storage.
+
+### 3. Active Roaming Martian Dust Devils (`src/game/environment/DustDevils.ts`)
+* 3 autonomous dust devil vortices traverse the Jezero Crater floor.
+* Towering columns of swirling, glowing red sand particles.
+* Walking or driving into a dust devil triggers authentic howling wind audio and dense dust scattering.
+
+### 4. Multi-Mission Research Campaign & Live Telemetry Tracking (`src/data/missions.ts`)
+* **Mission 01:** *Investigate a Martian Geological Outcrop* (Hike to Delta Scarp, scan ancient clay mudstone, record Sample #MB-01, return to base).
+* **Mission 02:** *Kodiak Butte Long-Distance Rover Expedition* (Board rover, drive south to Kodiak Butte, survey dipping Gilbert delta strata).
+* **Mission 03:** *Expand Outpost Infrastructure & Power Grid* (Enter build mode with [B] and deploy auxiliary power to exceed $4,800\text{ W}$).
+* **Live HUD Objective Tracker:** Displays current active mission step and real-time distance and cardinal direction to the target waypoint (e.g. `TARGET: 42m [NW]`).
+* **Visual Mission Completion Toast:** Pops up on-screen banner with audio chime when any objective is fulfilled.
+
+### 5. Next-Level Tactical GIS Map & Live Radar HUD
+* **Real-Time Circular Radar Mini-Map (`src/components/ui/MiniMap.tsx`):**
+  - Integrated directly into your exploration HUD under the compass.
+  - Features dynamic 360° radar sweep animation, concentric distance range rings (80m, 160m, 320m), base perimeter indicator, and live blips for all 15 discovery sites.
+  - Displays rover position, active mission objective waypoint, and custom navigation pins with distance vectors.
+  - Can be zoomed, minimized, or expanded to full screen anytime.
+* **Interactive Pan & Smooth Zoom Engine (`src/components/panels/TacticalMapModal.tsx`):**
+  - Smooth hardware-accelerated SVG zooming from $1.0\times$ to $4.0\times$ via mouse wheel or zoom buttons.
+  - Click and drag to pan anywhere across the $500\text{ m} \times 500\text{ m}$ Jezero Crater delta quadrant.
+  - Instant **"Recenter on Player"** and **"Reset Zoom"** controls.
+* **Custom Navigation Waypoint Pinning (`SET PIN`):**
+  - Click anywhere on the map to plant an interactive navigation beacon.
+  - Calculates real-time Areoid coordinates ($18.xxxx^\circ\text{N}, 77.xxxx^\circ\text{E}$), ground distance, and draws a glowing magenta vector line.
+  - Live HUD pin tracker guides your steps in real-time.
+* **Traverse Measurement Ruler (`MEASURE`):**
+  - Click two points on Mars to measure straight-line distance, estimated EVA walking time, suit oxygen cost, and Rover transit time.
+* **5 Scientific GIS Heatmap Layers:**
+  - **HiRISE Surface Ortho:** True-color visible light satellite imagery with crater morphology and dune ripples.
+  - **MOLA Elevation Heatmap:** Color-graded topographic relief with contour isobars from $-2,580\text{ m}$ to $-2,400\text{ m}$.
+  - **CRISM Hyperspectral Mineralogy:** Phyllosilicate clays (smectites), carbonates, olivine cumulates, and hydrated sulfates.
+  - **THEMIS Thermal Inertia:** Surface trafficability, rock abundance, and loose drift sand hazards.
+  - **Slope Hazard Safety:** Slope risk gradient (Green $<5^\circ$, Yellow $5^\circ-15^\circ$, Red $>15^\circ$ steep cliffs).
+* **Live GPS Breadcrumb Trail & Outpost Base Overlay:**
+  - Automatically records and plots the astronaut's and rover's historical path since landing.
+  - Renders all constructed Outpost structures (Solar Arrays, Batteries, Labs, Dishes, Habitats) at their exact coordinates.
+* **Interactive POI Inspector Drawer:**
+  - Clicking any discovery opens a quick-inspection drawer with geological summary, distance, elevation, and one-click **"NAVIGATE HERE"** to set as active waypoint.
+
+### 6. Expanded NASA Scientific Discoveries (15 Authentic Sites)
+1. **Octavia E. Butler Landing Site** (Sol 0, Perseverance & Ingenuity touchdown)
+2. **Wright Brothers Field** (Sol 59, Ingenuity first atmospheric flight on another planet)
+3. **Delta Scarp — Hawkes Bay Outcrop** (Sol 414, ancient smectite clays preserving biosignatures)
+4. **Hogwallow Flats** (Sol 498, organic-bearing mudstones with sulfate veins)
+5. **Three Forks Sample Depot** (Sol 682, humanity's first sample repository on Mars)
+6. **Kodiak Butte** (Sol 55, Gilbert delta strata proving Jezero held an open paleolake)
+7. **Séítah Dune Field & Olivine Cumulate** (Sol 260, ancient ultramafic igneous basement)
+8. **Skrinkle Haven** (Sol 721, violent torrential river flood conglomerates)
+9. **Belva Impact Crater** (Sol 800, 1km crater excavating deep delta stratigraphy)
+10. **Neretva Vallis River Gorge** (Sol 1175, colossal river inflow breach)
+11. **Cheyava Falls** (Sol 1215, July 2024 "leopard spots" potential biosignature candidate)
+12. **Castell Henllys** (Sol 1061, Jezero crater margin carbonate "bathtub ring")
+13. **Mount Washburn & Atoko Point** (Sol 1162, exotic white anorthosite crust boulder)
+14. **Berea Outcrop** (Sol 749, delta-top siltstone with magnesium carbonate & silica)
+15. **Yori Pass** (Sol 623, cross-bedded sandstone slabs at river mouth)
+
+---
+
+## 📚 NASA Data & Challenge References
+- **NASA Space Apps Challenge:** [Interplanetary Survival Guide: Martian Map](https://www.spaceappschallenge.org/2026/challenges/interplanetary-survival-guide-martian-map/?tab=resources)
+- **NASA Mars Trek (JPL):** [https://trek.nasa.gov/mars/](https://trek.nasa.gov/mars/)
+- **HiRISE (University of Arizona):** [https://www.uahirise.org/](https://www.uahirise.org/)
+- **NASA Planetary Data System (PDS):** [https://pds-geosciences.wustl.edu/](https://pds-geosciences.wustl.edu/)
+- **Perseverance Mars 2020 Mission:** [https://mars.nasa.gov/mars2020/](https://mars.nasa.gov/mars2020/)
