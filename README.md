@@ -126,6 +126,26 @@ Click **"COMMENCE EXPEDITION"** on the introductory screen, then click anywhere 
 14. **Berea Outcrop** (Sol 749, delta-top siltstone with magnesium carbonate & silica)
 15. **Yori Pass** (Sol 623, cross-bedded sandstone slabs at river mouth)
 
+### 7. Photorealistic 3D World Realism & Iconic NASA Landmarks
+* **Procedural PBR Terrain Textures (`src/game/terrain/JezeroTerrain.ts`):** High-frequency normal and roughness maps capturing eolian sand ripples (15° prevailing wind tilt), pebble gravel, and cracked regolith crust with ACES Filmic tone mapping.
+* **360° Distant Crater Rim Mountain Wall:** Enclosing geological rim mountains ($r = 310\text{m} - 850\text{m}$, peaks up to $110\text{m}$) featuring atmospheric distance haze and the historic **Neretva Vallis Gorge** river breach.
+* **Authentic Martian Blue Sunsets (`src/game/environment/MarsAtmosphere.ts`):** Forward Mie scattering by iron oxide atmospheric dust causes the sun halo to turn from warm cream to vibrant cyan-blue (`#38bdf8`) as it nears the horizon, matching real NASA Curiosity and Perseverance sunset photos.
+* **Deep Space Night Sky with Earth as the Evening Star:** Over 2,800 stars with spectral color temperatures, Milky Way galactic plane band, and Earth shining brightly as the Evening Star with its companion Moon.
+* **Procedural 3D NASA Landmarks (`src/game/environment/NasaLandmarks.ts`):**
+  - **Ingenuity Mars Helicopter:** Solar panel, avionics box, 4 carbon fiber landing legs, and animated coaxial counter-rotating blades.
+  - **Three Forks Sample Depot:** 10 dropped titanium sample tubes scattered across the delta apron.
+  - **Cheyava Falls Outcrop:** Layered mudstone with white calcium sulfate veins, dark iron-phosphate leopard spots, and a core drill hole.
+  - **Atoko Point Boulder:** Anorthosite crystalline white boulder on Mount Washburn.
+  - **Sky Crane Blast Ring:** Scorched touchdown zone at Octavia E. Butler Landing.
+* **Regolith Dust Dynamics & EVA Helmet Visor:**
+  - Low-gravity boot regolith dust puffs on footsteps and radial impact bursts upon low-gravity jump landings.
+  - Rover wheel dust plumes kicked up behind all 6 wheels when accelerating across the terrain.
+  - Astronaut EMU helmet visor glass reflection and gold UV protection film brow glare overlay.
+* **Clean Collision-Free Tactical GIS Map:**
+  - Removed messy overlapping labels across base modules and discoveries.
+  - Smart hover-only badges: hovering over any pin or base module displays its sleek, high-contrast name pill without colliding with neighbors.
+  - Enlarged hitboxes ($r = 4.5 - 5.5$) make locating, inspecting, and clicking effortless.
+
 ---
 
 ## 📚 NASA Data & Challenge References

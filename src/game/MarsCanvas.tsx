@@ -2,7 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { JezeroTerrain } from './terrain/JezeroTerrain';
 import { MarsAtmosphere } from './environment/MarsAtmosphere';
+import { NasaLandmarks } from './environment/NasaLandmarks';
 import { OutpostManager } from './outpost/OutpostManager';
+import { MarsLibraryBuilding } from './environment/MarsLibraryBuilding';
+import { BuildingCollisionSystem } from './environment/BuildingCollisionSystem';
 import { AstronautController } from './player/AstronautController';
 import { ScannerSystem } from './player/ScannerBeam';
 import { MarsRover } from './rover/MarsRover';
@@ -30,6 +33,8 @@ export interface GameTelemetry {
   roverSpeedKmh: number;
   roverBattery: number;
   isNearRover: boolean;
+  isNearLibrary: boolean;
+  libraryDistance: number;
   isBuildModeActive: boolean;
   isValidBuildPlacement: boolean;
   isFlashlightOn: boolean;
@@ -56,6 +61,7 @@ interface MarsCanvasProps {
   selectedBuildType: OutpostStructureType;
   buildRotateSignal: number;
   onStructurePlaced: (structure: OutpostStructure) => void;
+  onOpenLibrary?: () => void;
   roverMountSignal: number;
   flashlightSignal?: number;
   savedStructures?: OutpostStructure[];
@@ -72,6 +78,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   selectedBuildType,
   buildRotateSignal,
   onStructurePlaced,
+  onOpenLibrary,
   roverMountSignal,
   flashlightSignal = 0,
   savedStructures
@@ -82,6 +89,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   const roverRef = useRef<MarsRover | null>(null);
   const buildSystemRef = useRef<BuildModeSystem | null>(null);
   const outpostRef = useRef<OutpostManager | null>(null);
+  const libraryRef = useRef<MarsLibraryBuilding | null>(null);
   const isFlashlightOnRef = useRef<boolean>(true); // Flashlight active by default for clear night visibility
 
   // Keep references to dynamic props to avoid tearing down Three.js on every re-render
@@ -90,6 +98,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     onOpenDiscovery,
     onPointerLockChange,
     onStructurePlaced,
+    onOpenLibrary,
     isPaused,
     isBuildMode,
     selectedBuildType
@@ -101,10 +110,19 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
       onOpenDiscovery,
       onPointerLockChange,
       onStructurePlaced,
+      onOpenLibrary,
       isPaused,
       isBuildMode,
       selectedBuildType
     };
+
+    if (controllerRef.current) {
+      controllerRef.current.isPaused = isPaused;
+      if (isPaused) {
+        controllerRef.current.unlockPointer();
+        controllerRef.current.resetInputs();
+      }
+    }
 
     if (buildSystemRef.current) {
       if (isBuildMode) {
@@ -238,10 +256,19 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     const terrain = new JezeroTerrain({ size: 600, segments: 120 });
     scene.add(terrain.mesh);
     scene.add(terrain.rocksMesh);
+    scene.add(terrain.craterRimMesh);
+
+    const collisionSystem = new BuildingCollisionSystem(terrain);
 
     const atmosphere = new MarsAtmosphere(scene);
+    const landmarks = new NasaLandmarks(scene, terrain);
     const outpost = new OutpostManager(scene, terrain, savedStructures);
     outpostRef.current = outpost;
+    collisionSystem.registerOutpost(outpost);
+
+    const libraryBuilding = new MarsLibraryBuilding(scene, terrain, { x: 26, z: -26 });
+    libraryRef.current = libraryBuilding;
+    collisionSystem.registerLibrary(libraryBuilding);
 
     const rover = new MarsRover(scene, terrain, { x: -8, z: 18 });
     roverRef.current = rover;
@@ -249,7 +276,9 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     const dustDevils = new DustDevilSystem(scene);
 
     const controller = new AstronautController(camera, renderer.domElement, { x: 0, z: 12 });
+    controller.collisionSystem = collisionSystem;
     controllerRef.current = controller;
+    scene.add(controller.dustParticlesMesh);
     if (controllerRefOut) {
       controllerRefOut.current = controller;
     }
@@ -276,17 +305,29 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
       controller.isLocked = locked;
       propsRef.current.onPointerLockChange(locked);
     };
+    const onLockError = () => {
+      controller.isLocked = false;
+      propsRef.current.onPointerLockChange(false);
+    };
     document.addEventListener('pointerlockchange', onLockChange);
+    document.addEventListener('pointerlockerror', onLockError);
 
     // Direct click on canvas to lock pointer or place building
     const onCanvasClick = () => {
+      if (propsRef.current.isPaused) return;
+
       if (propsRef.current.isBuildMode && buildSystem.isActive) {
         const placed = buildSystem.placeCurrentStructure();
         if (placed) {
           propsRef.current.onStructurePlaced(placed);
         }
       } else {
-        controller.lockPointer();
+        const distToLib = libraryBuilding.distanceTo({ x: controller.position.x, z: controller.position.z });
+        if (distToLib <= libraryBuilding.interactionRadius) {
+          propsRef.current.onOpenLibrary?.();
+        } else {
+          controller.lockPointer();
+        }
       }
     };
     renderer.domElement.addEventListener('click', onCanvasClick);
@@ -327,7 +368,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
             brake: !controller.isGrounded // Space key
           };
 
-          rover.update(delta, terrain, roverInputs);
+          rover.update(delta, terrain, roverInputs, collisionSystem);
           audioService.updateRoverEngine(Math.abs(rover.velocity) / rover.maxSpeed, true);
 
           // Position 3rd-person camera following the rover
@@ -359,8 +400,8 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           helmetSpotlightTarget.position.copy(camera.position).add(forwardDir.multiplyScalar(30));
 
           audioService.updateRoverEngine(0, false);
-          rover.update(delta, terrain, { forward: false, backward: false, left: false, right: false, brake: true });
-          controller.update(delta, terrain);
+          rover.update(delta, terrain, { forward: false, backward: false, left: false, right: false, brake: true }, collisionSystem);
+          controller.update(delta, terrain, collisionSystem);
 
           // Resource consumption / recharge logic
           const inSafeZone = outpost.isInSafeZone(controller.position.x, controller.position.z);
@@ -384,8 +425,10 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
         }
 
         // Update environment & systems
-        atmosphere.update(now * 0.001, scene);
+        atmosphere.update(now * 0.001, scene, camera);
+        landmarks.update(now * 0.001);
         outpost.update(now * 0.001);
+        libraryBuilding.update(delta);
         scanner.update(delta, now * 0.001);
         dustDevils.update(delta, terrain, { x: controller.position.x, z: controller.position.z });
 
@@ -433,6 +476,8 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
 
         const coords = CoordinateService.localToMars(activeX, activeY, activeZ);
         const distToRover = rover.distanceTo({ x: controller.position.x, z: controller.position.z });
+        const distToLib = libraryBuilding.distanceTo({ x: activeX, z: activeZ });
+        const isNearLib = distToLib <= libraryBuilding.interactionRadius;
 
         propsRef.current.onTelemetryUpdate({
           position: { x: activeX, y: activeY, z: activeZ },
@@ -443,12 +488,14 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           suit: { ...suitState.current },
           environment: { ...envConditions.current },
           solTime: { ...solTimeState.current },
-          isPointerLocked: controller.isLocked || document.pointerLockElement === renderer.domElement,
+          isPointerLocked: document.pointerLockElement === renderer.domElement,
           isNearBoundary: controller.isNearBoundary,
           isDrivingRover: rover.isOccupied,
           roverSpeedKmh: rover.getSpeedKmh(),
           roverBattery: rover.battery,
           isNearRover: distToRover < 6.5,
+          isNearLibrary: isNearLib,
+          libraryDistance: Math.round(distToLib * 10) / 10,
           isBuildModeActive: buildSystem.isActive,
           isValidBuildPlacement: buildSystem.isValidPlacement,
           isFlashlightOn: isFlashlightOnRef.current,
@@ -472,6 +519,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     return () => {
       cancelAnimationFrame(animFrameId);
       document.removeEventListener('pointerlockchange', onLockChange);
+      document.removeEventListener('pointerlockerror', onLockError);
       renderer.domElement.removeEventListener('click', onCanvasClick);
       window.removeEventListener('resize', onResize);
       audioService.updateRoverEngine(0, false);

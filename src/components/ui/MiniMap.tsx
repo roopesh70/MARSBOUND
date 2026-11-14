@@ -220,6 +220,36 @@ export const MiniMap: React.FC<MiniMapProps> = ({
             );
           })}
 
+          {/* Mars Archival Library Building Blip */}
+          {(() => {
+            const libPos = toRadarPos(26, -26);
+            return (
+              <g key="mini_mars_library">
+                <title>MARS ARCHIVAL LIBRARY & RESEARCH FACILITY ({libPos.distanceMeters}m away)</title>
+                <circle
+                  cx={libPos.x}
+                  cy={libPos.y}
+                  r="3.5"
+                  fill="#38bdf8"
+                  stroke="#ffffff"
+                  strokeWidth="0.8"
+                />
+                {!libPos.isClamped && (
+                  <text
+                    x={libPos.x + 4.5}
+                    y={libPos.y + 2.5}
+                    fill="#38bdf8"
+                    fontSize="7"
+                    fontFamily="monospace"
+                    fontWeight="bold"
+                  >
+                    LIB
+                  </text>
+                )}
+              </g>
+            );
+          })()}
+
           {/* POI Blips */}
           {JEZERO_DISCOVERIES.map((poi) => {
             const pos = toRadarPos(poi.worldPosition.x, poi.worldPosition.z);

@@ -8,6 +8,7 @@ import { JournalPanel } from './components/panels/JournalPanel';
 import { ProvenanceRegistryModal } from './components/panels/ProvenanceRegistryModal';
 import { SettingsModal } from './components/panels/SettingsModal';
 import { OutpostBuildModal } from './components/panels/OutpostBuildModal';
+import { MarsLibraryModal } from './components/panels/MarsLibraryModal';
 import { LandingIntro } from './components/intro/LandingIntro';
 import { JEZERO_DISCOVERIES } from './data/discoveries';
 import { ALL_MISSIONS } from './data/missions';
@@ -19,7 +20,7 @@ import { StorageService } from './services/storageService';
 import { audioService } from './services/audioService';
 import { CheckCircle2 } from 'lucide-react';
 
-type ActiveModal = 'none' | 'intro' | 'map' | 'discovery' | 'mission' | 'journal' | 'provenance' | 'settings';
+type ActiveModal = 'none' | 'intro' | 'map' | 'discovery' | 'mission' | 'journal' | 'provenance' | 'settings' | 'library';
 
 export const App: React.FC = () => {
   const [activeModal, setActiveModal] = useState<ActiveModal>('intro');
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
   const [customWaypoint, setCustomWaypoint] = useState<{ x: number; z: number; label?: string } | null>(null);
   const [gpsTrail, setGpsTrail] = useState<{ x: number; z: number; isRover: boolean }[]>([]);
   const [isMuted, setIsMuted] = useState(false);
+  const [isPointerLocked, setIsPointerLocked] = useState(false);
   const controllerRef = useRef<AstronautController | null>(null);
 
   // Build mode states
@@ -110,10 +112,24 @@ export const App: React.FC = () => {
     setFlashlightSignal((prev) => prev + 1);
   }, []);
 
-  const closeActiveModal = useCallback(() => {
+  // Automatically release pointer lock and reset inputs whenever a menu/modal is open or build mode is active
+  useEffect(() => {
+    if (activeModal !== 'none' || isBuildMode) {
+      controllerRef.current?.unlockPointer();
+      controllerRef.current?.resetInputs();
+      setIsPointerLocked(false);
+    }
+  }, [activeModal, isBuildMode]);
+
+  const closeActiveModal = useCallback((lockPointer = false) => {
     setActiveModal('none');
     audioService.playClick();
-    controllerRef.current?.lockPointer();
+    if (lockPointer) {
+      controllerRef.current?.lockPointer();
+    } else {
+      controllerRef.current?.unlockPointer();
+      setIsPointerLocked(false);
+    }
   }, []);
 
   const handleToggleMap = useCallback(() => {
@@ -133,7 +149,19 @@ export const App: React.FC = () => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       switch (e.code) {
+        // Mars Archival Library Toggle [L]: press L to open or close!
         case 'KeyL':
+          if (!isBuildMode) {
+            if (activeModal === 'library') {
+              closeActiveModal(false);
+            } else if (activeModal === 'none') {
+              setActiveModal('library');
+              audioService.playClick();
+            }
+          }
+          break;
+
+        // Flashlight / Torch Toggle [T]
         case 'KeyT':
           handleToggleLight();
           break;
@@ -142,7 +170,7 @@ export const App: React.FC = () => {
         case 'KeyM':
           if (!isBuildMode) {
             if (activeModal === 'map') {
-              closeActiveModal();
+              closeActiveModal(false);
             } else if (activeModal === 'none') {
               handleToggleMap();
             }
@@ -153,7 +181,7 @@ export const App: React.FC = () => {
         case 'KeyJ':
           if (!isBuildMode) {
             if (activeModal === 'journal') {
-              closeActiveModal();
+              closeActiveModal(false);
             } else if (activeModal === 'none') {
               setActiveModal('journal');
               audioService.playClick();
@@ -165,7 +193,7 @@ export const App: React.FC = () => {
         case 'KeyO':
           if (!isBuildMode) {
             if (activeModal === 'mission') {
-              closeActiveModal();
+              closeActiveModal(false);
             } else if (activeModal === 'none') {
               setActiveModal('mission');
               audioService.playClick();
@@ -181,10 +209,15 @@ export const App: React.FC = () => {
           }
           break;
 
-        // Rover Mount/Dismount [E]
+        // Rover Mount/Dismount [E] or Enter Nearby Library
         case 'KeyE':
           if (activeModal === 'none' && !isBuildMode) {
-            setRoverSignal((prev) => prev + 1);
+            if (telemetry?.isNearLibrary) {
+              setActiveModal('library');
+              audioService.playClick();
+            } else {
+              setRoverSignal((prev) => prev + 1);
+            }
           }
           break;
 
@@ -193,7 +226,7 @@ export const App: React.FC = () => {
           if (isBuildMode) {
             setBuildRotateSignal((prev) => prev + 1);
           } else if (activeModal === 'provenance') {
-            closeActiveModal();
+            closeActiveModal(false);
           } else if (activeModal === 'none') {
             setActiveModal('provenance');
             audioService.playClick();
@@ -203,21 +236,44 @@ export const App: React.FC = () => {
         // Spectrometer Scanner / Discovery Scan Toggle [F]: press F to scan, or press F to close discovery modal!
         case 'KeyF':
           if (activeModal === 'discovery') {
-            closeActiveModal();
+            closeActiveModal(false);
           } else if (activeModal === 'none' && !isBuildMode) {
             setScanSignal((prev) => prev + 1);
           }
           break;
 
-        // Universal Close Keys: Escape, C, or X immediately closes whatever panel or modal is open!
+        // Universal Close Keys & Mouse Unlock: Escape, Alt, C, or X
         case 'Escape':
+        case 'AltLeft':
+        case 'AltRight':
+          if (e.code.startsWith('Alt')) {
+            e.preventDefault();
+          }
+          if (isBuildMode) {
+            setIsBuildMode(false);
+            audioService.playClick();
+          } else if (activeModal !== 'none' && activeModal !== 'intro') {
+            closeActiveModal(false);
+          } else if (activeModal === 'none') {
+            // In active gameplay: reliably toggle/unlock mouse pointer
+            if (document.pointerLockElement) {
+              controllerRef.current?.unlockPointer();
+              setIsPointerLocked(false);
+              audioService.playClick();
+            } else if (e.code.startsWith('Alt')) {
+              controllerRef.current?.lockPointer();
+              audioService.playClick();
+            }
+          }
+          break;
+
         case 'KeyC':
         case 'KeyX':
           if (isBuildMode) {
             setIsBuildMode(false);
             audioService.playClick();
           } else if (activeModal !== 'none' && activeModal !== 'intro') {
-            closeActiveModal();
+            closeActiveModal(false);
           }
           break;
       }
@@ -379,9 +435,16 @@ export const App: React.FC = () => {
       <MarsCanvas
         onTelemetryUpdate={handleTelemetryUpdate}
         onOpenDiscovery={handleOpenDiscovery}
+        onOpenLibrary={() => {
+          setActiveModal('library');
+          audioService.playClick();
+        }}
         isPaused={activeModal !== 'none'}
         activeScanSignal={scanSignal}
-        onPointerLockChange={() => {}}
+        onPointerLockChange={(locked) => {
+          setIsPointerLocked(locked);
+          setTelemetry((prev) => (prev ? { ...prev, isPointerLocked: locked } : null));
+        }}
         controllerRefOut={controllerRef}
         isBuildMode={isBuildMode}
         selectedBuildType={selectedBuildType}
@@ -396,6 +459,7 @@ export const App: React.FC = () => {
       {activeModal === 'none' && !isBuildMode && (
         <HUD
           telemetry={telemetry}
+          isPointerLocked={isPointerLocked}
           mission={activeMission}
           onOpenMap={handleOpenMap}
           onOpenMission={() => {
@@ -410,6 +474,10 @@ export const App: React.FC = () => {
             audioService.playClick();
             setActiveModal('provenance');
           }}
+          onOpenLibrary={() => {
+            audioService.playClick();
+            setActiveModal('library');
+          }}
           onOpenSettings={() => {
             audioService.playClick();
             setActiveModal('settings');
@@ -417,6 +485,10 @@ export const App: React.FC = () => {
           onScan={() => setScanSignal((prev) => prev + 1)}
           onRequestPointerLock={() => {
             controllerRef.current?.lockPointer();
+          }}
+          onUnlockPointer={() => {
+            controllerRef.current?.unlockPointer();
+            setIsPointerLocked(false);
           }}
           onToggleBuildMode={() => {
             setIsBuildMode(true);
@@ -523,6 +595,12 @@ export const App: React.FC = () => {
       {/* NASA Open Data & Provenance Registry */}
       <ProvenanceRegistryModal
         isOpen={activeModal === 'provenance'}
+        onClose={closeActiveModal}
+      />
+
+      {/* NASA Mars Archival Library & Research Facility */}
+      <MarsLibraryModal
+        isOpen={activeModal === 'library'}
         onClose={closeActiveModal}
       />
 

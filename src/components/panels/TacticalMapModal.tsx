@@ -88,6 +88,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
 
   // Hover state for interactive name badge & highlighted pin
   const [hoveredPoi, setHoveredPoi] = useState<DiscoveryRecord | null>(null);
+  const [hoveredStructureId, setHoveredStructureId] = useState<string | null>(null);
 
   // Right sidebar tab: 'layers' | 'discoveries'
   const [sidebarTab, setSidebarTab] = useState<'layers' | 'discoveries'>('layers');
@@ -440,11 +441,44 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   </g>
                 )}
 
-                {/* Placed Outpost Base Structures */}
+                {/* Permanent Mars Archival Library Facility Landmark */}
+                {showOutpostGrid && (
+                  <g
+                    transform={`translate(${toSvgX(26)}, ${toSvgY(-26)})`}
+                    className="cursor-pointer"
+                  >
+                    <title>MARS ARCHIVAL LIBRARY & RESEARCH REPOSITORY (NASA OPEN DATA)</title>
+                    <circle
+                      r="2.5"
+                      fill="#0284c7"
+                      stroke="#38bdf8"
+                      strokeWidth="0.8"
+                    />
+                    <circle
+                      r="4.5"
+                      fill="none"
+                      stroke="#38bdf8"
+                      strokeWidth="0.4"
+                      strokeDasharray="1 1"
+                    />
+                    <text
+                      y="-3.5"
+                      fill="#38bdf8"
+                      fontSize="2.0"
+                      fontFamily="monospace"
+                      textAnchor="middle"
+                      fontWeight="bold"
+                    >
+                      ★ MARS LIBRARY
+                    </text>
+                  </g>
+                )}
+
+                {/* Placed Outpost Base Structures (Clean Hover-Only Badges to Prevent Overlaps) */}
                 {showOutpostGrid && structures.map((s) => {
                   const sx = toSvgX(s.position.x);
                   const sy = toSvgY(s.position.z);
-                  const showStructLabel = zoom >= 2.0;
+                  const isHovered = hoveredStructureId === s.id;
 
                   // Distinct colors based on structure type:
                   // Solar = Amber, Battery = Cyan, Comms = Purple, Lab = Rose, Hab = Emerald
@@ -455,33 +489,51 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                     s.type === 'science_lab' ? '#ec4899' :
                     '#10b981'; // habitat_core
 
+                  const badgeText = s.name;
+                  const labelWidth = Math.max(16, badgeText.length * 1.45 + 3.5);
+
                   return (
-                    <g key={s.id} transform={`translate(${sx}, ${sy})`} className="cursor-pointer">
-                      <title>{s.name} ({s.type.replace('_', ' ').toUpperCase()})</title>
-                      <circle cx="0" cy="0" r="1.6" fill={structColor} stroke="#ffffff" strokeWidth="0.35" />
+                    <g
+                      key={s.id}
+                      transform={`translate(${sx}, ${sy})`}
+                      className="cursor-pointer"
+                      onMouseEnter={() => setHoveredStructureId(s.id)}
+                      onMouseLeave={() => setHoveredStructureId(null)}
+                    >
+                      {/* Generous hit area for effortless hover */}
+                      <circle cx="0" cy="0" r="4.5" fill="transparent" />
+                      <circle
+                        cx="0"
+                        cy="0"
+                        r={isHovered ? 2.4 : 1.6}
+                        fill={structColor}
+                        stroke="#ffffff"
+                        strokeWidth={isHovered ? 0.6 : 0.35}
+                        className={isHovered ? 'animate-pulse' : ''}
+                      />
                       <circle cx="0" cy="0" r="0.6" fill="#ffffff" />
-                      {showStructLabel && (
-                        <g pointerEvents="none">
+                      {isHovered && (
+                        <g pointerEvents="none" className="transition-all duration-150">
                           <rect
-                            x="-10"
-                            y="2.2"
-                            width="20"
-                            height="3.2"
-                            rx="0.9"
-                            fill="rgba(6, 10, 18, 0.92)"
+                            x={-labelWidth / 2}
+                            y="-6.2"
+                            width={labelWidth}
+                            height="3.6"
+                            rx="1.1"
+                            fill="rgba(6, 10, 18, 0.96)"
                             stroke={structColor}
-                            strokeWidth="0.25"
+                            strokeWidth="0.35"
                           />
                           <text
                             x="0"
-                            y="4.3"
+                            y="-3.8"
                             fill="#ffffff"
-                            fontSize="1.7"
+                            fontSize="1.8"
                             fontFamily="monospace"
                             textAnchor="middle"
                             fontWeight="bold"
                           >
-                            {s.name.split(' ')[0]}
+                            {badgeText}
                           </text>
                         </g>
                       )}
@@ -596,8 +648,8 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   const isHovered = hoveredPoi?.id === poi.id;
                   const shortName = poi.name.split(' (')[0].split(' — ')[0];
                   
-                  // Label pill is shown when hovered, inspected, active mission target, or zoomed in (zoom >= 2.3)
-                  const showLabel = isHovered || isInspected || isTarget || zoom >= 2.3;
+                  // Label pill is shown when hovered, inspected, or active mission target (prevents clutter & overlaps)
+                  const showLabel = isHovered || isInspected || isTarget;
                   const labelWidth = Math.max(14, shortName.length * 1.45 + 3.5);
 
                   return (

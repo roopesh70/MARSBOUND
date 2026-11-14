@@ -21,7 +21,9 @@ import {
   Gauge,
   Battery,
   Lightbulb,
-  MapPin
+  MapPin,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 interface HUDProps {
@@ -31,9 +33,12 @@ interface HUDProps {
   onOpenMission: () => void;
   onOpenJournal: () => void;
   onOpenProvenance: () => void;
+  onOpenLibrary?: () => void;
   onOpenSettings: () => void;
   onScan: () => void;
   onRequestPointerLock: () => void;
+  onUnlockPointer?: () => void;
+  isPointerLocked?: boolean;
   onToggleBuildMode: () => void;
   onToggleRover: () => void;
   onToggleLight?: () => void;
@@ -49,9 +54,12 @@ export const HUD: React.FC<HUDProps> = ({
   onOpenMission,
   onOpenJournal,
   onOpenProvenance,
+  onOpenLibrary,
   onOpenSettings,
   onScan,
   onRequestPointerLock,
+  onUnlockPointer,
+  isPointerLocked,
   onToggleBuildMode,
   onToggleRover,
   onToggleLight,
@@ -60,6 +68,8 @@ export const HUD: React.FC<HUDProps> = ({
   onClearCustomWaypoint
 }) => {
   if (!telemetry) return null;
+
+  const effectiveIsLocked = isPointerLocked ?? telemetry.isPointerLocked;
 
   const currentObjective = mission.objectives[mission.currentObjectiveIndex];
   const targetPoi = currentObjective?.targetDiscoveryId
@@ -89,6 +99,43 @@ export const HUD: React.FC<HUDProps> = ({
 
   return (
     <div className="absolute inset-0 pointer-events-none select-none flex flex-col justify-between p-4 md:p-6 overflow-hidden">
+      {/* 1. Immersive EVA Astronaut Helmet Visor Glass & Gold UV Glare (or Rover Cockpit Canopy) */}
+      {!telemetry.isDrivingRover ? (
+        <div className="absolute inset-0 pointer-events-none z-0">
+          {/* Outer Curved Helmet Bezel Vignette */}
+          <div
+            className="absolute inset-0 opacity-35"
+            style={{
+              background: 'radial-gradient(ellipse 110% 88% at 50% 50%, transparent 68%, rgba(6, 4, 3, 0.45) 88%, rgba(3, 2, 2, 0.85) 100%)'
+            }}
+          />
+          {/* Polycarbonate Gold UV Protection Reflection Rim at Upper Brow */}
+          <div
+            className="absolute top-0 left-0 right-0 h-28 opacity-25"
+            style={{
+              background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.08) 60%, transparent 100%)'
+            }}
+          />
+          {/* Subtle Curved Visor Optical Contour Highlights */}
+          <svg className="absolute inset-0 w-full h-full opacity-15" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <path d="M 5,2 C 30,8 70,8 95,2" fill="none" stroke="#fbbf24" strokeWidth="0.35" />
+            <path d="M 10,98 C 30,94 70,94 90,98" fill="none" stroke="#60a5fa" strokeWidth="0.25" opacity="0.6" />
+          </svg>
+        </div>
+      ) : (
+        <div className="absolute inset-0 pointer-events-none z-0">
+          {/* Rover Reinforced Cockpit Windshield Tint & Pillar Frame Vignette */}
+          <div
+            className="absolute inset-0 opacity-25"
+            style={{
+              background: 'radial-gradient(ellipse 120% 95% at 50% 50%, transparent 75%, rgba(15, 23, 42, 0.5) 95%, rgba(2, 6, 23, 0.85) 100%)'
+            }}
+          />
+          {/* Upper Windshield Tint Strip */}
+          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-cyan-950/20 to-transparent opacity-40" />
+        </div>
+      )}
+
       {/* Top Bar: Compass, Time & Coordinates */}
       <div className="flex items-start justify-between w-full pointer-events-auto">
         <div className="space-y-2">
@@ -197,6 +244,27 @@ export const HUD: React.FC<HUDProps> = ({
         </div>
       </div>
 
+      {/* Mars Archival Library Proximity Prompt */}
+      {telemetry.isNearLibrary && !telemetry.isDrivingRover && (
+        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-3 bg-slate-950/95 border-2 border-cyan-400 text-cyan-200 px-6 py-3.5 rounded-2xl shadow-[0_0_35px_rgba(56,189,248,0.4)] backdrop-blur-md animate-pulse pointer-events-auto">
+          <BookOpen className="w-5 h-5 text-cyan-400 shrink-0" />
+          <div className="font-mono text-xs">
+            <span className="font-bold text-white block">MARS ARCHIVAL LIBRARY & REPOSITORY</span>
+            <span className="text-cyan-300">
+              Press <span className="bg-cyan-900/90 text-white px-2 py-0.5 rounded border border-cyan-400 font-bold">[L]</span> or <span className="bg-cyan-900/90 text-white px-2 py-0.5 rounded border border-cyan-400 font-bold">[E]</span> or click to enter
+            </span>
+          </div>
+          {onOpenLibrary && (
+            <button
+              onClick={onOpenLibrary}
+              className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
+            >
+              ENTER
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Center Reticle & Targeting Scanner (hidden when driving rover for clear view) */}
       {!telemetry.isDrivingRover && (
         <ScannerReticle
@@ -208,7 +276,7 @@ export const HUD: React.FC<HUDProps> = ({
       )}
 
       {/* Pointer Lock Help Banner if mouse unlocked */}
-      {!telemetry.isPointerLocked && (
+      {!effectiveIsLocked && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto text-center space-y-2">
           <button
             onClick={onRequestPointerLock}
@@ -218,7 +286,7 @@ export const HUD: React.FC<HUDProps> = ({
             <span>CLICK TO LOCK MOUSE LOOK (OR DRAG TO LOOK)</span>
           </button>
           <div className="text-[11px] font-mono text-mars-dust/80 bg-black/60 px-3 py-1 rounded-lg border border-mars-border inline-block">
-            Use [W, A, S, D] to walk/drive • [Space] to Hop • [Shift] to Sprint • [B] to Build
+            Use [W, A, S, D] to walk/drive • [Space] to Hop • [Shift] to Sprint • [Esc] or [Alt] to Unlock Mouse • [B] to Build
           </div>
         </div>
       )}
@@ -248,6 +316,9 @@ export const HUD: React.FC<HUDProps> = ({
               SPACE
             </span>
             <span className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${telemetry.isFlashlightOn ? 'bg-amber-500 text-black border-amber-300' : 'bg-mars-surface border-mars-border text-mars-sand'}`}>
+              T
+            </span>
+            <span className="px-1.5 py-0.5 rounded border text-[10px] font-bold bg-cyan-950 border-cyan-500 text-cyan-300">
               L
             </span>
           </div>
@@ -255,8 +326,17 @@ export const HUD: React.FC<HUDProps> = ({
           {/* Navigation Hotbar */}
           <div className="flex items-center space-x-2 bg-black/70 backdrop-blur-md p-1.5 rounded-xl border border-mars-border/80 text-xs font-mono shadow-2xl">
             <button
+              onClick={onOpenLibrary}
+              title="Mars Archival Library & Research Facility [L]"
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/50 shadow-[0_0_12px_rgba(56,189,248,0.25)] transition-all cursor-pointer"
+            >
+              <BookOpen className="w-4 h-4 text-cyan-400" />
+              <span className="font-bold">LIBRARY [L]</span>
+            </button>
+
+            <button
               onClick={onToggleLight}
-              title="Toggle Flashlight / Rover Headlights [L]"
+              title="Toggle Flashlight / Rover Headlights [T]"
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg border transition-all cursor-pointer ${
                 telemetry.isFlashlightOn
                   ? 'bg-amber-500/20 border-amber-400 text-amber-300 ring-1 ring-amber-400/40'
@@ -264,7 +344,7 @@ export const HUD: React.FC<HUDProps> = ({
               }`}
             >
               <Lightbulb className={`w-4 h-4 ${telemetry.isFlashlightOn ? 'text-amber-300 animate-pulse' : 'text-mars-sand'}`} />
-              <span>LIGHT [L]</span>
+              <span>LIGHT [T]</span>
             </button>
 
             <button
@@ -310,6 +390,28 @@ export const HUD: React.FC<HUDProps> = ({
             >
               <Database className="w-4 h-4 text-cyan-400" />
               <span className="hidden sm:inline">PROVENANCE</span>
+            </button>
+
+            <button
+              onClick={effectiveIsLocked ? onUnlockPointer : onRequestPointerLock}
+              title={effectiveIsLocked ? 'Unlock Mouse Pointer [Esc / Alt]' : 'Lock Mouse Look [Click]'}
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                effectiveIsLocked
+                  ? 'bg-mars-surface hover:bg-white/10 text-mars-dust hover:text-white border-mars-border'
+                  : 'bg-emerald-950/80 border-emerald-500/80 text-emerald-300 ring-1 ring-emerald-400/50 hover:bg-emerald-900/80'
+              }`}
+            >
+              {effectiveIsLocked ? (
+                <>
+                  <Unlock className="w-4 h-4 text-mars-orange" />
+                  <span className="hidden sm:inline">UNLOCK [ESC]</span>
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 text-emerald-400" />
+                  <span className="hidden sm:inline font-bold">LOCK LOOK</span>
+                </>
+              )}
             </button>
 
             <button

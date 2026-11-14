@@ -2,13 +2,32 @@ import * as THREE from 'three';
 import { JezeroTerrain } from '../terrain/JezeroTerrain';
 import { JEZERO_DISCOVERIES } from '../../data/discoveries';
 import { DiscoveryRecord } from '../../types/discovery';
+import { BuildingCollisionSystem } from '../environment/BuildingCollisionSystem';
+
+interface BootDustParticle {
+  x: number;
+  y: number;
+  z: number;
+  vx: number;
+  vy: number;
+  vz: number;
+  life: number;
+  maxLife: number;
+}
 
 export class AstronautController {
   public camera: THREE.PerspectiveCamera;
   public position: THREE.Vector3;
   private velocity: THREE.Vector3;
   public isGrounded: boolean = true;
-  private eyeHeight = 1.85; // meters
+  private wasGrounded: boolean = true;
+  private eyeHeight = 2.2; // meters
+
+  // Boot regolith dust particles
+  public dustParticlesMesh: THREE.Points;
+  private dustPool: BootDustParticle[] = [];
+  private readonly maxParticles = 140;
+  private footstepTimer = 0;
 
   // Input states
   public moveForward = false;
@@ -21,6 +40,7 @@ export class AstronautController {
   private euler = new THREE.Euler(0, 0, 0, 'YXZ');
   public isLocked = false;
   public isMouseDown = false;
+  public isPaused = false;
   private domElement: HTMLElement;
 
   // Mars physics settings (labelled gameplay-tuned)
@@ -37,6 +57,9 @@ export class AstronautController {
   public nearestPoi: DiscoveryRecord | null = null;
   public nearestPoiDistance: number = 999;
 
+  // Building & Structure Collision System
+  public collisionSystem: BuildingCollisionSystem | null = null;
+
   // Event listener references for proper cleanup
   private boundKeyDown: (e: KeyboardEvent) => void;
   private boundKeyUp: (e: KeyboardEvent) => void;
@@ -44,7 +67,8 @@ export class AstronautController {
   private boundMouseDown: (e: MouseEvent) => void;
   private boundMouseUp: (e: MouseEvent) => void;
   private boundBlur: () => void;
-  private boundCanvasClick: () => void;
+  private boundPointerLockChange: () => void;
+  private boundPointerLockError: () => void;
 
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement, initialPos = { x: 0, z: 12 }) {
     this.camera = camera;
@@ -52,13 +76,47 @@ export class AstronautController {
     this.position = new THREE.Vector3(initialPos.x, this.eyeHeight, initialPos.z);
     this.velocity = new THREE.Vector3();
 
+    // Initialize boot dust particles
+    const dustGeom = new THREE.BufferGeometry();
+    const positions = new Float32Array(this.maxParticles * 3);
+    positions.fill(0);
+    dustGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const dustMat = new THREE.PointsMaterial({
+      color: 0xc46b41,
+      size: 0.5,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    this.dustParticlesMesh = new THREE.Points(dustGeom, dustMat);
+
+    for (let i = 0; i < this.maxParticles; i++) {
+      this.dustPool.push({
+        x: 0,
+        y: -999,
+        z: 0,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        life: 0,
+        maxLife: 1
+      });
+    }
+
     this.boundKeyDown = (e) => this.onKeyDown(e);
     this.boundKeyUp = (e) => this.onKeyUp(e);
     this.boundMouseMove = (e) => this.onMouseMove(e);
     this.boundMouseDown = (e) => this.onMouseDown(e);
     this.boundMouseUp = (e) => this.onMouseUp(e);
     this.boundBlur = () => this.resetInputs();
-    this.boundCanvasClick = () => this.lockPointer();
+    this.boundPointerLockChange = () => {
+      this.isLocked = document.pointerLockElement === this.domElement;
+    };
+    this.boundPointerLockError = () => {
+      this.isLocked = false;
+    };
 
     this.initEvents();
   }
@@ -70,9 +128,10 @@ export class AstronautController {
 
     document.addEventListener('mousemove', this.boundMouseMove);
     document.addEventListener('mouseup', this.boundMouseUp);
+    document.addEventListener('pointerlockchange', this.boundPointerLockChange);
+    document.addEventListener('pointerlockerror', this.boundPointerLockError);
 
     this.domElement.addEventListener('mousedown', this.boundMouseDown);
-    this.domElement.addEventListener('click', this.boundCanvasClick);
   }
 
   public destroy() {
@@ -82,9 +141,10 @@ export class AstronautController {
 
     document.removeEventListener('mousemove', this.boundMouseMove);
     document.removeEventListener('mouseup', this.boundMouseUp);
+    document.removeEventListener('pointerlockchange', this.boundPointerLockChange);
+    document.removeEventListener('pointerlockerror', this.boundPointerLockError);
 
     this.domElement.removeEventListener('mousedown', this.boundMouseDown);
-    this.domElement.removeEventListener('click', this.boundCanvasClick);
   }
 
   public resetInputs() {
@@ -97,32 +157,39 @@ export class AstronautController {
   }
 
   public lockPointer() {
+    if (this.isPaused) return;
+
     try {
       if (document.pointerLockElement !== this.domElement) {
         const promise = this.domElement.requestPointerLock() as unknown;
         if (promise && typeof (promise as Promise<void>).catch === 'function') {
           (promise as Promise<void>).catch(() => {
-            // Pointer lock might be blocked or cancelled by user, drag fallback remains active
+            this.isLocked = false;
           });
         }
+      } else {
+        this.isLocked = true;
       }
-      this.isLocked = true;
     } catch {
-      // Fallback: mouse dragging is supported even if pointer lock is denied
+      this.isLocked = false;
     }
   }
 
   public unlockPointer() {
-    if (document.exitPointerLock) {
-      document.exitPointerLock();
+    try {
+      if (document.pointerLockElement) {
+        document.exitPointerLock();
+      }
+    } catch {
+      // browser exit pointer lock failure fallback
     }
     this.isLocked = false;
+    this.isMouseDown = false;
   }
 
   private onMouseDown(e: MouseEvent) {
-    if (e.button === 0) {
+    if (e.button === 0 && !this.isPaused) {
       this.isMouseDown = true;
-      this.lockPointer();
     }
   }
 
@@ -133,6 +200,8 @@ export class AstronautController {
   }
 
   private onKeyDown(e: KeyboardEvent) {
+    if (this.isPaused) return;
+
     // Ignore input if user is typing into an input field or textarea
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
@@ -208,10 +277,12 @@ export class AstronautController {
   }
 
   private onMouseMove(e: MouseEvent) {
+    if (this.isPaused) return;
+
     const hasPointerLock = document.pointerLockElement === this.domElement;
     
-    // Look around if pointer is locked OR if mouse button is held down (drag-to-look fallback)
-    if (!hasPointerLock && !this.isMouseDown && !this.isLocked) {
+    // Look around ONLY if pointer is actually locked OR if mouse button is held down (drag-to-look fallback)
+    if (!hasPointerLock && !this.isMouseDown) {
       return;
     }
 
@@ -229,7 +300,7 @@ export class AstronautController {
     this.camera.quaternion.setFromEuler(this.euler);
   }
 
-  public update(delta: number, terrain: JezeroTerrain) {
+  public update(delta: number, terrain: JezeroTerrain, collisionSystem?: BuildingCollisionSystem) {
     const dt = Math.min(delta, 0.08);
 
     // 1. Calculate directional movement relative to camera orientation
@@ -269,6 +340,17 @@ export class AstronautController {
     this.position.z += this.velocity.z * dt;
     this.position.y += this.velocity.y * dt;
 
+    // 3.1 Solid building collision response (push player out of solid walls & rotunda)
+    const activeCollision = collisionSystem || this.collisionSystem;
+    if (activeCollision) {
+      const collided = activeCollision.resolveCollisions(this.position, 0.45);
+      if (collided) {
+        // Friction against solid walls for tactile feedback
+        this.velocity.x *= 0.6;
+        this.velocity.z *= 0.6;
+      }
+    }
+
     // 4. Boundary enforcement (keep player inside bounded Jezero exploration area)
     const distFromOrigin = Math.sqrt(this.position.x * this.position.x + this.position.z * this.position.z);
     this.isNearBoundary = distFromOrigin > (this.maxBoundaryRadius - 30);
@@ -279,17 +361,49 @@ export class AstronautController {
       this.position.z = Math.sin(angle) * this.maxBoundaryRadius;
     }
 
-    // 5. Terrain height ground clamping
-    const terrainHeight = terrain.getElevationAt(this.position.x, this.position.z);
-    const groundLevel = terrainHeight + this.eyeHeight;
+    // 5. Ground, stair step-climbing, and landing impact detection
+    const currentFootY = this.position.y - this.eyeHeight;
+    const surfaceInfo = activeCollision
+      ? activeCollision.getSurfaceElevation(this.position.x, this.position.z, currentFootY)
+      : { elevation: terrain.getElevationAt(this.position.x, this.position.z), isStructure: false, surfaceType: 'regolith' };
 
-    if (this.position.y <= groundLevel) {
+    const groundLevel = surfaceInfo.elevation + this.eyeHeight;
+    const stepDiff = surfaceInfo.elevation - currentFootY;
+
+    // Stair Step-Climbing: if walking forward onto a step (diff <= 0.35m) while grounded
+    const isStepClimb = this.isGrounded && stepDiff > 0 && stepDiff <= 0.35;
+    const justLanded = !this.wasGrounded && (this.position.y <= groundLevel);
+
+    if (isStepClimb || this.position.y <= groundLevel) {
       this.position.y = groundLevel;
       this.velocity.y = 0;
       this.isGrounded = true;
     } else {
       this.isGrounded = false;
     }
+
+    // Spawn dust puff on landing impact (only on natural Martian regolith)
+    if (justLanded && !surfaceInfo.isStructure) {
+      this.emitDustBurst(12, this.position.x, surfaceInfo.elevation + 0.05, this.position.z, 1.2);
+    }
+
+    // Spawn continuous boot puffs when walking/sprinting on natural regolith
+    const horizontalSpeed = Math.hypot(this.velocity.x, this.velocity.z);
+    if (this.isGrounded && horizontalSpeed > 1.2 && !surfaceInfo.isStructure) {
+      this.footstepTimer += dt;
+      const stepInterval = this.isSprinting ? 0.3 : 0.44;
+      if (this.footstepTimer >= stepInterval) {
+        this.footstepTimer = 0;
+        this.emitDustBurst(3, this.position.x, surfaceInfo.elevation + 0.05, this.position.z, 0.4);
+      }
+    } else {
+      this.footstepTimer = 0;
+    }
+
+    this.wasGrounded = this.isGrounded;
+
+    // Update active boot dust particles
+    this.updateDustParticles(dt);
 
     // Update actual camera position
     this.camera.position.copy(this.position);
@@ -308,6 +422,51 @@ export class AstronautController {
     }
     this.nearestPoi = closest;
     this.nearestPoiDistance = minD;
+  }
+
+  private emitDustBurst(count: number, x: number, y: number, z: number, spread: number) {
+    let emitted = 0;
+    for (const p of this.dustPool) {
+      if (p.life <= 0) {
+        p.x = x + (Math.random() - 0.5) * 0.3;
+        p.y = y;
+        p.z = z + (Math.random() - 0.5) * 0.3;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = (0.2 + Math.random() * 0.6) * spread;
+        p.vx = Math.cos(angle) * speed;
+        p.vy = 0.4 + Math.random() * 0.6 * spread;
+        p.vz = Math.sin(angle) * speed;
+        p.maxLife = 0.6 + Math.random() * 0.6;
+        p.life = p.maxLife;
+        emitted++;
+        if (emitted >= count) break;
+      }
+    }
+  }
+
+  private updateDustParticles(dt: number) {
+    const posAttr = this.dustParticlesMesh.geometry.attributes.position as THREE.BufferAttribute;
+    const array = posAttr.array as Float32Array;
+
+    for (let i = 0; i < this.maxParticles; i++) {
+      const p = this.dustPool[i];
+      if (p.life > 0) {
+        p.life -= dt;
+        p.x += (p.vx + 0.06) * dt; // gentle wind drift
+        p.y += p.vy * dt;
+        p.z += p.vz * dt;
+        p.vy -= 1.8 * dt; // settle back down
+
+        array[i * 3] = p.x;
+        array[i * 3 + 1] = p.y;
+        array[i * 3 + 2] = p.z;
+      } else {
+        array[i * 3] = 0;
+        array[i * 3 + 1] = -999;
+        array[i * 3 + 2] = 0;
+      }
+    }
+    posAttr.needsUpdate = true;
   }
 
   public getHeadingDegrees(): number {
