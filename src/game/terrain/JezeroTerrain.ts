@@ -262,6 +262,34 @@ export class JezeroTerrain {
       y *= (flatWeight * flatWeight);
     }
 
+    // 8. Neretva Vallis Inflow Canyon Gorge Corridor (-170, -130) to (-295, -260)
+    // Fluvial breach carved through the crater rim wall
+    if (x < -150 && z < -110) {
+      const p0x = -170;
+      const p0z = -130;
+      const dx = -125;
+      const dz = -130;
+      const lenSq = dx * dx + dz * dz;
+      const t = Math.max(0, Math.min(1.2, ((x - p0x) * dx + (z - p0z) * dz) / lenSq));
+      const projX = p0x + t * dx;
+      const projZ = p0z + t * dz;
+      const distToCanyonCenter = Math.sqrt((x - projX) ** 2 + (z - projZ) ** 2);
+
+      if (distToCanyonCenter < 52) {
+        // Within 22m width: smooth, scoured canyon floor with dry ripple ridges
+        if (distToCanyonCenter < 22) {
+          const canyonFloorRipple = Math.sin(x * 0.45 + z * 0.45) * 0.45;
+          // Carve down 4m - 7m relative to rising rim
+          y -= (1 - distToCanyonCenter / 22) * 5.8 + canyonFloorRipple;
+        } else {
+          // Flanking 22m sheer canyon walls rising up to the highland rim
+          const wallFraction = (distToCanyonCenter - 22) / 30; // 0 to 1
+          const wallCliffs = Math.sin(wallFraction * (Math.PI / 2)) * 16.5;
+          y += wallCliffs;
+        }
+      }
+    }
+
     return y;
   }
 
@@ -310,11 +338,11 @@ export class JezeroTerrain {
       const ridgeProfile = Math.sin(radialFrac * Math.PI);
       let y = (65 + mountainHeight) * ridgeProfile;
 
-      // Carve the dramatic Neretva Vallis River Gorge Breach (Northwest angle ~ -2.4 to -2.0 radians)
-      const breachDist = Math.abs(angle - (-2.2));
-      if (breachDist < 0.28) {
-        const breachFactor = Math.cos((breachDist / 0.28) * (Math.PI / 2));
-        y *= (1.0 - breachFactor * 0.75); // Deep breach cut through the rim wall
+      // Carve the dramatic Neretva Vallis River Gorge Breach (Northwest angle ~ -2.45 to -1.95 radians)
+      const breachDist = Math.abs(angle - (-2.22));
+      if (breachDist < 0.38) {
+        const breachFactor = Math.cos((breachDist / 0.38) * (Math.PI / 2));
+        y *= (1.0 - breachFactor * 0.94); // Passable gap through the crater rim wall
       }
 
       pos.setY(i, y - 5);

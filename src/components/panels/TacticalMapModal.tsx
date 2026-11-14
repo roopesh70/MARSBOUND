@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { MarsCoordinates } from '../../types/mars';
-import { JEZERO_DISCOVERIES } from '../../data/discoveries';
+import { ALL_DISCOVERIES } from '../../data/discoveries';
 import { OutpostStructure } from '../../types/outpost';
 import { DiscoveryRecord } from '../../types/discovery';
 import { 
@@ -22,7 +22,8 @@ import {
   Sparkles,
   Search,
   Compass,
-  Info
+  Info,
+  HelpCircle
 } from 'lucide-react';
 import { CoordinateService } from '../../services/coordinateService';
 import { audioService } from '../../services/audioService';
@@ -31,6 +32,7 @@ interface TacticalMapModalProps {
   isOpen: boolean;
   onClose: () => void;
   playerPosition: { x: number; y: number; z: number };
+  roverPosition?: { x: number; y: number; z: number };
   playerCoordinates: MarsCoordinates;
   playerHeading: number;
   onSelectPoi: (id: string) => void;
@@ -46,6 +48,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   isOpen,
   onClose,
   playerPosition,
+  roverPosition,
   playerCoordinates,
   playerHeading,
   onSelectPoi,
@@ -56,6 +59,9 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   onSetCustomWaypoint,
   gpsTrail = []
 }) => {
+  // Help Guide state
+  const [showGuide, setShowGuide] = useState(false);
+
   // Scientific GIS Layer states
   const [activeLayer, setActiveLayer] = useState<'hirise' | 'elevation' | 'crism' | 'themis' | 'slope'>('hirise');
   
@@ -121,9 +127,9 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
 
   // Filtered discoveries for directory list
   const filteredDiscoveries = useMemo(() => {
-    if (!searchQuery.trim()) return JEZERO_DISCOVERIES;
+    if (!searchQuery.trim()) return ALL_DISCOVERIES;
     const q = searchQuery.toLowerCase();
-    return JEZERO_DISCOVERIES.filter(
+    return ALL_DISCOVERIES.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.region.toLowerCase().includes(q) ||
@@ -134,7 +140,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
 
   // Sort POIs so hovered and inspected are rendered last (on top z-index in SVG)
   const sortedPois = useMemo(() => {
-    return [...JEZERO_DISCOVERIES].sort((a, b) => {
+    return [...ALL_DISCOVERIES].sort((a, b) => {
       if (a.id === hoveredPoi?.id || a.id === inspectedPoi?.id) return 1;
       if (b.id === hoveredPoi?.id || b.id === inspectedPoi?.id) return -1;
       if (a.id === activeObjectiveTargetId) return 1;
@@ -146,29 +152,37 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   if (!isOpen) return null;
 
   // Coordinate Conversion Functions:
-  // Local bounds: [-250, 250] in X and Z
-  const toSvgX = (x: number) => ((x + 250) / 500) * 100;
-  const toSvgY = (z: number) => ((z + 250) / 500) * 100;
+  // Local bounds: [-320m, +320m] in X and Z (covers the full 600m world, Octavia base, and Neretva gorge breach)
+  const MAP_SPAN = 320;
+  const MAP_TOTAL = MAP_SPAN * 2; // 640m across
+  const toSvgX = (x: number) => ((x + MAP_SPAN) / MAP_TOTAL) * 100;
+  const toSvgY = (z: number) => ((z + MAP_SPAN) / MAP_TOTAL) * 100;
 
-  const toWorldX = (svgXPercent: number) => (svgXPercent / 100) * 500 - 250;
-  const toWorldZ = (svgYPercent: number) => (svgYPercent / 100) * 500 - 250;
+  const toWorldX = (svgXPercent: number) => (svgXPercent / 100) * MAP_TOTAL - MAP_SPAN;
+  const toWorldZ = (svgYPercent: number) => (svgYPercent / 100) * MAP_TOTAL - MAP_SPAN;
 
   const playerSvgX = toSvgX(playerPosition.x);
   const playerSvgY = toSvgY(playerPosition.z);
 
-  // Pan & Zoom calculations for SVG viewBox
-  const viewBoxSize = 100 / zoom;
-  const minX = Math.max(0, Math.min(100 - viewBoxSize, (100 - viewBoxSize) / 2 - pan.x));
-  const minY = Math.max(0, Math.min(100 - viewBoxSize, (100 - viewBoxSize) / 2 - pan.y));
+  const roverSvgX = roverPosition ? toSvgX(roverPosition.x) : toSvgX(14);
+  const roverSvgY = roverPosition ? toSvgY(roverPosition.z) : toSvgY(10);
+  const distToRover = roverPosition ? Math.round(Math.hypot(roverPosition.x - playerPosition.x, roverPosition.z - playerPosition.z)) : 16;
 
-  // Zoom handlers
+  // Pan & Zoom calculations for SVG viewBox (Smooth continuous Google Maps style)
+  const viewBoxSize = 100 / zoom;
+  const centerX = 50 - pan.x;
+  const centerY = 50 - pan.y;
+  const minX = centerX - viewBoxSize / 2;
+  const minY = centerY - viewBoxSize / 2;
+
+  // Zoom handlers (supports smooth zoom from 0.35x macro regional out to 4.0x tactical detail)
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(4.0, Number((prev + 0.5).toFixed(1))));
+    setZoom((prev) => Math.min(4.0, Number((prev * 1.35).toFixed(2))));
     audioService.playClick();
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(1.0, Number((prev - 0.5).toFixed(1))));
+    setZoom((prev) => Math.max(0.35, Number((prev / 1.35).toFixed(2))));
     audioService.playClick();
   };
 
@@ -179,10 +193,9 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   };
 
   const handleRecenterPlayer = () => {
-    const centerOffset = 50;
     setPan({
-      x: centerOffset - playerSvgX,
-      y: centerOffset - playerSvgY
+      x: 50 - playerSvgX,
+      y: 50 - playerSvgY
     });
     setZoom((prev) => Math.max(1.5, prev));
     audioService.playClick();
@@ -218,9 +231,9 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     if (e.deltaY < 0) {
-      setZoom((prev) => Math.min(4.0, Number((prev + 0.25).toFixed(2))));
+      setZoom((prev) => Math.min(4.0, Number((prev * 1.15).toFixed(2))));
     } else {
-      setZoom((prev) => Math.max(1.0, Number((prev - 0.25).toFixed(2))));
+      setZoom((prev) => Math.max(0.35, Number((prev / 1.15).toFixed(2))));
     }
   };
 
@@ -293,6 +306,68 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Quick Zoom Presets (Google Maps style) */}
+            <div className="flex items-center space-x-1 bg-black/60 p-1 rounded-xl border border-mars-border/80 text-xs font-mono">
+              <button
+                onClick={() => {
+                  setZoom(2.0);
+                  audioService.playClick();
+                }}
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  zoom >= 1.6
+                    ? 'bg-cyan-500/25 border border-cyan-400 text-white font-bold'
+                    : 'text-mars-sand hover:text-white'
+                }`}
+                title="Zoom into local Tactical details (2X)"
+              >
+                TACTICAL (2X)
+              </button>
+              <button
+                onClick={() => {
+                  setZoom(1.0);
+                  audioService.playClick();
+                }}
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  zoom >= 0.75 && zoom < 1.6
+                    ? 'bg-mars-orange/25 border border-mars-orange text-white font-bold'
+                    : 'text-mars-sand hover:text-white'
+                }`}
+                title="Full Jezero Crater 600m exploration play area (1X)"
+              >
+                CRATER (1X)
+              </button>
+              <button
+                onClick={() => {
+                  setZoom(0.35);
+                  audioService.playClick();
+                }}
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  zoom < 0.75
+                    ? 'bg-purple-500/25 border border-purple-400 text-white font-bold'
+                    : 'text-mars-sand hover:text-white'
+                }`}
+                title="Zoom out to surrounding regional geography (0.4X)"
+              >
+                REGIONAL (0.4X)
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowGuide((prev) => !prev);
+                audioService.playClick();
+              }}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer ${
+                showGuide
+                  ? 'bg-cyan-500/30 border-cyan-400 text-white shadow-lg'
+                  : 'bg-black/40 border-mars-border text-cyan-300 hover:text-white hover:bg-white/10'
+              }`}
+              title="Open Map Legend & Orientation Guide"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
+              <span>MAP GUIDE</span>
+            </button>
+
             <button
               onClick={onClose}
               className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
@@ -304,7 +379,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
           </div>
         </div>
 
-        {/* Modal Body: Map Viewport + Tactical Control Panel */}
+        {/* Modal Body: Unified Map Viewport + Tactical Control Panel */}
         <div className="flex flex-1 overflow-hidden relative">
           
           {/* Main Map Viewport */}
@@ -421,7 +496,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                     <circle
                       cx={toSvgX(0)}
                       cy={toSvgY(0)}
-                      r={(55 / 500) * 100}
+                      r={(55 / MAP_TOTAL) * 100}
                       fill="rgba(52, 211, 153, 0.08)"
                       stroke="#34d399"
                       strokeWidth="0.8"
@@ -429,7 +504,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                     />
                     <text
                       x={toSvgX(0)}
-                      y={toSvgY(0) - (55 / 500) * 100 - 1.5}
+                      y={toSvgY(0) - (55 / MAP_TOTAL) * 100 - 1.5}
                       fill="#34d399"
                       fontSize="2.4"
                       fontFamily="monospace"
@@ -752,13 +827,175 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   );
                 })}
 
-                {/* Astronaut / Rover Player Marker */}
+                {/* EXTENDED REGIONAL GEOGRAPHY (Revealed seamlessly when zooming out Google-Maps style) */}
+                {zoom < 1.2 && (
+                  <g className="transition-opacity duration-300" opacity={Math.min(0.9, (1.2 - zoom) * 1.8)}>
+                    {/* 45-km Jezero Crater Circular Mountain Rim */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="58"
+                      fill="none"
+                      stroke="#853d24"
+                      strokeWidth="2.5"
+                      strokeDasharray="4 2"
+                      opacity="0.8"
+                    />
+                    <text
+                      x="50"
+                      y="-11"
+                      fill="#d97706"
+                      fontSize="3.6"
+                      fontFamily="monospace"
+                      textAnchor="middle"
+                      fontWeight="bold"
+                    >
+                      JEZERO CRATER RIM MOUNTAINS (45 KM DIAMETER)
+                    </text>
+
+                    {/* Neretva Vallis 100-km Inflow Valley Corridor (Carved through western rim) */}
+                    <path
+                      d={`M ${toSvgX(-210)} ${toSvgY(-155)} Q ${toSvgX(-380)} ${toSvgY(-260)} ${toSvgX(-560)} ${toSvgY(-340)}`}
+                      fill="none"
+                      stroke="#a855f7"
+                      strokeWidth="3.2"
+                      strokeDasharray="3 1.5"
+                      opacity="0.85"
+                    />
+                    <text
+                      x={toSvgX(-380)}
+                      y={toSvgY(-285)}
+                      fill="#c084fc"
+                      fontSize="3.6"
+                      fontFamily="monospace"
+                      fontWeight="bold"
+                    >
+                      ◀ NERETVA VALLIS (100 KM ANCIENT RIVER CANYON)
+                    </text>
+
+                    {/* Nili Fossae Ancient Highland Grabens & Carbonates (Northwest) */}
+                    <g opacity="0.75">
+                      <path
+                        d={`M ${toSvgX(-480)} ${toSvgY(-380)} Q ${toSvgX(-300)} ${toSvgY(-500)} ${toSvgX(-120)} ${toSvgY(-560)}`}
+                        fill="none"
+                        stroke="#34d399"
+                        strokeWidth="2.2"
+                        strokeDasharray="4 2"
+                      />
+                      <path
+                        d={`M ${toSvgX(-520)} ${toSvgY(-350)} Q ${toSvgX(-340)} ${toSvgY(-470)} ${toSvgX(-160)} ${toSvgY(-530)}`}
+                        fill="none"
+                        stroke="#34d399"
+                        strokeWidth="1.6"
+                        strokeDasharray="4 2"
+                      />
+                      <text
+                        x={toSvgX(-340)}
+                        y={toSvgY(-515)}
+                        fill="#34d399"
+                        fontSize="3.8"
+                        fontFamily="monospace"
+                        fontWeight="bold"
+                      >
+                        NILI FOSSAE TECTONIC FAULTS & CARBONATES (185 KM NW)
+                      </text>
+                    </g>
+
+                    {/* Isidis Planitia Giant Lowland Impact Basin (East of Jezero) */}
+                    <g opacity="0.7">
+                      <ellipse
+                        cx={toSvgX(450)}
+                        cy={toSvgY(50)}
+                        rx="140"
+                        ry="180"
+                        fill="none"
+                        stroke="#6366f1"
+                        strokeWidth="2.4"
+                        strokeDasharray="5 2.5"
+                      />
+                      <text
+                        x={toSvgX(350)}
+                        y={toSvgY(50)}
+                        fill="#818cf8"
+                        fontSize="3.8"
+                        fontFamily="monospace"
+                        fontWeight="bold"
+                      >
+                        ISIDIS PLANITIA LOWLAND BASIN (-3,800m) ▶
+                      </text>
+                    </g>
+
+                    {/* Syrtis Major Basaltic Shield Volcano (Southwest) */}
+                    <g opacity="0.7">
+                      <circle
+                        cx={toSvgX(-320)}
+                        cy={toSvgY(460)}
+                        r="85"
+                        fill="none"
+                        stroke="#ef4444"
+                        strokeWidth="2.2"
+                        strokeDasharray="5 2"
+                      />
+                      <text
+                        x={toSvgX(-320)}
+                        y={toSvgY(440)}
+                        fill="#f87171"
+                        fontSize="3.8"
+                        fontFamily="monospace"
+                        fontWeight="bold"
+                        textAnchor="middle"
+                      >
+                        ▼ SYRTIS MAJOR VOLCANIC SHIELD (+450m)
+                      </text>
+                    </g>
+                  </g>
+                )}
+
+                {/* Independent Rover Vehicle Marker (when player is on foot) */}
+                {!isDrivingRover && (
+                  <g>
+                    <circle
+                      cx={roverSvgX}
+                      cy={roverSvgY}
+                      r={4.2 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                      fill="none"
+                      stroke="#06b6d4"
+                      strokeWidth="0.6"
+                      strokeDasharray="1.5 1"
+                      className="animate-pulse"
+                      opacity="0.8"
+                    />
+                    <rect
+                      x={roverSvgX - 2.2 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                      y={roverSvgY - 1.6 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                      width={4.4 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                      height={3.2 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                      rx="0.6"
+                      fill="#0891b2"
+                      stroke="#ffffff"
+                      strokeWidth="0.5"
+                    />
+                    <text
+                      x={roverSvgX}
+                      y={roverSvgY + 4.2 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                      fill="#67e8f9"
+                      fontSize={2.1 * (zoom < 1.0 ? Math.min(2.2, 1.0 / zoom) : 1.0)}
+                      fontFamily="monospace"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                    >
+                      ROVER ({distToRover}m)
+                    </text>
+                  </g>
+                )}
+
+                {/* Astronaut / Rover Player Marker (Smoothly scaled so YOU are always clearly visible) */}
                 <g>
                   {/* Radar pulse wave */}
                   <circle
                     cx={playerSvgX}
                     cy={playerSvgY}
-                    r="4.5"
+                    r={4.5 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
                     fill="rgba(239, 68, 68, 0.2)"
                     stroke={isDrivingRover ? '#06b6d4' : '#ef4444'}
                     strokeWidth="0.6"
@@ -769,7 +1006,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   <circle
                     cx={playerSvgX}
                     cy={playerSvgY}
-                    r="2.2"
+                    r={2.2 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
                     fill={isDrivingRover ? '#0891b2' : '#ef4444'}
                     stroke="#ffffff"
                     strokeWidth="0.6"
@@ -778,17 +1015,17 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   <line
                     x1={playerSvgX}
                     y1={playerSvgY}
-                    x2={playerSvgX + Math.sin((playerHeading * Math.PI) / 180) * 3.5}
-                    y2={playerSvgY - Math.cos((playerHeading * Math.PI) / 180) * 3.5}
+                    x2={playerSvgX + Math.sin((playerHeading * Math.PI) / 180) * 3.8 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
+                    y2={playerSvgY - Math.cos((playerHeading * Math.PI) / 180) * 3.8 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
                     stroke="#ffffff"
-                    strokeWidth="0.8"
+                    strokeWidth="0.9"
                     strokeLinecap="round"
                   />
                   <text
                     x={playerSvgX}
-                    y={playerSvgY + 3.2}
+                    y={playerSvgY + 3.6 * (zoom < 1.0 ? Math.min(2.5, 1.0 / zoom) : 1.0)}
                     fill={isDrivingRover ? '#67e8f9' : '#fca5a5'}
-                    fontSize="2.1"
+                    fontSize={2.2 * (zoom < 1.0 ? Math.min(2.2, 1.0 / zoom) : 1.0)}
                     fontFamily="monospace"
                     fontWeight="bold"
                     textAnchor="middle"
@@ -796,7 +1033,132 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                     {isDrivingRover ? 'ROVER' : 'YOU'}
                   </text>
                 </g>
+
+                {/* Cardinal Directions HUD Markings */}
+                <g opacity="0.8" fill="#f59e0b" fontSize="2.6" fontFamily="monospace" fontWeight="bold">
+                  <text x="50" y="3.8" textAnchor="middle">▲ NORTH (N)</text>
+                  <text x="50" y="98.2" textAnchor="middle">▼ SOUTH (S)</text>
+                  <text x="3.5" y="50" textAnchor="start">◀ WEST (W - DELTA)</text>
+                  <text x="96.5" y="50" textAnchor="end">EAST (E - DUNES) ▶</text>
+                </g>
+
+                {/* Major Landmark Watermark Labels */}
+                <g opacity="0.32" fill="#ffffff" fontFamily="monospace" fontWeight="bold">
+                  <text x={toSvgX(-120)} y={toSvgY(-70)} fontSize="3.0" textAnchor="middle">
+                    WESTERN RIVER DELTA FAN
+                  </text>
+                  <text x={toSvgX(-180)} y={toSvgY(-175)} fontSize="2.8" textAnchor="middle" fill="#38bdf8">
+                    BELVA IMPACT CRATER
+                  </text>
+                  <text x={toSvgX(-160)} y={toSvgY(95)} fontSize="2.8" textAnchor="middle" fill="#f59e0b">
+                    KODIAK BUTTE MESA
+                  </text>
+                  <text x={toSvgX(75)} y={toSvgY(-115)} fontSize="2.8" textAnchor="middle" fill="#fb923c">
+                    SÉÍTAH AEOLIAN DUNES
+                  </text>
+                  <text x={toSvgX(-225)} y={toSvgY(-160)} fontSize="2.6" textAnchor="middle" fill="#a855f7">
+                    ➜ NERETVA VALLIS CANYON PASS
+                  </text>
+                </g>
+
+                {/* Dynamic Multi-tier Scale Bar (Adapts smoothly across all zoom levels) */}
+                {(() => {
+                  let scaleDist = 100;
+                  let scaleLabel = '100 METERS';
+                  if (zoom >= 2.0) {
+                    scaleDist = 50;
+                    scaleLabel = '50 METERS';
+                  } else if (zoom >= 0.8) {
+                    scaleDist = 100;
+                    scaleLabel = '100 METERS';
+                  } else if (zoom >= 0.45) {
+                    scaleDist = 500;
+                    scaleLabel = '500 METERS';
+                  } else {
+                    scaleDist = 2000;
+                    scaleLabel = '2 KILOMETERS';
+                  }
+                  const barWidth = (scaleDist / MAP_TOTAL) * 100;
+                  return (
+                    <g transform={`translate(${toSvgX(160)}, ${toSvgY(255)})`}>
+                      <line x1="0" y1="0" x2={barWidth} y2="0" stroke="#ffffff" strokeWidth="0.8" />
+                      <line x1="0" y1="-1.5" x2="0" y2="1.5" stroke="#ffffff" strokeWidth="0.8" />
+                      <line x1={barWidth} y1="-1.5" x2={barWidth} y2="1.5" stroke="#ffffff" strokeWidth="0.8" />
+                      <text x={barWidth / 2} y="-1.8" fill="#ffffff" fontSize="2.2" fontFamily="monospace" textAnchor="middle" fontWeight="bold">
+                        {scaleLabel}
+                      </text>
+                    </g>
+                  );
+                })()}
               </svg>
+
+              {/* Beginner-Friendly Quick Map Guide Overlay */}
+              {showGuide && (
+                <div className="absolute inset-4 bg-black/95 backdrop-blur-xl border border-cyan-500 rounded-2xl p-6 text-white font-sans z-30 shadow-2xl overflow-y-auto animate-in fade-in zoom-in-95">
+                  <div className="flex items-center justify-between border-b border-white/20 pb-3 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <Compass className="w-5 h-5 text-cyan-400" />
+                      <h3 className="font-bold text-lg font-mono text-cyan-300">HOW TO READ & USE THE MAP</h3>
+                    </div>
+                    <button
+                      onClick={() => setShowGuide(false)}
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+                    <div className="bg-white/5 p-3 rounded-xl border border-white/10 space-y-2">
+                      <div className="font-bold text-red-400 flex items-center space-x-1.5">
+                        <span className="w-3 h-3 rounded-full bg-red-500 inline-block animate-ping" />
+                        <span>🔴 YOU (Astronaut)</span>
+                      </div>
+                      <p className="text-gray-300">
+                        The red pulsing circle shows your exact location. The white line points in the direction your helmet is facing.
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 p-3 rounded-xl border border-white/10 space-y-2">
+                      <div className="font-bold text-cyan-400 flex items-center space-x-1.5">
+                        <span className="w-3 h-3 rounded-md bg-cyan-500 inline-block" />
+                        <span>🚙 ROVER VEHICLE</span>
+                      </div>
+                      <p className="text-gray-300">
+                        Shows where your rover is currently parked and your exact distance to it. Walk toward this icon to mount your vehicle!
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 p-3 rounded-xl border border-white/10 space-y-2">
+                      <div className="font-bold text-emerald-400 flex items-center space-x-1.5">
+                        <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
+                        <span>🟢 OCTAVIA BASE (0, 0)</span>
+                      </div>
+                      <p className="text-gray-300">
+                        The center of the map. Inside the green circular perimeter, your spacesuit oxygen automatically recharges at 100%.
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 p-3 rounded-xl border border-white/10 space-y-2">
+                      <div className="font-bold text-amber-400 flex items-center space-x-1.5">
+                        <span className="w-3 h-3 rotate-45 bg-amber-500 inline-block" />
+                        <span>🟡 / 🔵 DISCOVERY SITES</span>
+                      </div>
+                      <p className="text-gray-300">
+                        Authentic NASA discoveries and collectable rock samples. Click any diamond to inspect historical NASA photos and data.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-3 bg-cyan-950/40 border border-cyan-500/40 rounded-xl text-xs font-mono text-cyan-200 space-y-1">
+                    <div className="font-bold text-white uppercase">Controls & Shortcuts:</div>
+                    <div>• <b>Click & Drag</b> on the map to pan around.</div>
+                    <div>• <b>Scroll Wheel</b> or <b>[+] / [-]</b> buttons to zoom in and out.</div>
+                    <div>• Click <b>RECENTER</b> (crosshair icon) to snap the camera back to your astronaut.</div>
+                    <div>• Click <b>SET PIN</b> to drop a custom pink GPS waypoint on the radar.</div>
+                  </div>
+                </div>
+              )}
 
               {/* Viewport Floating Zoom Controls */}
               <div className="absolute top-3 left-3 bg-black/85 backdrop-blur-md p-1.5 rounded-xl border border-mars-border text-white flex items-center space-x-1 shadow-2xl font-mono text-xs">
@@ -830,7 +1192,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <span className="px-2 text-[10px] text-mars-dust font-bold">
-                  {zoom.toFixed(1)}X
+                  {zoom.toFixed(1)}X • {zoom <= 0.5 ? 'REGIONAL' : zoom <= 1.2 ? 'CRATER' : 'TACTICAL'}
                 </span>
               </div>
 
@@ -1071,7 +1433,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   }`}
                 >
                   <MapPin className="w-3.5 h-3.5" />
-                  <span>SITES (15)</span>
+                  <span>SITES ({ALL_DISCOVERIES.length})</span>
                 </button>
               </div>
 
@@ -1253,10 +1615,10 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-bold text-mars-sand tracking-wider uppercase flex items-center space-x-1.5">
                       <Compass className="w-4 h-4 text-cyan-400" />
-                      <span>DISCOVERY SITES (15)</span>
+                      <span>DISCOVERY SITES ({ALL_DISCOVERIES.length})</span>
                     </h3>
                     <span className="text-[10px] text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/40">
-                      JEZERO
+                      CATALOG
                     </span>
                   </div>
 

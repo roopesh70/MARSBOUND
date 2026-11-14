@@ -30,6 +30,11 @@ export class OutpostManager {
       for (const s of savedStructures) {
         this.spawnStructure(s.type, s.position.x, s.position.z, s.rotationY, terrain, s.id, s.name);
       }
+      // Ensure base has at least one science lab for sample analysis
+      const hasLab = this.structures.some((s) => s.type === 'science_lab');
+      if (!hasLab) {
+        this.spawnStructure('science_lab', -12, 3, 0.35, terrain, 'outpost_science_lab_01', 'Octavia Field Science Laboratory');
+      }
     } else {
       this.buildInitialStructures(terrain);
     }
@@ -50,6 +55,9 @@ export class OutpostManager {
 
     // D. Communications Dish
     this.spawnStructure('comm_dish', -10, -8, 0, terrain, 'outpost_comm_01', 'High-Gain Deep Space Antenna');
+
+    // E. Field Science Laboratory (CheMin XRD / PIXL Geochemistry Bay)
+    this.spawnStructure('science_lab', -12, 3, 0.35, terrain, 'outpost_science_lab_01', 'Octavia Field Science Laboratory');
   }
 
   public spawnStructure(
@@ -229,21 +237,126 @@ export class OutpostManager {
 
   public createScienceLabMesh(): THREE.Group {
     const group = new THREE.Group();
-    const labGeom = new THREE.CylinderGeometry(2.8, 2.8, 3.2, 8);
-    const labMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5 });
-    const lab = new THREE.Mesh(labGeom, labMat);
-    lab.position.y = 1.6;
-    lab.castShadow = true;
-    group.add(lab);
 
-    // Science observation dome top
-    const obsGeom = new THREE.SphereGeometry(1.6, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-    const obsMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.1, metalness: 0.9 });
-    const obs = new THREE.Mesh(obsGeom, obsMat);
-    obs.position.y = 3.2;
-    group.add(obs);
+    // 1. Octagonal laboratory pressure hull (high-tech composite panels)
+    const hullGeom = new THREE.CylinderGeometry(3.2, 3.5, 3.4, 8);
+    const hullMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.65,
+      roughness: 0.3
+    });
+    const hull = new THREE.Mesh(hullGeom, hullMat);
+    hull.position.y = 1.7;
+    hull.castShadow = true;
+    group.add(hull);
+
+    // 2. Base foundation skirt (dark tungsten carbide)
+    const baseGeom = new THREE.CylinderGeometry(3.6, 3.8, 0.5, 8);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.4 });
+    const baseMesh = new THREE.Mesh(baseGeom, baseMat);
+    baseMesh.position.y = 0.25;
+    group.add(baseMesh);
+
+    // 3. Central Observation & Spectroscopy Dome (illuminated cyan/teal glass)
+    const domeGeom = new THREE.SphereGeometry(1.8, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+    const domeMat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      roughness: 0.1,
+      metalness: 0.8,
+      emissive: 0x0891b2,
+      emissiveIntensity: 0.35,
+      transparent: true,
+      opacity: 0.88
+    });
+    const dome = new THREE.Mesh(domeGeom, domeMat);
+    dome.position.y = 3.4;
+    group.add(dome);
+
+    // 4. Rooftop Spectrometer Sensor Turret & Diffraction Emitter
+    const turretMastGeom = new THREE.CylinderGeometry(0.2, 0.2, 1.2, 8);
+    const turretMastMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9, roughness: 0.2 });
+    const turretMast = new THREE.Mesh(turretMastGeom, turretMastMat);
+    turretMast.position.y = 4.8;
+    group.add(turretMast);
+
+    const sensorHeadGeom = new THREE.BoxGeometry(0.8, 0.4, 0.6);
+    const sensorHeadMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.5
+    });
+    const sensorHead = new THREE.Mesh(sensorHeadGeom, sensorHeadMat);
+    sensorHead.position.y = 5.4;
+    group.add(sensorHead);
+
+    // Diffraction calibration ring
+    const ringGeom = new THREE.TorusGeometry(0.7, 0.06, 8, 24);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.6
+    });
+    const ring = new THREE.Mesh(ringGeom, ringMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 5.2;
+    group.add(ring);
+
+    // 5. Airlock Entrance Vestibule
+    const airlockGeom = new THREE.BoxGeometry(1.4, 2.2, 1.2);
+    const airlockMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.3 });
+    const airlock = new THREE.Mesh(airlockGeom, airlockMat);
+    airlock.position.set(0, 1.1, 3.4);
+    group.add(airlock);
+
+    // Illuminated Science Lab Signplate
+    const signGeom = new THREE.BoxGeometry(1.1, 0.25, 0.05);
+    const signMat = new THREE.MeshStandardMaterial({
+      color: 0x10b981,
+      emissive: 0x10b981,
+      emissiveIntensity: 0.8
+    });
+    const sign = new THREE.Mesh(signGeom, signMat);
+    sign.position.set(0, 2.0, 4.02);
+    group.add(sign);
+
+    // 6. Amber Proximity / Active Beacon Light
+    const beaconLight = new THREE.PointLight(0x06b6d4, 1.2, 16);
+    beaconLight.position.set(0, 5.6, 0);
+    group.add(beaconLight);
 
     return group;
+  }
+
+  public getDistanceToNearestType(type: OutpostStructureType, pos: { x: number; z: number }): number {
+    let minDistance = Infinity;
+    for (const s of this.structures) {
+      if (s.type === type) {
+        const dx = s.position.x - pos.x;
+        const dz = s.position.z - pos.z;
+        const d = Math.hypot(dx, dz);
+        if (d < minDistance) {
+          minDistance = d;
+        }
+      }
+    }
+    return minDistance;
+  }
+
+  public getNearestStructureOfType(type: OutpostStructureType, pos: { x: number; z: number }): OutpostStructure | null {
+    let nearest: OutpostStructure | null = null;
+    let minDistance = Infinity;
+    for (const s of this.structures) {
+      if (s.type === type) {
+        const dx = s.position.x - pos.x;
+        const dz = s.position.z - pos.z;
+        const d = Math.hypot(dx, dz);
+        if (d < minDistance) {
+          minDistance = d;
+          nearest = s;
+        }
+      }
+    }
+    return nearest;
   }
 
   public getTotalPowerGeneration(): number {

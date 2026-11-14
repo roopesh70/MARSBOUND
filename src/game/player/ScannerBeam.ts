@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { JEZERO_DISCOVERIES } from '../../data/discoveries';
+import { ALL_DISCOVERIES } from '../../data/discoveries';
 import { JezeroTerrain } from '../terrain/JezeroTerrain';
 
 export class ScannerSystem {
@@ -28,8 +28,8 @@ export class ScannerSystem {
     this.scanCone = new THREE.Mesh(coneGeom, coneMat);
     this.group.add(this.scanCone);
 
-    // 2. Build In-World 3D Hologram Markers for POIs
-    for (const poi of JEZERO_DISCOVERIES) {
+    // 2. Build In-World 3D Hologram Markers for POIs (Jezero + Neretva Vallis)
+    for (const poi of ALL_DISCOVERIES) {
       const markerGroup = new THREE.Group();
       const markerY = terrain.getElevationAt(poi.worldPosition.x, poi.worldPosition.z);
       markerGroup.position.set(poi.worldPosition.x, markerY, poi.worldPosition.z);

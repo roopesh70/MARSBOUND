@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { JEZERO_DISCOVERIES } from '../../data/discoveries';
+import { ALL_DISCOVERIES } from '../../data/discoveries';
 import { OutpostStructure } from '../../types/outpost';
 import { Maximize2, Minimize2, Navigation, Compass } from 'lucide-react';
 
 interface MiniMapProps {
   playerPosition: { x: number; y: number; z: number };
+  roverPosition?: { x: number; y: number; z: number };
   playerHeading: number;
   isDrivingRover?: boolean;
   activeTargetPoiId?: string;
@@ -15,6 +16,7 @@ interface MiniMapProps {
 
 export const MiniMap: React.FC<MiniMapProps> = ({
   playerPosition,
+  roverPosition,
   playerHeading,
   isDrivingRover = false,
   activeTargetPoiId,
@@ -250,8 +252,8 @@ export const MiniMap: React.FC<MiniMapProps> = ({
             );
           })()}
 
-          {/* POI Blips */}
-          {JEZERO_DISCOVERIES.map((poi) => {
+          {/* POI Blips (All 25 Discoveries) */}
+          {ALL_DISCOVERIES.map((poi) => {
             const pos = toRadarPos(poi.worldPosition.x, poi.worldPosition.z);
             const isTarget = activeTargetPoiId === poi.id;
 
@@ -282,6 +284,36 @@ export const MiniMap: React.FC<MiniMapProps> = ({
               </g>
             );
           })}
+
+          {/* Parked Rover Blip (when on foot) */}
+          {!isDrivingRover && roverPosition && (() => {
+            const pos = toRadarPos(roverPosition.x, roverPosition.z);
+            return (
+              <g>
+                <title>Mars Rover ({pos.distanceMeters}m away)</title>
+                <circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r="5"
+                  fill="none"
+                  stroke="#06b6d4"
+                  strokeWidth="1"
+                  strokeDasharray="1.5 1"
+                  className="animate-pulse"
+                />
+                <rect
+                  x={pos.x - 3}
+                  y={pos.y - 2.5}
+                  width="6"
+                  height="5"
+                  rx="1"
+                  fill="#0891b2"
+                  stroke="#ffffff"
+                  strokeWidth="1"
+                />
+              </g>
+            );
+          })()}
 
           {/* Custom Waypoint Pin if set */}
           {customWaypoint && (() => {

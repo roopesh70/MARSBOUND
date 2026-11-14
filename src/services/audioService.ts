@@ -309,6 +309,158 @@ class MarsAudioService {
       // Ignore
     }
   }
+
+  public playSpectrometerScan() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      // Synthesize high-tech laser diffraction hum & XRF beam pulses
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(840, this.ctx.currentTime + 1.2);
+      osc.frequency.linearRampToValueAtTime(440, this.ctx.currentTime + 2.4);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(600, this.ctx.currentTime);
+      filter.Q.setValueAtTime(6.0, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 2.5);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 2.55);
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playSpectrometerComplete() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      // Rewarding two-tone harmonic chime
+      const freqs = [659.25, 987.77, 1318.51]; // E5, B5, E6
+      freqs.forEach((f, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, this.ctx.currentTime + idx * 0.1);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime + idx * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.1 + 0.65);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + idx * 0.1);
+        osc.stop(this.ctx.currentTime + idx * 0.1 + 0.7);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playTechUnlock() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      // Sci-fi tech researched chord (Major triad with high shimmer)
+      const freqs = [440, 554.37, 659.25, 880, 1108.73]; // A Major 7th
+      freqs.forEach((f, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, this.ctx.currentTime + idx * 0.06);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.06 + 0.8);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + idx * 0.06);
+        osc.stop(this.ctx.currentTime + idx * 0.06 + 0.85);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playRimfaxPing() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      // Rapid GPR acoustic chirp
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.09);
+
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.11);
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playRimfaxAnomaly() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      // High-priority dielectric reflection alert (dual tone)
+      const freqs = [880, 1174.66]; // A5 - D6
+      freqs.forEach((f, i) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.12);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.12 + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.12);
+        osc.stop(this.ctx.currentTime + i * 0.12 + 0.2);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playCoreDrill() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      // Rotary percussive drill buzzing & motor drone
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(340, this.ctx.currentTime + 0.6);
+      osc.frequency.linearRampToValueAtTime(120, this.ctx.currentTime + 1.8);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(450, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.9);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 2.0);
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 export const audioService = new MarsAudioService();

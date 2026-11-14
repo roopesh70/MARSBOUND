@@ -17,10 +17,15 @@ import { SuitResources } from '../types/survival';
 import { DiscoveryRecord } from '../types/discovery';
 import { OutpostStructureType, OutpostStructure, BuildToolMode } from '../types/outpost';
 import { audioService } from '../services/audioService';
+import { rimfaxService } from '../services/rimfaxService';
+import { RimfaxRadarTelemetry } from '../types/rimfax';
 
 export interface GameTelemetry {
   position: { x: number; y: number; z: number };
+  roverPosition: { x: number; y: number; z: number };
   coordinates: MarsCoordinates;
+  activeRegionId?: string;
+  activeRegionName?: string;
   heading: number;
   nearestPoi: DiscoveryRecord | null;
   nearestPoiDistance: number;
@@ -35,6 +40,9 @@ export interface GameTelemetry {
   isNearRover: boolean;
   isNearLibrary: boolean;
   libraryDistance: number;
+  isNearScienceLab: boolean;
+  scienceLabDistance: number;
+  rimfax: RimfaxRadarTelemetry;
   isBuildModeActive: boolean;
   isValidBuildPlacement: boolean;
   buildToolMode?: BuildToolMode;
@@ -66,9 +74,11 @@ interface MarsCanvasProps {
   onStructurePlaced: (structure: OutpostStructure) => void;
   onStructureDismantled?: (structure: OutpostStructure) => void;
   onOpenLibrary?: () => void;
+  onOpenScienceLab?: () => void;
   roverMountSignal: number;
   flashlightSignal?: number;
   savedStructures?: OutpostStructure[];
+  unlockedTechIds?: string[];
 }
 
 export const MarsCanvas: React.FC<MarsCanvasProps> = ({
@@ -85,9 +95,11 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   onStructurePlaced,
   onStructureDismantled,
   onOpenLibrary,
+  onOpenScienceLab,
   roverMountSignal,
   flashlightSignal = 0,
-  savedStructures
+  savedStructures,
+  unlockedTechIds = []
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<AstronautController | null>(null);
@@ -106,6 +118,8 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     onStructurePlaced,
     onStructureDismantled,
     onOpenLibrary,
+    onOpenScienceLab,
+    unlockedTechIds,
     isPaused,
     isBuildMode,
     buildToolMode,
@@ -120,6 +134,8 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
       onStructurePlaced,
       onStructureDismantled,
       onOpenLibrary,
+      onOpenScienceLab,
+      unlockedTechIds,
       isPaused,
       isBuildMode,
       buildToolMode,
@@ -343,7 +359,10 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
         }
       } else {
         const distToLib = libraryBuilding.distanceTo({ x: controller.position.x, z: controller.position.z });
-        if (distToLib <= libraryBuilding.interactionRadius) {
+        const distToLab = outpost.getDistanceToNearestType('science_lab', { x: controller.position.x, z: controller.position.z });
+        if (distToLab <= 8.5) {
+          propsRef.current.onOpenScienceLab?.();
+        } else if (distToLib <= libraryBuilding.interactionRadius) {
           propsRef.current.onOpenLibrary?.();
         } else {
           controller.lockPointer();
@@ -418,6 +437,18 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           // Sync astronaut position with rover
           controller.position.copy(rover.position);
 
+          // Update RIMFAX Ground-Penetrating Subsurface Radar
+          const radarUpdate = rimfaxService.update(
+            { x: rover.position.x, z: rover.position.z },
+            rover.getSpeedKmh(),
+            delta
+          );
+          if (radarUpdate.activeAnomalyDetected && Math.random() < 0.04) {
+            audioService.playRimfaxAnomaly();
+          } else if (radarUpdate.newSliceGenerated && Math.random() < 0.1) {
+            audioService.playRimfaxPing();
+          }
+
           // Rover cabin provides life-support oxygen replenishment!
           suitState.current.oxygen = Math.min(suitState.current.oxygenMax, suitState.current.oxygen + delta * 5);
         } else {
@@ -441,6 +472,16 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           audioService.updateRoverEngine(0, false);
           rover.update(delta, terrain, { forward: false, backward: false, left: false, right: false, brake: true }, collisionSystem);
           controller.update(delta, terrain, collisionSystem);
+
+          // Apply unlocked scientific research tech upgrades
+          const unlockedTechs = propsRef.current.unlockedTechIds || [];
+          const hasO2Scrubber = unlockedTechs.includes('tech_o2_scrubber');
+          const hasBatteryBoost = unlockedTechs.includes('tech_battery_boost');
+          const hasRoverTurbo = unlockedTechs.includes('tech_rover_transmission');
+
+          suitState.current.oxygenDepletionRatePerSec = hasO2Scrubber ? 0.117 : 0.18;
+          suitState.current.batteryMax = hasBatteryBoost ? 130 : 100;
+          rover.maxSpeed = hasRoverTurbo ? 22.5 : 16.5;
 
           // Resource consumption / recharge logic
           const inSafeZone = outpost.isInSafeZone(controller.position.x, controller.position.z);
@@ -513,14 +554,27 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
         const activeY = rover.isOccupied ? rover.position.y : controller.position.y;
         const activeZ = rover.isOccupied ? rover.position.z : controller.position.z;
 
+        const isInsideNeretva = (activeX < -195 && activeZ < -140);
+        const activeRegionId = isInsideNeretva ? 'neretva_vallis' : 'jezero_crater';
+        const activeRegionName = isInsideNeretva ? 'NERETVA VALLIS (INFLOW GORGE)' : 'JEZERO CRATER';
+        CoordinateService.setActiveRegion(activeRegionId);
+
         const coords = CoordinateService.localToMars(activeX, activeY, activeZ);
         const distToRover = rover.distanceTo({ x: controller.position.x, z: controller.position.z });
         const distToLib = libraryBuilding.distanceTo({ x: activeX, z: activeZ });
         const isNearLib = distToLib <= libraryBuilding.interactionRadius;
+        const distToScienceLab = outpost.getDistanceToNearestType('science_lab', { x: activeX, z: activeZ });
+        const isNearLab = distToScienceLab <= 8.5;
+
+        const unlockedTechs = propsRef.current.unlockedTechIds || [];
+        const hasSolarBoost = unlockedTechs.includes('tech_solar_perovskite');
 
         propsRef.current.onTelemetryUpdate({
           position: { x: activeX, y: activeY, z: activeZ },
+          roverPosition: { x: rover.position.x, y: rover.position.y, z: rover.position.z },
           coordinates: coords,
+          activeRegionId,
+          activeRegionName,
           heading: rover.isOccupied ? Math.round((-rover.rotationY * (180 / Math.PI)) % 360) : controller.getHeadingDegrees(),
           nearestPoi: controller.nearestPoi,
           nearestPoiDistance: controller.nearestPoiDistance,
@@ -535,12 +589,15 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           isNearRover: distToRover < 6.5,
           isNearLibrary: isNearLib,
           libraryDistance: Math.round(distToLib * 10) / 10,
+          isNearScienceLab: isNearLab,
+          scienceLabDistance: Math.round(distToScienceLab * 10) / 10,
+          rimfax: rimfaxService.getTelemetry({ x: activeX, z: activeZ }),
           isBuildModeActive: buildSystem.isActive,
           isValidBuildPlacement: buildSystem.isValidPlacement,
           buildToolMode: buildSystem.mode,
           targetedDismantleStructure: buildSystem.targetedStructure,
           isFlashlightOn: isFlashlightOnRef.current,
-          totalPowerGen: outpost.getTotalPowerGeneration(),
+          totalPowerGen: Math.round(outpost.getTotalPowerGeneration() * (hasSolarBoost ? 1.4 : 1.0)),
           totalPowerCon: outpost.getTotalPowerConsumption(),
           totalBatteryWh: outpost.getTotalBatteryStorage(),
           inputs: {

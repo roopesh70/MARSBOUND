@@ -1,3 +1,5 @@
+import { MarsRegionId } from './region';
+
 export type OutpostStructureType = 
   | 'habitat_core'
   | 'solar_array'
@@ -12,6 +14,7 @@ export interface OutpostStructure {
   id: string;
   type: OutpostStructureType;
   name: string;
+  regionId?: MarsRegionId;
   position: { x: number; y: number; z: number };
   rotationY: number;
   placedAtSol: number;

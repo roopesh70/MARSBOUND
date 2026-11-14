@@ -23,8 +23,11 @@ import {
   Lightbulb,
   MapPin,
   Lock,
-  Unlock
+  Unlock,
+  FlaskConical,
+  Radio
 } from 'lucide-react';
+import { RimfaxEchogramWidget } from './RimfaxEchogramWidget';
 
 interface HUDProps {
   telemetry: GameTelemetry | null;
@@ -34,6 +37,11 @@ interface HUDProps {
   onOpenJournal: () => void;
   onOpenProvenance: () => void;
   onOpenLibrary?: () => void;
+  onOpenScienceLab?: () => void;
+  researchPoints?: number;
+  onDeployCoreDrill?: () => void;
+  onOpenRimfaxRadar?: () => void;
+  isDrilling?: boolean;
   onOpenSettings: () => void;
   onScan: () => void;
   onRequestPointerLock: () => void;
@@ -55,6 +63,11 @@ export const HUD: React.FC<HUDProps> = ({
   onOpenJournal,
   onOpenProvenance,
   onOpenLibrary,
+  onOpenScienceLab,
+  researchPoints = 0,
+  onDeployCoreDrill,
+  onOpenRimfaxRadar,
+  isDrilling = false,
   onOpenSettings,
   onScan,
   onRequestPointerLock,
@@ -139,7 +152,11 @@ export const HUD: React.FC<HUDProps> = ({
       {/* Top Bar: Compass, Time & Coordinates */}
       <div className="flex items-start justify-between w-full pointer-events-auto">
         <div className="space-y-2">
-          <CoordinateDisplay coordinates={telemetry.coordinates} solTime={telemetry.solTime} />
+          <CoordinateDisplay 
+            coordinates={telemetry.coordinates} 
+            solTime={telemetry.solTime} 
+            regionName={telemetry.activeRegionName}
+          />
           
           {/* Mission Mini-Objective Tracker */}
           {currentObjective && !mission.completed && (
@@ -215,6 +232,7 @@ export const HUD: React.FC<HUDProps> = ({
           {/* Real-time Circular Radar Mini-Map */}
           <MiniMap
             playerPosition={telemetry.position}
+            roverPosition={telemetry.roverPosition}
             playerHeading={telemetry.heading}
             isDrivingRover={telemetry.isDrivingRover}
             activeTargetPoiId={currentObjective?.targetDiscoveryId}
@@ -251,7 +269,7 @@ export const HUD: React.FC<HUDProps> = ({
           <div className="font-mono text-xs">
             <span className="font-bold text-white block">MARS ARCHIVAL LIBRARY & REPOSITORY</span>
             <span className="text-cyan-300">
-              Press <span className="bg-cyan-900/90 text-white px-2 py-0.5 rounded border border-cyan-400 font-bold">[L]</span> or <span className="bg-cyan-900/90 text-white px-2 py-0.5 rounded border border-cyan-400 font-bold">[E]</span> or click to enter
+              Press <span className="bg-cyan-900/90 text-white px-2 py-0.5 rounded border border-cyan-400 font-bold">[L]</span> or click to enter
             </span>
           </div>
           {onOpenLibrary && (
@@ -265,6 +283,27 @@ export const HUD: React.FC<HUDProps> = ({
         </div>
       )}
 
+      {/* Field Science Laboratory Proximity Prompt */}
+      {telemetry.isNearScienceLab && !telemetry.isDrivingRover && (
+        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-3 bg-slate-950/95 border-2 border-emerald-400 text-emerald-200 px-6 py-3.5 rounded-2xl shadow-[0_0_35px_rgba(16,185,129,0.4)] backdrop-blur-md animate-pulse pointer-events-auto">
+          <FlaskConical className="w-5 h-5 text-emerald-400 shrink-0" />
+          <div className="font-mono text-xs">
+            <span className="font-bold text-white block">FIELD SCIENCE LABORATORY • CHEMIN / PIXL</span>
+            <span className="text-emerald-300">
+              Press <span className="bg-emerald-900/90 text-white px-2 py-0.5 rounded border border-emerald-400 font-bold">[K]</span> or click to analyze samples
+            </span>
+          </div>
+          {onOpenScienceLab && (
+            <button
+              onClick={onOpenScienceLab}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
+            >
+              ENTER LAB
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Center Reticle & Targeting Scanner (hidden when driving rover for clear view) */}
       {!telemetry.isDrivingRover && (
         <ScannerReticle
@@ -273,6 +312,19 @@ export const HUD: React.FC<HUDProps> = ({
           onScan={onScan}
           battery={telemetry.suit.battery}
         />
+      )}
+
+      {/* Active Rover Subsurface Radar (RIMFAX) Echogram Widget */}
+      {telemetry.isDrivingRover && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-30 pointer-events-auto animate-in fade-in slide-in-from-bottom duration-300">
+          <RimfaxEchogramWidget
+            telemetry={telemetry.rimfax}
+            speedKmh={telemetry.roverSpeedKmh}
+            onDeployCoreDrill={onDeployCoreDrill || (() => {})}
+            onOpenFullRadar={onOpenRimfaxRadar || (() => {})}
+            isDrilling={isDrilling}
+          />
+        </div>
       )}
 
       {/* Pointer Lock Help Banner if mouse unlocked */}
@@ -325,6 +377,31 @@ export const HUD: React.FC<HUDProps> = ({
 
           {/* Navigation Hotbar */}
           <div className="flex items-center space-x-2 bg-black/70 backdrop-blur-md p-1.5 rounded-xl border border-mars-border/80 text-xs font-mono shadow-2xl">
+            {telemetry.isDrivingRover && (
+              <button
+                onClick={onOpenRimfaxRadar}
+                title="RIMFAX Subsurface Radar Tomography Terminal [U]"
+                className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-all cursor-pointer"
+              >
+                <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
+                <span className="font-bold">RADAR [U]</span>
+              </button>
+            )}
+
+            <button
+              onClick={onOpenScienceLab}
+              title="Field Science Laboratory & CheMin/PIXL Spectrometer [K]"
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.25)] transition-all cursor-pointer"
+            >
+              <FlaskConical className="w-4 h-4 text-emerald-400" />
+              <span className="font-bold">LAB [K]</span>
+              {researchPoints > 0 && (
+                <span className="bg-emerald-500/30 text-emerald-200 text-[10px] px-1.5 py-0.5 rounded-full border border-emerald-400/50">
+                  {researchPoints} RP
+                </span>
+              )}
+            </button>
+
             <button
               onClick={onOpenLibrary}
               title="Mars Archival Library & Research Facility [L]"

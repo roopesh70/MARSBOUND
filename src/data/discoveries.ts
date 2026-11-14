@@ -615,5 +615,219 @@ export const JEZERO_DISCOVERIES: DiscoveryRecord[] = [
       }
     ],
     verificationStatus: 'verified'
+  },
+  {
+    id: 'poi_rochette_citadelle',
+    name: 'Citadelle Ridge & Rochette (First Mars Rock Core)',
+    category: 'geology',
+    mission: 'NASA Mars 2020',
+    region: 'South Séítah Ridge',
+    coordinates: {
+      latitude: 18.4410,
+      longitude: 77.4580,
+      elevation: -2570,
+      datum: 'MOLA Mars Areoid',
+      crs: 'Planetocentric East-positive'
+    },
+    worldPosition: { x: 45, y: 1.5, z: 35 },
+    summary: 'The historic location on Citadelle Ridge where Perseverance drilled and sealed humanity’s very first rock core sample on Mars (Sample #1 "Montdenier" from rock target "Rochette").',
+    scientificSignificance: 
+      'Marked the triumphant first successful sample caching on another planet on Sol 190 (September 2021). Mineral analysis confirmed that the crater floor is composed of igneous volcanic rocks altered by groundwater.',
+    detailedGeology: 
+      'A resistant, low ridge of volcanic basalt (Máaz formation) containing olivine, pyroxene, and iron-titanium oxides. Microscopic PIXL scans showed secondary salt minerals (sulfates and carbonates) inside void pockets, proving liquid water flowed through the rocks after they crystallized.',
+    evidenceType: 'observed',
+    primaryInstrument: 'Corer Drill / PIXL / Mastcam-Z / WATSON',
+    observationDate: '2021-09-06 (Sol 194)',
+    imageUrl: 'https://images-assets.nasa.gov/image/PIA24833/PIA24833~orig.jpg',
+    imageCaption: 'Mastcam-Z view of Citadelle ridge and the Rochette abraded patch where Sample #1 was cored.',
+    imageCredit: 'NASA / JPL-Caltech / ASU / MSSS',
+    provenance: [
+      NASA_PROVENANCE_REGISTRY[0],
+      NASA_PROVENANCE_REGISTRY[1]
+    ],
+    sampleCollectable: true,
+    sampleName: 'Rochette Basalt Core (Sample #MB-01-M)',
+    sampleType: 'Crystalline vesicular volcanic basalt with secondary salt veins',
+    mineralSignatures: ['Pyroxene', 'Plagioclase Feldspar', 'Hydrated Sulfate Voids', 'Olivine'],
+    scientificSources: [
+      {
+        title: 'NASA’s Perseverance Rover Successfully Caches First Rock Sample',
+        url: 'https://mars.nasa.gov/news/9029/nasas-perseverance-rover-successfully-caches-its-first-rock-sample/'
+      }
+    ],
+    verificationStatus: 'verified'
+  },
+  {
+    id: 'poi_enchanted_lake',
+    name: 'Enchanted Lake Bottomset Mudstones',
+    category: 'geology',
+    mission: 'NASA Mars 2020',
+    region: 'Lower Delta Scarp Base',
+    coordinates: {
+      latitude: 18.4280,
+      longitude: 77.4380,
+      elevation: -2545,
+      datum: 'MOLA Mars Areoid',
+      crs: 'Planetocentric East-positive'
+    },
+    worldPosition: { x: -65, y: 3.8, z: -45 },
+    summary: 'A dramatic outcrop of thinly laminated, fine-grained mudstone at the base of the delta scarp, nicknamed for its resemblance to sedimentary sequences in national parks on Earth.',
+    scientificSignificance: 
+      'Represents bottomset beds deposited in quiet, deeper lake water far from the turbulent river mouth. Fine muds that settle slowly in still water have the highest potential for preserving microscopic fossil biosignatures.',
+    detailedGeology: 
+      'Thin, paper-like millimeter-scale laminations of clay-silt mudstone interbedded with thin sulfate crusts. SuperCam remote micro-imager (RMI) revealed rhythmic sedimentary varves possibly recording seasonal cycles in ancient Lake Jezero.',
+    evidenceType: 'observed',
+    primaryInstrument: 'SuperCam RMI / Mastcam-Z / SHERLOC',
+    observationDate: '2022-04-30 (Sol 424)',
+    imageUrl: 'https://images-assets.nasa.gov/image/PIA25325/PIA25325~orig.jpg',
+    imageCaption: 'SuperCam RMI telescopic panorama of the thinly layered mudstone strata at Enchanted Lake.',
+    imageCredit: 'NASA / JPL-Caltech / LANL / CNES / CNRS',
+    provenance: [
+      NASA_PROVENANCE_REGISTRY[0],
+      NASA_PROVENANCE_REGISTRY[2]
+    ],
+    sampleCollectable: true,
+    sampleName: 'Enchanted Lake Laminated Mudstone',
+    sampleType: 'Lacustrine bottomset clay mudstone with rhythmic laminations',
+    mineralSignatures: ['Smectite Clays', 'Iron Oxides', 'Calcium Sulfate Veins', 'Phyllosilicates'],
+    scientificSources: [
+      {
+        title: 'Perseverance Rover Examines "Enchanted Lake" at the Base of the Jezero Delta',
+        url: 'https://mars.nasa.gov/news/9208/nasas-perseverance-rover-arrives-at-the-delta/'
+      }
+    ],
+    verificationStatus: 'verified'
+  },
+  {
+    id: 'poi_wildcat_ridge',
+    name: 'Wildcat Ridge (Organic-Rich Evaporite Mudstone)',
+    category: 'subsurface_science',
+    mission: 'NASA Mars 2020',
+    region: 'Delta Front Margin',
+    coordinates: {
+      latitude: 18.4190,
+      longitude: 77.4260,
+      elevation: -2520,
+      datum: 'MOLA Mars Areoid',
+      crs: 'Planetocentric East-positive'
+    },
+    worldPosition: { x: -135, y: 8.6, z: -60 },
+    summary: 'A 1-meter-high sedimentary cliff where Perseverance discovered the highest concentrations of organic matter yet detected on the mission, enclosed in sulfate-rich mudstone.',
+    scientificSignificance: 
+      'Organic molecules with ring structures (aromatic compounds) were found directly correlated with sulfate minerals that formed as a hypersaline lake dried up. On Earth, sulfates are known to preserve fossilized microbes for hundreds of millions of years.',
+    detailedGeology: 
+      'Very fine silt-clay mudstone rich in calcium sulfate (gypsum/anhydrite) cement. Deep ultraviolet Raman and fluorescence spectra from SHERLOC pinpointed complex carbon-bearing molecules intertwined with sulfate grains.',
+    evidenceType: 'observed',
+    primaryInstrument: 'SHERLOC / PIXL / Mastcam-Z',
+    observationDate: '2022-07-20 (Sol 504)',
+    imageUrl: 'https://images-assets.nasa.gov/image/PIA24928/PIA24928~orig.jpg',
+    imageCaption: 'The abrasion patch at Wildcat Ridge revealing fine-grained siltstone and sulfate veins where organic signatures were detected.',
+    imageCredit: 'NASA / JPL-Caltech / MSSS',
+    provenance: [
+      NASA_PROVENANCE_REGISTRY[0],
+      NASA_PROVENANCE_REGISTRY[2]
+    ],
+    sampleCollectable: true,
+    sampleName: 'Wildcat Organic-Bearing Sulfate Core',
+    sampleType: 'Hypersaline evaporitic mudstone with aromatic organic inclusions',
+    mineralSignatures: ['Aromatic Organics', 'Calcium Sulfate (Gypsum)', 'Smectite', 'Carbonates'],
+    scientificSources: [
+      {
+        title: 'NASA’s Perseverance Rover Investigates Geologically Rich "Wildcat Ridge"',
+        url: 'https://mars.nasa.gov/news/9253/nasas-perseverance-rover-investigates-geologically-rich-wildcat-ridge/'
+      }
+    ],
+    verificationStatus: 'verified'
+  },
+  {
+    id: 'poi_bright_angel',
+    name: 'Bright Angel (Polygonal Fractured Channel Floor)',
+    category: 'geology',
+    mission: 'NASA Mars 2020',
+    region: 'Neretva Vallis Channel Floor',
+    coordinates: {
+      latitude: 18.4100,
+      longitude: 77.4080,
+      elevation: -2490,
+      datum: 'MOLA Mars Areoid',
+      crs: 'Planetocentric East-positive'
+    },
+    worldPosition: { x: -195, y: 13.5, z: -135 },
+    summary: 'A bizarre, bright-toned geological unit exposed inside the Neretva Vallis river channel featuring jagged polygonal fractures, "popcorn" texture, and mineral-filled ridges.',
+    scientificSignificance: 
+      'Formed either as ancient river sediments altered by intense groundwater flow or by hydrothermal fluids circulating through river deposits. The light-toned rocks contrast starkly with the dark basalt floor.',
+    detailedGeology: 
+      'Fine-grained, pale-toned rock with distinctive polygonal contraction cracks, filled with hardened resistant mineral veins that stand in relief above the eroded surface. Contains high concentrations of hydrated iron-sulfates and carbonate minerals.',
+    evidenceType: 'observed',
+    primaryInstrument: 'Mastcam-Z Stereo / SuperCam / PIXL',
+    observationDate: '2024-06-15 (Sol 1180)',
+    imageUrl: 'https://images-assets.nasa.gov/image/PIA26372/PIA26372~orig.jpg',
+    imageCaption: 'Perseverance lookback panorama showing the bright, fractured rocky terrain of Bright Angel in Neretva Vallis.',
+    imageCredit: 'NASA / JPL-Caltech / ASU / MSSS',
+    provenance: [
+      NASA_PROVENANCE_REGISTRY[0],
+      NASA_PROVENANCE_REGISTRY[4]
+    ],
+    sampleCollectable: true,
+    sampleName: 'Bright Angel Polygonal Siltstone Core',
+    sampleType: 'Hydrothermally altered pale siltstone with mineral veins',
+    mineralSignatures: ['Hydrated Sulfates', 'Carbonates', 'Secondary Silica', 'Iron Oxides'],
+    scientificSources: [
+      {
+        title: 'NASA’s Perseverance Explores "Bright Angel" in Neretva Vallis',
+        url: 'https://mars.nasa.gov/news/9658/nasas-perseverance-explores-bright-angel-in-jezero-crater/'
+      }
+    ],
+    verificationStatus: 'verified'
+  },
+  {
+    id: 'poi_otis_peak',
+    name: 'Otis Peak Mega-Flood Conglomerate',
+    category: 'geology',
+    mission: 'NASA Mars 2020',
+    region: 'Belva Crater Margin Apron',
+    coordinates: {
+      latitude: 18.4140,
+      longitude: 77.4180,
+      elevation: -2505,
+      datum: 'MOLA Mars Areoid',
+      crs: 'Planetocentric East-positive'
+    },
+    worldPosition: { x: -150, y: 10.2, z: -155 },
+    summary: 'A coarse, chaotic conglomerate boulder bed where Perseverance cored rock sample #18, preserving rounded river cobbles carried by catastrophic Martian floods.',
+    scientificSignificance: 
+      'Direct physical evidence that Mars experienced torrential, high-velocity flooding capable of moving boulders hundreds of kilograms in mass from deep in the Martian highlands into Lake Jezero.',
+    detailedGeology: 
+      'Poorly sorted polymict conglomerate with well-rounded pebbles and cobbles of basalt, gabbro, and quartz embedded in a sand-silt matrix. Core abrasion revealed multi-colored clasts transported from diverse geological origins outside Jezero.',
+    evidenceType: 'observed',
+    primaryInstrument: 'PIXL / Mastcam-Z / WATSON',
+    observationDate: '2023-06-13 (Sol 822)',
+    imageUrl: 'https://images-assets.nasa.gov/image/PIA25962/PIA25962~orig.jpg',
+    imageCaption: 'Abraded patch on Otis Peak showing colorful rounded clasts within the coarse river conglomerate.',
+    imageCredit: 'NASA / JPL-Caltech / MSSS',
+    provenance: [
+      NASA_PROVENANCE_REGISTRY[0],
+      NASA_PROVENANCE_REGISTRY[2]
+    ],
+    sampleCollectable: true,
+    sampleName: 'Otis Peak River Conglomerate Core (Sample #MB-18)',
+    sampleType: 'Coarse polymict fluvial conglomerate with rounded highland clasts',
+    mineralSignatures: ['Feldspar', 'Pyroxene', 'Highland Anorthosite', 'Clay Cement'],
+    scientificSources: [
+      {
+        title: 'Perseverance Caches Sample 18 from Otis Peak Conglomerate',
+        url: 'https://mars.nasa.gov/news/9454/nasas-perseverance-rover-caches-its-18th-rock-core-sample/'
+      }
+    ],
+    verificationStatus: 'verified'
   }
 ];
+
+export { NERETVA_DISCOVERIES } from './regions/neretvaDiscoveries';
+import { NERETVA_DISCOVERIES } from './regions/neretvaDiscoveries';
+
+export const ALL_DISCOVERIES: DiscoveryRecord[] = [
+  ...JEZERO_DISCOVERIES,
+  ...NERETVA_DISCOVERIES
+];
+

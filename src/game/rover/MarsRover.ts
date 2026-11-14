@@ -46,6 +46,7 @@ export class MarsRover {
   private wheelAssemblies: WheelAssembly[] = [];
   private headlights: THREE.SpotLight[] = [];
   private taillights: THREE.Mesh[] = [];
+  private rimfaxRadarLight: THREE.SpotLight | null = null;
 
   // Wheel Dust Plume Particle System
   public wheelDustMesh: THREE.Points;
@@ -313,6 +314,45 @@ export class MarsRover {
     hgaGroup.add(feedHorn);
 
     this.group.add(hgaGroup);
+
+    // ==========================================
+    // 4B. RIMFAX SUBSURFACE RADAR ANTENNA ARRAY
+    // ==========================================
+    const rimfaxGroup = new THREE.Group();
+    rimfaxGroup.position.set(0, 0.15, 2.3);
+
+    // Crossbar mount
+    const crossbar = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 0.08, 0.12),
+      new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 })
+    );
+    rimfaxGroup.add(crossbar);
+
+    // Dual downward-facing dipole bowtie radar antennas
+    const antMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.6,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+    const antL = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.04, 0.3), antMat);
+    antL.position.set(-0.45, -0.05, 0);
+    rimfaxGroup.add(antL);
+
+    const antR = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.04, 0.3), antMat);
+    antR.position.set(0.45, -0.05, 0);
+    rimfaxGroup.add(antR);
+
+    // Downward radar pulse ground illuminator
+    const radarSpot = new THREE.SpotLight(0x38bdf8, 2.5, 8.0, Math.PI / 4, 0.6, 1.5);
+    radarSpot.position.set(0, -0.1, 0);
+    radarSpot.target.position.set(0, -3.0, 0);
+    rimfaxGroup.add(radarSpot);
+    rimfaxGroup.add(radarSpot.target);
+    this.rimfaxRadarLight = radarSpot;
+
+    this.group.add(rimfaxGroup);
 
     // ==========================================
     // 5. ROCKER-BOGIE SUSPENSION & MACHINED WHEELS
@@ -644,6 +684,11 @@ export class MarsRover {
 
     this.group.position.copy(this.position);
     this.group.rotation.set(this.pitch, this.rotationY, this.roll, 'YXZ');
+
+    // Pulse RIMFAX Subsurface Radar downward beam when active
+    if (this.rimfaxRadarLight) {
+      this.rimfaxRadarLight.intensity = this.isOccupied ? 2.2 + Math.sin(Date.now() * 0.008) * 0.8 : 0;
+    }
 
     // 5. UPDATE WHEELS: INDEPENDENT SUSPENSION TRAVEL & 4-CORNER STEERING
     const wheelRotDelta = (this.velocity / this.wheelRadius) * dt;

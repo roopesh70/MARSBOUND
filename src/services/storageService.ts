@@ -14,6 +14,9 @@ export interface SavedGameState {
     sol: number;
     notes: string;
   }[];
+  analyzedSampleIds?: string[];
+  researchPoints?: number;
+  unlockedTechIds?: string[];
   mission: Mission;
   structures: OutpostStructure[];
   sol: number;

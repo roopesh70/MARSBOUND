@@ -31,8 +31,15 @@ export class NasaLandmarks {
     const blastMark = this.createSkyCraneBlastMark(-24, 18, terrain);
     this.group.add(blastMark);
 
+    // 6. Neretva Vallis Western Rim Breach Expedition Gateway (-210, -155)
+    const neretvaGate = this.createNeretvaBreachGate(-210, -155, terrain);
+    this.group.add(neretvaGate.mesh);
+    this.neretvaBeaconLight = neretvaGate.beaconLight;
+
     scene.add(this.group);
   }
+
+  private neretvaBeaconLight?: THREE.PointLight;
 
   /**
    * 3D Procedural model of NASA's Ingenuity Mars Helicopter
@@ -331,11 +338,139 @@ export class NasaLandmarks {
     return group;
   }
 
+  /**
+   * Neretva Vallis Western Breach Gateway:
+   * Giant basalt entrance pillars, navigational antenna tower, amber strobe beacon,
+   * and exploration caution signpost at the western rim entrance.
+   */
+  private createNeretvaBreachGate(
+    x: number,
+    z: number,
+    terrain: JezeroTerrain
+  ): { mesh: THREE.Group; beaconLight: THREE.PointLight } {
+    const group = new THREE.Group();
+    const y = terrain.getElevationAt(x, z);
+    group.position.set(x, y, z);
+
+    // Orientation angle towards the gorge path (~45 degrees)
+    const canyonAngle = Math.atan2(-130, -125);
+    group.rotation.y = -canyonAngle + Math.PI / 2;
+
+    const darkBasaltMat = new THREE.MeshStandardMaterial({
+      color: 0x2e1911,
+      roughness: 0.95,
+      metalness: 0.05,
+      flatShading: true
+    });
+
+    const towerMetalMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.85,
+      roughness: 0.3
+    });
+
+    const warningMat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      metalness: 0.3,
+      roughness: 0.5
+    });
+
+    // 1. Twin Monolithic Fluvial Pillars (12m and 14m tall) flanking the roadway
+    const pillarGeom1 = new THREE.CylinderGeometry(1.6, 2.4, 12, 7);
+    const pillar1 = new THREE.Mesh(pillarGeom1, darkBasaltMat);
+    pillar1.position.set(-14, 6, 0);
+    pillar1.castShadow = true;
+    pillar1.receiveShadow = true;
+    group.add(pillar1);
+
+    const pillarGeom2 = new THREE.CylinderGeometry(1.8, 2.6, 14, 8);
+    const pillar2 = new THREE.Mesh(pillarGeom2, darkBasaltMat);
+    pillar2.position.set(14, 7, 0);
+    pillar2.castShadow = true;
+    pillar2.receiveShadow = true;
+    group.add(pillar2);
+
+    // 2. High-Tech Navigational Relay Tower
+    const towerMast = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.15, 0.35, 9.5, 8),
+      towerMetalMat
+    );
+    towerMast.position.set(-8, 4.75, 2);
+    towerMast.castShadow = true;
+    group.add(towerMast);
+
+    // Parabolic High-Gain Dish pointed towards Nili Planum highlands
+    const dish = new THREE.Mesh(
+      new THREE.SphereGeometry(1.2, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.45),
+      towerMetalMat
+    );
+    dish.position.set(-8, 8.5, 2);
+    dish.rotation.x = Math.PI / 4;
+    dish.rotation.y = Math.PI;
+    group.add(dish);
+
+    // Solar Power Wing for Relay
+    const solarWing = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 0.05, 0.9),
+      new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.7, roughness: 0.3 })
+    );
+    solarWing.position.set(-8, 6.2, 2);
+    solarWing.rotation.x = 0.3;
+    group.add(solarWing);
+
+    // Pulsing Amber Strobe Beacon Light
+    const beaconLight = new THREE.PointLight(0xf59e0b, 1.8, 45, 1.5);
+    beaconLight.position.set(-8, 9.8, 2);
+    group.add(beaconLight);
+
+    const beaconBulb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xfbbf24 })
+    );
+    beaconBulb.position.set(-8, 9.8, 2);
+    group.add(beaconBulb);
+
+    // 3. Directional Gateway Caution Signpost
+    const signpostPole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 2.4, 8),
+      towerMetalMat
+    );
+    signpostPole.position.set(7, 1.2, -1);
+    group.add(signpostPole);
+
+    const signBoard = new THREE.Mesh(
+      new THREE.BoxGeometry(2.2, 1.0, 0.08),
+      warningMat
+    );
+    signBoard.position.set(7, 1.9, -1);
+    group.add(signBoard);
+
+    // Ground Boulders along canyon entrance
+    for (let i = 0; i < 7; i++) {
+      const boulder = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(0.8 + Math.random() * 0.7, 1),
+        darkBasaltMat
+      );
+      const bx = (Math.random() - 0.5) * 22;
+      const bz = (Math.random() - 0.5) * 12;
+      boulder.position.set(bx, 0.4, bz);
+      boulder.castShadow = true;
+      group.add(boulder);
+    }
+
+    return { mesh: group, beaconLight };
+  }
+
   public update(time: number) {
     // Subtle idle rotation of Ingenuity's counter-rotating blades
     if (this.ingenuityRotorTop && this.ingenuityRotorBottom) {
       this.ingenuityRotorTop.rotation.y = time * 2.5;
       this.ingenuityRotorBottom.rotation.y = -time * 2.5;
+    }
+
+    // Pulse the Neretva Vallis canyon breach warning beacon
+    if (this.neretvaBeaconLight) {
+      this.neretvaBeaconLight.intensity = 1.0 + Math.sin(time * 6) * 0.9;
     }
   }
 }

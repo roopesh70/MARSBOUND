@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { JezeroTerrain } from '../terrain/JezeroTerrain';
-import { JEZERO_DISCOVERIES } from '../../data/discoveries';
+import { ALL_DISCOVERIES } from '../../data/discoveries';
 import { DiscoveryRecord } from '../../types/discovery';
 import { BuildingCollisionSystem } from '../environment/BuildingCollisionSystem';
 
@@ -351,14 +351,20 @@ export class AstronautController {
       }
     }
 
-    // 4. Boundary enforcement (keep player inside bounded Jezero exploration area)
+    // 4. Boundary enforcement (keep player inside exploration area, extended for Neretva Canyon)
     const distFromOrigin = Math.sqrt(this.position.x * this.position.x + this.position.z * this.position.z);
-    this.isNearBoundary = distFromOrigin > (this.maxBoundaryRadius - 30);
+    const angle = Math.atan2(this.position.z, this.position.x);
 
-    if (distFromOrigin > this.maxBoundaryRadius) {
-      const angle = Math.atan2(this.position.z, this.position.x);
-      this.position.x = Math.cos(angle) * this.maxBoundaryRadius;
-      this.position.z = Math.sin(angle) * this.maxBoundaryRadius;
+    // In the Northwest Neretva Canyon passage (angle ~ -2.45 to -1.95 rad, x < -150, z < -110):
+    // Allow extended traverse up to 380m outward into the canyon gorge!
+    const inCanyonCorridor = Math.abs(angle - (-2.22)) < 0.35 && this.position.x < -140 && this.position.z < -105;
+    const effectiveMaxRadius = inCanyonCorridor ? 380 : this.maxBoundaryRadius;
+
+    this.isNearBoundary = distFromOrigin > (effectiveMaxRadius - 30);
+
+    if (distFromOrigin > effectiveMaxRadius) {
+      this.position.x = Math.cos(angle) * effectiveMaxRadius;
+      this.position.z = Math.sin(angle) * effectiveMaxRadius;
     }
 
     // 5. Ground, stair step-climbing, and landing impact detection
@@ -408,10 +414,10 @@ export class AstronautController {
     // Update actual camera position
     this.camera.position.copy(this.position);
 
-    // 6. Check nearest POI
+    // 6. Check nearest POI (across Jezero and Neretva discoveries)
     let closest: DiscoveryRecord | null = null;
     let minD = 9999;
-    for (const poi of JEZERO_DISCOVERIES) {
+    for (const poi of ALL_DISCOVERIES) {
       const dx = this.position.x - poi.worldPosition.x;
       const dz = this.position.z - poi.worldPosition.z;
       const d = Math.sqrt(dx * dx + dz * dz);

@@ -9,8 +9,10 @@ import { ProvenanceRegistryModal } from './components/panels/ProvenanceRegistryM
 import { SettingsModal } from './components/panels/SettingsModal';
 import { OutpostBuildModal } from './components/panels/OutpostBuildModal';
 import { MarsLibraryModal } from './components/panels/MarsLibraryModal';
+import { ScienceLabModal } from './components/panels/ScienceLabModal';
+import { RimfaxRadarModal } from './components/panels/RimfaxRadarModal';
 import { LandingIntro } from './components/intro/LandingIntro';
-import { JEZERO_DISCOVERIES } from './data/discoveries';
+import { ALL_DISCOVERIES } from './data/discoveries';
 import { ALL_MISSIONS } from './data/missions';
 import { DiscoveryRecord } from './types/discovery';
 import { Mission } from './types/mission';
@@ -18,9 +20,10 @@ import { OutpostStructureType, OutpostStructure, BuildToolMode } from './types/o
 import { AstronautController } from './game/player/AstronautController';
 import { StorageService } from './services/storageService';
 import { audioService } from './services/audioService';
+import { rimfaxService } from './services/rimfaxService';
 import { CheckCircle2 } from 'lucide-react';
 
-type ActiveModal = 'none' | 'intro' | 'map' | 'discovery' | 'mission' | 'journal' | 'provenance' | 'settings' | 'library';
+type ActiveModal = 'none' | 'intro' | 'map' | 'discovery' | 'mission' | 'journal' | 'provenance' | 'settings' | 'library' | 'science_lab' | 'rimfax';
 
 export const App: React.FC = () => {
   const [activeModal, setActiveModal] = useState<ActiveModal>('intro');
@@ -47,7 +50,7 @@ export const App: React.FC = () => {
   const [missions, setMissions] = useState<Mission[]>(ALL_MISSIONS);
   const [activeMissionId, setActiveMissionId] = useState<string>(ALL_MISSIONS[0].id);
 
-  // Saved discoveries & samples
+  // Saved discoveries, samples & scientific research
   const [discoveredIds, setDiscoveredIds] = useState<string[]>([]);
   const [collectedSamples, setCollectedSamples] = useState<{
     id: string;
@@ -57,6 +60,10 @@ export const App: React.FC = () => {
     sol: number;
     notes: string;
   }[]>([]);
+  const [researchPoints, setResearchPoints] = useState<number>(0);
+  const [analyzedSampleIds, setAnalyzedSampleIds] = useState<string[]>([]);
+  const [unlockedTechIds, setUnlockedTechIds] = useState<string[]>([]);
+  const [isDrilling, setIsDrilling] = useState<boolean>(false);
 
   // Load saved state on mount
   useEffect(() => {
@@ -64,6 +71,9 @@ export const App: React.FC = () => {
     if (saved) {
       setDiscoveredIds(saved.discoveredIds || []);
       setCollectedSamples(saved.collectedSamples || []);
+      setResearchPoints(saved.researchPoints || 0);
+      setAnalyzedSampleIds(saved.analyzedSampleIds || []);
+      setUnlockedTechIds(saved.unlockedTechIds || []);
       if (saved.structures && saved.structures.length > 0) {
         setStructures(saved.structures);
       }
@@ -150,6 +160,18 @@ export const App: React.FC = () => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       switch (e.code) {
+        // Field Science Laboratory Toggle [K]: press K to open or close!
+        case 'KeyK':
+          if (!isBuildMode) {
+            if (activeModal === 'science_lab') {
+              closeActiveModal(false);
+            } else if (activeModal === 'none') {
+              setActiveModal('science_lab');
+              audioService.playClick();
+            }
+          }
+          break;
+
         // Mars Archival Library Toggle [L]: press L to open or close!
         case 'KeyL':
           if (!isBuildMode) {
@@ -210,10 +232,13 @@ export const App: React.FC = () => {
           }
           break;
 
-        // Rover Mount/Dismount [E] or Enter Nearby Library
+        // Rover Mount/Dismount [E] or Enter Nearby Lab / Library
         case 'KeyE':
           if (activeModal === 'none' && !isBuildMode) {
-            if (telemetry?.isNearLibrary) {
+            if (telemetry?.isNearScienceLab) {
+              setActiveModal('science_lab');
+              audioService.playClick();
+            } else if (telemetry?.isNearLibrary) {
               setActiveModal('library');
               audioService.playClick();
             } else {
@@ -240,6 +265,25 @@ export const App: React.FC = () => {
             closeActiveModal(false);
           } else if (activeModal === 'none' && !isBuildMode) {
             setScanSignal((prev) => prev + 1);
+          }
+          break;
+
+        // RIMFAX Subsurface Radar Tomography Modal [U]: press U to open/close when driving rover!
+        case 'KeyU':
+          if (!isBuildMode) {
+            if (activeModal === 'rimfax') {
+              closeActiveModal(false);
+            } else if (activeModal === 'none' && telemetry?.isDrivingRover) {
+              setActiveModal('rimfax');
+              audioService.playClick();
+            }
+          }
+          break;
+
+        // Subsurface Core Coring Drill [G]: press G to drill when driving rover near reflectors!
+        case 'KeyG':
+          if (activeModal === 'none' && telemetry?.isDrivingRover && !isBuildMode) {
+            handleDeployCoreDrill();
           }
           break;
 
@@ -430,6 +474,118 @@ export const App: React.FC = () => {
     }
   }, [telemetry, completeObjective]);
 
+  // Handle sample XRD/XRF spectroscopy in the Science Lab
+  const handleSampleAnalyzed = useCallback((sampleId: string, pointsAwarded: number) => {
+    setResearchPoints((prev) => {
+      const newRp = prev + pointsAwarded;
+      setAnalyzedSampleIds((prevAnalyzed) => {
+        const newAnalyzed = prevAnalyzed.includes(sampleId) ? prevAnalyzed : [...prevAnalyzed, sampleId];
+        StorageService.save({
+          version: 1,
+          discoveredIds,
+          collectedSamples,
+          analyzedSampleIds: newAnalyzed,
+          researchPoints: newRp,
+          unlockedTechIds,
+          mission: activeMission,
+          structures,
+          sol: telemetry?.solTime.sol || 142,
+          suitOxygen: telemetry?.suit.oxygen || 100,
+          suitBattery: telemetry?.suit.battery || 100,
+          playerPosition: telemetry?.position || { x: 0, y: 0, z: 0 }
+        });
+        return newAnalyzed;
+      });
+      return newRp;
+    });
+
+    setMissionToast(`✦ GEOCHEMICAL ASSAY COMPLETE: +${pointsAwarded} RESEARCH POINTS!`);
+    setTimeout(() => setMissionToast((prev) => (prev?.includes('ASSAY') ? null : prev)), 4500);
+  }, [discoveredIds, collectedSamples, unlockedTechIds, activeMission, structures, telemetry]);
+
+  // Handle tech tree research upgrade in the Science Lab
+  const handleUnlockTech = useCallback((techId: string, costRP: number) => {
+    setResearchPoints((prev) => {
+      const newRp = Math.max(0, prev - costRP);
+      setUnlockedTechIds((prevTechs) => {
+        const newTechs = prevTechs.includes(techId) ? prevTechs : [...prevTechs, techId];
+        StorageService.save({
+          version: 1,
+          discoveredIds,
+          collectedSamples,
+          analyzedSampleIds,
+          researchPoints: newRp,
+          unlockedTechIds: newTechs,
+          mission: activeMission,
+          structures,
+          sol: telemetry?.solTime.sol || 142,
+          suitOxygen: telemetry?.suit.oxygen || 100,
+          suitBattery: telemetry?.suit.battery || 100,
+          playerPosition: telemetry?.position || { x: 0, y: 0, z: 0 }
+        });
+        return newTechs;
+      });
+      return newRp;
+    });
+
+    setMissionToast(`✦ TECH UPGRADE RESEARCHED: SYSTEMS ENHANCED!`);
+    setTimeout(() => setMissionToast((prev) => (prev?.includes('TECH UPGRADE') ? null : prev)), 4500);
+  }, [discoveredIds, collectedSamples, analyzedSampleIds, activeMission, structures, telemetry]);
+
+  // Handle RIMFAX Subsurface Core Drilling from the Rover
+  const handleDeployCoreDrill = useCallback(() => {
+    if (isDrilling || !telemetry?.isDrivingRover) return;
+
+    setIsDrilling(true);
+    audioService.playCoreDrill();
+
+    setTimeout(() => {
+      setIsDrilling(false);
+      const anom = telemetry.rimfax.nearbyAnomaly;
+      const sampleName = anom ? anom.drillableSampleName : `Subsurface Core (${telemetry.rimfax.activeStratumName})`;
+      const sampleNotes = anom ? anom.drillableSampleNotes : `Deep-core extracted at -3.5m depth via RIMFAX GPR guidance.`;
+      const sampleDiscoveryId = anom ? anom.id : (telemetry.activeRegionId === 'neretva_vallis' ? 'poi_neretva_canyon' : 'poi_delta_scarp');
+      const bonusRp = anom ? anom.baseResearchPoints : 250;
+
+      if (anom) {
+        rimfaxService.recordDrilledAnomaly(anom.id);
+      }
+
+      const newSample = {
+        id: `subsurface_core_${Date.now()}`,
+        discoveryId: sampleDiscoveryId,
+        sampleName,
+        timestamp: new Date().toISOString(),
+        sol: telemetry.solTime.sol || 142,
+        notes: sampleNotes
+      };
+
+      setCollectedSamples((prev) => {
+        const updated = [...prev, newSample];
+        StorageService.save({
+          version: 1,
+          discoveredIds,
+          collectedSamples: updated,
+          analyzedSampleIds,
+          researchPoints: researchPoints + bonusRp,
+          unlockedTechIds,
+          mission: activeMission,
+          structures,
+          sol: telemetry.solTime.sol || 142,
+          suitOxygen: telemetry.suit.oxygen || 100,
+          suitBattery: telemetry.suit.battery || 100,
+          playerPosition: telemetry.position || { x: 0, y: 0, z: 0 }
+        });
+        return updated;
+      });
+
+      setResearchPoints((prev) => prev + bonusRp);
+      audioService.playSampleCollect();
+      setMissionToast(`✦ SUBSURFACE CORE EXTRACTED: ${sampleName.toUpperCase()} (+${bonusRp} RP)!`);
+      setTimeout(() => setMissionToast((prev) => (prev?.includes('SUBSURFACE') ? null : prev)), 5000);
+    }, 2400);
+  }, [isDrilling, telemetry, discoveredIds, analyzedSampleIds, researchPoints, unlockedTechIds, activeMission, structures]);
+
   const handleOpenMap = useCallback(() => {
     handleToggleMap();
   }, [handleToggleMap]);
@@ -444,12 +600,15 @@ export const App: React.FC = () => {
     StorageService.clear();
     setDiscoveredIds([]);
     setCollectedSamples([]);
+    setResearchPoints(0);
+    setAnalyzedSampleIds([]);
+    setUnlockedTechIds([]);
     setStructures([]);
     setMissions(ALL_MISSIONS);
     setActiveModal('none');
   };
 
-  const discoveredPoisList = JEZERO_DISCOVERIES.filter((p) => discoveredIds.includes(p.id));
+  const discoveredPoisList = ALL_DISCOVERIES.filter((p) => discoveredIds.includes(p.id));
 
   return (
     <div className="w-screen h-screen relative bg-black overflow-hidden font-sans">
@@ -469,6 +628,11 @@ export const App: React.FC = () => {
           setActiveModal('library');
           audioService.playClick();
         }}
+        onOpenScienceLab={() => {
+          setActiveModal('science_lab');
+          audioService.playClick();
+        }}
+        unlockedTechIds={unlockedTechIds}
         isPaused={activeModal !== 'none'}
         activeScanSignal={scanSignal}
         onPointerLockChange={(locked) => {
@@ -510,6 +674,17 @@ export const App: React.FC = () => {
             audioService.playClick();
             setActiveModal('library');
           }}
+          onOpenScienceLab={() => {
+            audioService.playClick();
+            setActiveModal('science_lab');
+          }}
+          researchPoints={researchPoints}
+          onDeployCoreDrill={handleDeployCoreDrill}
+          onOpenRimfaxRadar={() => {
+            audioService.playClick();
+            setActiveModal('rimfax');
+          }}
+          isDrilling={isDrilling}
           onOpenSettings={() => {
             audioService.playClick();
             setActiveModal('settings');
@@ -577,6 +752,7 @@ export const App: React.FC = () => {
         isOpen={activeModal === 'map'}
         onClose={closeActiveModal}
         playerPosition={telemetry?.position || { x: 0, y: 0, z: 0 }}
+        roverPosition={telemetry?.roverPosition || { x: 14, y: 0, z: 10 }}
         playerCoordinates={telemetry?.coordinates || {
           latitude: 18.4447,
           longitude: 77.4508,
@@ -592,7 +768,7 @@ export const App: React.FC = () => {
         onSetCustomWaypoint={setCustomWaypoint}
         gpsTrail={gpsTrail}
         onSelectPoi={(id) => {
-          const target = JEZERO_DISCOVERIES.find((p) => p.id === id);
+          const target = ALL_DISCOVERIES.find((p) => p.id === id);
           if (target) {
             handleOpenDiscovery(target);
           }
@@ -642,6 +818,28 @@ export const App: React.FC = () => {
       <MarsLibraryModal
         isOpen={activeModal === 'library'}
         onClose={closeActiveModal}
+      />
+
+      {/* Field Science & Geochemistry Laboratory (CheMin / PIXL Spectrometer & Tech Tree) */}
+      <ScienceLabModal
+        isOpen={activeModal === 'science_lab'}
+        onClose={closeActiveModal}
+        collectedSamples={collectedSamples}
+        analyzedSampleIds={analyzedSampleIds}
+        researchPoints={researchPoints}
+        unlockedTechIds={unlockedTechIds}
+        onSampleAnalyzed={handleSampleAnalyzed}
+        onUnlockTech={handleUnlockTech}
+      />
+
+      {/* RIMFAX Ground-Penetrating Subsurface Radar Tomography Modal */}
+      <RimfaxRadarModal
+        isOpen={activeModal === 'rimfax'}
+        onClose={closeActiveModal}
+        telemetry={telemetry?.rimfax || rimfaxService.getTelemetry({ x: 0, z: 0 })}
+        roverPosition={telemetry?.roverPosition || { x: 0, y: 0, z: 0 }}
+        onDeployCoreDrill={handleDeployCoreDrill}
+        isDrilling={isDrilling}
       />
 
       {/* Settings Modal */}

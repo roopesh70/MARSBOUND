@@ -710,7 +710,7 @@ export const MarsWeatherClimatePanel: React.FC = () => {
  * Authentic Cursive "Goddard" Signature Script
  * Styled after Dr. Robert H. Goddard's cursive signature
  */
-function MarsExplorerSignatureScript() {
+export function MarsExplorerSignatureScript() {
   return (
     <div className="flex items-center">
       <span
