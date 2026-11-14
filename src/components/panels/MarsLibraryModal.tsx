@@ -14,7 +14,6 @@ import {
 import { audioService } from '../../services/audioService';
 import { MarsWeatherClimatePanel } from './MarsWeatherClimatePanel';
 import {
-  BookOpen,
   Database,
   CloudSun,
   FileText,
@@ -28,7 +27,6 @@ import {
   Sparkles,
   ChevronRight,
   Layers,
-  Compass,
   Cpu
 } from 'lucide-react';
 
@@ -60,51 +58,63 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-lg p-2 sm:p-4 md:p-6 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-7xl h-[94vh] bg-gradient-to-b from-[#0d131f] via-[#090d16] to-[#06080e] border border-cyan-500/30 rounded-2xl shadow-[0_0_50px_rgba(14,165,233,0.18)] overflow-hidden flex flex-col font-sans text-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl p-2 sm:p-4 md:p-6 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-7xl h-[94vh] bg-[#181516] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(249,115,22,0.12)] overflow-hidden flex flex-col font-sans text-zinc-100 select-none">
         
         {/* ========================================================= */}
-        {/* TOP ARCHIVAL COMMAND HEADER */}
+        {/* TOP GODDARD ARCHIVAL COMMAND HEADER                       */}
         {/* ========================================================= */}
-        <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-b border-cyan-500/20 bg-slate-950/80 shrink-0 gap-3">
+        <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-b border-white/10 bg-[#141213] shrink-0 gap-4">
           <div className="flex items-center space-x-3.5 w-full sm:w-auto">
-            <div className="p-2.5 bg-cyan-500/10 rounded-xl text-cyan-400 border border-cyan-400/30 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-              <BookOpen className="w-6 h-6 animate-pulse" />
+            {/* Cursive Goddard Signature Script & Branding */}
+            <div className="flex items-center space-x-2.5">
+              <span
+                className="text-3xl sm:text-4xl text-white font-normal italic tracking-wide select-none drop-shadow-sm pr-1"
+                style={{
+                  fontFamily: '"Caveat", "Brush Script MT", "Dancing Script", "Segoe Script", "Apple Chancery", cursive',
+                  lineHeight: '1',
+                  transform: 'rotate(-2deg)'
+                }}
+              >
+                Goddard
+              </span>
+              <div className="h-6 w-px bg-white/10 hidden sm:block" />
             </div>
+
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-mono tracking-widest uppercase bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 px-2 py-0.5 rounded">
-                  NASA Planetary Repository
+                <span className="text-[10px] font-mono tracking-widest uppercase bg-orange-600/15 border border-orange-500/30 text-orange-400 px-2.5 py-0.5 rounded-full font-semibold">
+                  NASA Planetary Science Division
                 </span>
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                 <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
                   ARCHIVES ONLINE
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold font-display tracking-wide text-white flex items-center gap-2">
-                MARS ARCHIVAL LIBRARY & RESEARCH FACILITY
+              <h1 className="text-lg sm:text-xl font-bold font-sans tracking-tight text-white flex items-center gap-2 mt-0.5">
+                Mars Archival Library & Research Facility
               </h1>
             </div>
           </div>
 
           {/* Search Bar & Close Button */}
           <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
-            <div className="relative flex-1 sm:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400" />
+            <div className="relative flex-1 sm:w-72">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-orange-400/80" />
               <input
                 type="text"
-                placeholder="Search archive..."
+                placeholder="Search repository..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 bg-slate-900/90 border border-cyan-500/30 rounded-xl text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
+                className="w-full pl-9 pr-4 py-1.5 bg-[#221f20] border border-white/10 rounded-xl text-xs font-sans text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20 transition-all"
               />
             </div>
             <button
               onClick={onClose}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700/60 transition-all cursor-pointer shrink-0"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#221f20] hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-all cursor-pointer shrink-0"
               title="Close Library [L / Esc]"
             >
-              <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-cyan-300">
+              <span className="text-[10px] font-mono font-bold bg-white/5 px-1.5 py-0.5 rounded text-orange-400">
                 L / Esc
               </span>
               <X className="w-4 h-4" />
@@ -113,9 +123,9 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         </header>
 
         {/* ========================================================= */}
-        {/* MAIN NAVIGATION TAB BAR */}
+        {/* MAIN NAVIGATION TAB PILL BAR (GODDARD WARM OBSIDIAN)       */}
         {/* ========================================================= */}
-        <nav className="flex items-center space-x-1 px-4 py-2 bg-slate-950/60 border-b border-cyan-950 overflow-x-auto scrollbar-thin scrollbar-thumb-cyan-900 shrink-0">
+        <nav className="flex items-center space-x-1.5 px-5 py-2.5 bg-[#141213] border-b border-white/10 overflow-x-auto scrollbar-none shrink-0">
           {[
             { id: 'overview', label: 'About Mars', icon: Sparkles },
             { id: 'digital_resources', label: 'NASA Digital Resources', icon: Cpu },
@@ -131,13 +141,13 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id as LibraryTab)}
-                className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold tracking-wide transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-medium tracking-normal transition-all whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 shadow-[0_0_12px_rgba(56,189,248,0.25)]'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
+                    ? 'bg-orange-600/30 text-orange-400 border border-orange-500/50 shadow-sm font-semibold'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-orange-400' : 'text-zinc-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -145,24 +155,24 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         </nav>
 
         {/* ========================================================= */}
-        {/* TAB CONTENT CONTAINER (SCROLLABLE) */}
+        {/* TAB CONTENT CONTAINER (SCROLLABLE)                         */}
         {/* ========================================================= */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-thin scrollbar-thumb-cyan-900/60">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-thin scrollbar-thumb-zinc-700/50 bg-[#181516]">
 
           {/* TAB 1: ALL ABOUT MARS (PLANETARY COMPENDIUM) */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
               {/* Planetary Hero Summary Card */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-blue-950/20 to-slate-900/40 border border-cyan-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="space-y-2 max-w-2xl">
-                  <div className="flex items-center space-x-2 text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider">
+              <div className="p-6 rounded-2xl bg-[#221f20] border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                <div className="space-y-2 max-w-2xl relative z-10">
+                  <div className="flex items-center space-x-2 text-orange-400 text-xs font-mono font-bold uppercase tracking-wider">
                     <Sparkles className="w-4 h-4" />
-                    <span>Planetary Dossier: {MARS_FACTSHEET.name}</span>
+                    <span>Planetary Compendium: {MARS_FACTSHEET.name}</span>
                   </div>
-                  <h2 className="text-2xl font-bold font-display text-white">
-                    The Red Planet: Sol IV Complete Compendium
+                  <h2 className="text-2xl font-bold font-sans text-white tracking-tight">
+                    The Red Planet: Sol IV Complete Science Dossier
                   </h2>
-                  <p className="text-sm text-slate-300 leading-relaxed font-sans">
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
                     Mars is the second smallest planet in the Solar System, possessing half Earth’s diameter, 
                     38% of Earth’s surface gravity, and a rarefied carbon dioxide atmosphere. It preserves 
                     a 4.5-billion-year geologic record spanning ancient warm, watery epochs (Noachian) to 
@@ -171,29 +181,29 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                 </div>
 
                 {/* Key Metrics Quick Pill */}
-                <div className="grid grid-cols-2 gap-3 w-full md:w-auto font-mono text-xs shrink-0">
-                  <div className="p-3 bg-slate-900/80 border border-cyan-500/20 rounded-xl">
-                    <span className="text-slate-400 text-[10px] block">SURFACE GRAVITY</span>
-                    <span className="text-cyan-300 font-bold text-sm">3.72 m/s² (0.38 g)</span>
+                <div className="grid grid-cols-2 gap-3 w-full md:w-auto font-mono text-xs shrink-0 relative z-10">
+                  <div className="p-3 bg-[#1a1718] border border-white/5 rounded-xl space-y-0.5">
+                    <span className="text-zinc-400 text-[10px] block uppercase">SURFACE GRAVITY</span>
+                    <span className="text-orange-400 font-bold text-sm">3.72 m/s² (0.38 g)</span>
                   </div>
-                  <div className="p-3 bg-slate-900/80 border border-cyan-500/20 rounded-xl">
-                    <span className="text-slate-400 text-[10px] block">SOL DURATION</span>
-                    <span className="text-cyan-300 font-bold text-sm">24h 39m 35s</span>
+                  <div className="p-3 bg-[#1a1718] border border-white/5 rounded-xl space-y-0.5">
+                    <span className="text-zinc-400 text-[10px] block uppercase">SOL DURATION</span>
+                    <span className="text-orange-400 font-bold text-sm">24h 39m 35s</span>
                   </div>
-                  <div className="p-3 bg-slate-900/80 border border-cyan-500/20 rounded-xl">
-                    <span className="text-slate-400 text-[10px] block">ORBITAL YEAR</span>
-                    <span className="text-cyan-300 font-bold text-sm">686.98 Earth Days</span>
+                  <div className="p-3 bg-[#1a1718] border border-white/5 rounded-xl space-y-0.5">
+                    <span className="text-zinc-400 text-[10px] block uppercase">ORBITAL YEAR</span>
+                    <span className="text-orange-400 font-bold text-sm">686.98 Earth Days</span>
                   </div>
-                  <div className="p-3 bg-slate-900/80 border border-cyan-500/20 rounded-xl">
-                    <span className="text-slate-400 text-[10px] block">AXIAL TILT</span>
-                    <span className="text-cyan-300 font-bold text-sm">25.19° (Earth-like)</span>
+                  <div className="p-3 bg-[#1a1718] border border-white/5 rounded-xl space-y-0.5">
+                    <span className="text-zinc-400 text-[10px] block uppercase">AXIAL TILT</span>
+                    <span className="text-orange-400 font-bold text-sm">25.19° (Earth-like)</span>
                   </div>
                 </div>
               </div>
 
               {/* Physical & Orbital Factsheet Table */}
               <div className="space-y-3">
-                <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
                   <Layers className="w-4 h-4" />
                   <span>Physical, Geodetic & Orbital Parameters</span>
                 </h3>
@@ -208,9 +218,9 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                     { label: 'ORBITAL ECCENTRICITY', val: MARS_FACTSHEET.orbitalEccentricity.toString() },
                     { label: 'SURFACE TEMPERATURE', val: `${MARS_FACTSHEET.meanSurfaceTempCelsius}°C (-140°C to +20°C)` }
                   ].map((item, idx) => (
-                    <div key={idx} className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                      <span className="text-[10px] text-slate-400 block">{item.label}</span>
-                      <span className="text-white font-bold">{item.val}</span>
+                    <div key={idx} className="p-3.5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/30 transition-all">
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider block">{item.label}</span>
+                      <span className="text-white font-bold text-sm mt-0.5 block">{item.val}</span>
                     </div>
                   ))}
                 </div>
@@ -218,20 +228,29 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
 
               {/* Atmospheric Composition Breakdown */}
               <div className="space-y-3">
-                <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
                   <Wind className="w-4 h-4" />
                   <span>Atmospheric Profile & Molecular Composition</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {MARS_ATMOSPHERE_GASES.map((gas, i) => (
-                    <div key={i} className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800/80 space-y-1.5">
+                    <div key={i} className="p-4 rounded-2xl bg-[#221f20] border border-white/5 space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-bold font-mono text-xs">{gas.name} ({gas.chemicalFormula})</span>
-                        <span className="text-cyan-400 font-mono font-bold text-xs bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/40">
+                        <span className="text-white font-bold font-sans text-sm">{gas.name} ({gas.chemicalFormula})</span>
+                        <span className="text-orange-400 font-mono font-bold text-xs bg-orange-600/15 px-2.5 py-0.5 rounded-full border border-orange-500/30">
                           {gas.percentage}%
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-sans leading-relaxed">
+
+                      {/* Abundance Visual Progress Slider */}
+                      <div className="relative h-2 rounded-full bg-gradient-to-r from-orange-950 via-amber-700 to-orange-500 overflow-hidden">
+                        <div
+                          className="h-full bg-orange-400 rounded-full"
+                          style={{ width: `${Math.min(100, Math.max(3, gas.percentage))}%` }}
+                        />
+                      </div>
+
+                      <p className="text-xs text-zinc-400 font-sans leading-relaxed">
                         {gas.notes}
                       </p>
                     </div>
@@ -241,25 +260,28 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
 
               {/* Major Geological Provinces */}
               <div className="space-y-3">
-                <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-                  <Compass className="w-4 h-4" />
+                <h3 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
                   <span>Prominent Geological Provinces & Landmarks</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {MARS_GEOLOGICAL_PROVINCES.map((geo, i) => (
-                    <div key={i} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2 flex flex-col justify-between">
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest">{geo.type}</span>
-                        <h4 className="text-base font-bold text-white font-display">{geo.name}</h4>
-                        <div className="text-[10px] font-mono text-slate-400 space-x-2">
-                          <span>📐 {geo.dimensions}</span>
+                    <div key={i} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all space-y-2.5 flex flex-col justify-between">
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-mono text-orange-400 uppercase tracking-widest bg-orange-600/15 px-2 py-0.5 rounded-full border border-orange-500/30 inline-block">
+                          {geo.type}
+                        </span>
+                        <h4 className="text-base font-bold text-white font-sans">{geo.name}</h4>
+                        <div className="text-[11px] font-mono text-zinc-400">
+                          📐 {geo.dimensions}
                         </div>
-                        <p className="text-xs text-slate-300 font-sans leading-relaxed pt-1">
+                        <p className="text-xs text-zinc-300 font-sans leading-relaxed pt-1">
                           {geo.description}
                         </p>
                       </div>
-                      <div className="pt-2 border-t border-slate-800/80 text-[11px] text-emerald-300/90 font-mono">
-                        ✦ {geo.scientificSignificance}
+                      <div className="pt-2.5 border-t border-white/5 text-xs text-emerald-400 font-mono flex items-start gap-1.5">
+                        <span className="shrink-0 font-bold">✦</span>
+                        <span>{geo.scientificSignificance}</span>
                       </div>
                     </div>
                   ))}
@@ -268,27 +290,27 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
 
               {/* Moons of Mars: Phobos and Deimos */}
               <div className="space-y-3">
-                <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   <span>The Moons of Mars: Phobos & Deimos Dossiers</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {MARS_MOONS.map((moon) => (
-                    <div key={moon.name} className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/20 space-y-3">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <div key={moon.name} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-3">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                         <div>
-                          <h4 className="text-lg font-bold text-white font-display">{moon.name}</h4>
-                          <span className="text-[10px] font-mono text-slate-400">Discovered {moon.discoveryYear} by {moon.discoverer}</span>
+                          <h4 className="text-lg font-bold text-white font-sans">{moon.name}</h4>
+                          <span className="text-[11px] font-mono text-zinc-400">Discovered {moon.discoveryYear} by {moon.discoverer}</span>
                         </div>
                         <div className="text-right font-mono text-xs">
-                          <span className="text-cyan-400 font-bold block">{moon.meanRadiusKm} km radius</span>
-                          <span className="text-slate-400 text-[10px]">{moon.orbitalPeriodHours}h orbit</span>
+                          <span className="text-orange-400 font-bold block">{moon.meanRadiusKm} km radius</span>
+                          <span className="text-zinc-400 text-[10px]">{moon.orbitalPeriodHours}h orbit</span>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                      <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                         {moon.details}
                       </p>
-                      <div className="p-2.5 rounded-lg bg-cyan-950/30 border border-cyan-500/20 text-[11px] text-cyan-200 font-mono">
+                      <div className="p-3 rounded-xl bg-[#1a1718] border border-orange-500/20 text-xs text-orange-200 font-mono">
                         ✦ Geological Highlight: {moon.geologicalHighlights}
                       </div>
                     </div>
@@ -301,12 +323,12 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
           {/* TAB 2: NASA MARS DIGITAL RESOURCES */}
           {activeTab === 'digital_resources' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 space-y-1.5">
-                <div className="flex items-center space-x-2 text-cyan-300 font-mono font-bold text-xs">
-                  <Cpu className="w-4 h-4 text-cyan-400" />
+              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
+                <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
+                  <Cpu className="w-4 h-4 text-orange-400" />
                   <span>AUTHORITATIVE NASA DIGITAL PLATFORMS & EXPLORATION TOOLS</span>
                 </div>
-                <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                   These verified platforms power NASA’s active planetary mission operations, rover traverse path planning, 
                   orbital spectroscopic classification, and open scientific data releases.
                 </p>
@@ -318,37 +340,37 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                   r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                   r.description.toLowerCase().includes(searchQuery.toLowerCase())
                 ).map((res) => (
-                  <div key={res.id} className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-3 flex flex-col justify-between">
-                    <div className="space-y-2">
+                  <div key={res.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all space-y-3.5 flex flex-col justify-between">
+                    <div className="space-y-2.5">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/40">
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-orange-400 bg-orange-600/15 px-2.5 py-0.5 rounded-full border border-orange-500/30">
                             {res.category.replace('_', ' ')}
                           </span>
-                          <h3 className="text-base font-bold text-white font-display mt-1.5">{res.title}</h3>
-                          <span className="text-[11px] font-mono text-slate-400 block">{res.provider}</span>
+                          <h3 className="text-base font-bold text-white font-sans mt-2">{res.title}</h3>
+                          <span className="text-[11px] font-mono text-zinc-400 block">{res.provider}</span>
                         </div>
                         <a
                           href={res.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold transition-all cursor-pointer shrink-0"
+                          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/40 text-xs font-mono font-bold transition-all cursor-pointer shrink-0 shadow-sm"
                         >
                           <span>Launch</span>
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       </div>
 
-                      <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                      <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                         {res.description}
                       </p>
 
-                      <div className="space-y-1 pt-1">
-                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">KEY CAPABILITIES</span>
-                        <ul className="space-y-1 text-[11px] font-mono text-slate-300">
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block">KEY CAPABILITIES</span>
+                        <ul className="space-y-1 text-xs font-mono text-zinc-300">
                           {res.capabilities.map((cap, ci) => (
                             <li key={ci} className="flex items-start space-x-1.5">
-                              <ChevronRight className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                              <ChevronRight className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
                               <span>{cap}</span>
                             </li>
                           ))}
@@ -356,7 +378,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-800/80 text-[11px] font-mono text-emerald-300">
+                    <div className="pt-3 border-t border-white/5 text-xs font-mono text-emerald-400">
                       ✦ Scientific Application: {res.scientificValue}
                     </div>
                   </div>
@@ -368,12 +390,12 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
           {/* TAB 3: ALL NASA DATASETS OF MARS */}
           {activeTab === 'datasets' && (
             <div className="space-y-6">
-              <div className="p-4 rounded-xl bg-blue-950/30 border border-blue-500/30 space-y-1.5">
-                <div className="flex items-center space-x-2 text-cyan-300 font-mono font-bold text-xs">
-                  <Database className="w-4 h-4 text-cyan-400" />
+              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
+                <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
+                  <Database className="w-4 h-4 text-orange-400" />
                   <span>NASA PLANETARY DATA SYSTEM (PDS) MISSION DATA REPOSITORIES</span>
                 </div>
-                <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                   Every NASA Mars mission archives peer-reviewed raw, calibrated, and derived science datasets 
                   under PDS3 and PDS4 standards. Explore archived spectrometer readings, radar soundings, 
                   seismology, and geochemistry products.
@@ -386,29 +408,29 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                   m.missionName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   m.keyInstruments.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()))
                 ).map((mission) => (
-                  <div key={mission.missionId} className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                  <div key={mission.missionId} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-3.5 gap-2">
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                          <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border ${
                             mission.operationalStatus === 'Active' 
-                              ? 'bg-emerald-950 text-emerald-400 border-emerald-500/50' 
-                              : 'bg-slate-800 text-slate-300 border-slate-700'
+                              ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/50' 
+                              : 'bg-[#1c191a] text-zinc-400 border-white/10'
                           }`}>
                             {mission.operationalStatus}
                           </span>
-                          <span className="text-[11px] font-mono text-slate-400">
+                          <span className="text-[11px] font-mono text-zinc-400">
                             {mission.craftType} • Launched {mission.launchYear} • Mars Arrival {mission.landingOrArrivalYear}
                           </span>
                         </div>
-                        <h3 className="text-lg font-bold text-white font-display mt-1">{mission.missionName}</h3>
+                        <h3 className="text-lg font-bold text-white font-sans mt-1">{mission.missionName}</h3>
                       </div>
 
                       <a
                         href={mission.pdsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-bold border border-slate-700 transition-all shrink-0 cursor-pointer"
+                        className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 text-xs font-mono font-bold border border-orange-500/40 transition-all shrink-0 cursor-pointer shadow-sm"
                       >
                         <Database className="w-3.5 h-3.5" />
                         <span>Access PDS Archive</span>
@@ -418,20 +440,20 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
 
                     {/* Archived Instrument Datasets */}
                     <div className="space-y-2">
-                      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block">
                         ARCHIVED INSTRUMENT DATASETS
                       </span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {mission.archivedDatasets.map((ds, dsi) => (
-                          <div key={dsi} className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1.5">
+                          <div key={dsi} className="p-3.5 rounded-xl bg-[#1c191a] border border-white/5 space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-cyan-300 font-mono">{ds.instrument}</span>
-                              <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">
+                              <span className="text-xs font-bold text-white font-mono">{ds.instrument}</span>
+                              <span className="text-[10px] font-mono text-zinc-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
                                 {ds.archiveNode}
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-300 font-sans leading-relaxed">{ds.description}</p>
-                            <div className="text-[10px] font-mono text-slate-400 border-t border-slate-900 pt-1">
+                            <p className="text-xs text-zinc-300 font-sans leading-relaxed">{ds.description}</p>
+                            <div className="text-[10px] font-mono text-zinc-400 border-t border-white/5 pt-1">
                               📁 Products: {ds.dataProducts}
                             </div>
                           </div>
@@ -440,11 +462,11 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                     </div>
 
                     {/* Major Discoveries */}
-                    <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/20 space-y-1.5">
+                    <div className="p-4 rounded-xl bg-[#1c191a] border border-emerald-500/20 space-y-1.5">
                       <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">
                         MAJOR SCIENTIFIC DISCOVERIES RETURNED
                       </span>
-                      <ul className="space-y-1 text-xs text-slate-200 font-sans">
+                      <ul className="space-y-1 text-xs text-zinc-200 font-sans">
                         {mission.majorDiscoveries.map((disc, di) => (
                           <li key={di} className="flex items-start space-x-2">
                             <span className="text-emerald-400 font-bold shrink-0">✦</span>
@@ -467,13 +489,13 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
           {/* TAB 5: NASA DOCUMENTS, ARTICLES & SCIENTIFIC JOURNALS */}
           {activeTab === 'documents' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <div className="flex items-center space-x-2 text-cyan-300 font-mono font-bold text-xs">
-                    <FileText className="w-4 h-4 text-cyan-400" />
+                  <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
+                    <FileText className="w-4 h-4 text-orange-400" />
                     <span>PEER-REVIEWED SCIENTIFIC LITERATURE & NASA TECHNICAL REPORTS</span>
                   </div>
-                  <p className="text-xs text-slate-300 font-sans leading-relaxed mt-1">
+                  <p className="text-xs text-zinc-300 font-sans leading-relaxed mt-1">
                     Landmark publications from Science, Nature, JGR Planets, and the NASA Technical Reports Server (NTRS).
                   </p>
                 </div>
@@ -481,7 +503,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                   href="https://ntrs.nasa.gov/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer"
+                  className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/40 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer shadow-sm"
                 >
                   <span>NASA NTRS Server</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -495,42 +517,42 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                   d.authors.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   d.category.toLowerCase().includes(searchQuery.toLowerCase())
                 ).map((doc) => (
-                  <div key={doc.id} className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                  <div key={doc.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/5 pb-2.5">
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-[10px] font-mono uppercase bg-cyan-950/80 text-cyan-400 px-2 py-0.5 rounded border border-cyan-800/40">
+                          <span className="text-[10px] font-mono uppercase bg-orange-600/15 text-orange-400 px-2.5 py-0.5 rounded-full border border-orange-500/30 font-semibold">
                             {doc.category}
                           </span>
-                          <span className="text-[11px] font-mono text-slate-400">
+                          <span className="text-[11px] font-mono text-zinc-400">
                             {doc.journalOrSource} ({doc.year})
                           </span>
                         </div>
-                        <h4 className="text-base font-bold text-white font-display">{doc.title}</h4>
-                        <span className="text-xs font-mono text-slate-400 block">{doc.authors}</span>
+                        <h4 className="text-base font-bold text-white font-sans">{doc.title}</h4>
+                        <span className="text-xs font-mono text-zinc-400 block">{doc.authors}</span>
                       </div>
 
                       <a
                         href={doc.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer"
+                        className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-[#1c191a] hover:bg-white/10 text-orange-400 border border-white/10 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer"
                       >
                         <span>{doc.doiOrReportId}</span>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     </div>
 
-                    <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                    <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                       {doc.abstract}
                     </p>
 
-                    <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-                      <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider block">KEY SCIENTIFIC FINDINGS</span>
-                      <ul className="space-y-1 text-[11px] font-mono text-slate-300">
+                    <div className="p-3.5 rounded-xl bg-[#1c191a] border border-white/5 space-y-1.5">
+                      <span className="text-[10px] font-mono font-bold text-orange-400 uppercase tracking-wider block">KEY SCIENTIFIC FINDINGS</span>
+                      <ul className="space-y-1 text-xs font-mono text-zinc-300">
                         {doc.keyFindings.map((kf, kfi) => (
                           <li key={kfi} className="flex items-start space-x-1.5">
-                            <span className="text-cyan-400 font-bold shrink-0">✦</span>
+                            <span className="text-orange-400 font-bold shrink-0">✦</span>
                             <span>{kf}</span>
                           </li>
                         ))}
@@ -545,12 +567,12 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
           {/* TAB 6: NASA OFFICIAL WEB DIRECTORY (HYPERLINKED) */}
           {activeTab === 'web_directory' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 space-y-1">
-                <div className="flex items-center space-x-2 text-cyan-300 font-mono font-bold text-xs">
-                  <Globe className="w-4 h-4 text-cyan-400" />
+              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
+                <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
+                  <Globe className="w-4 h-4 text-orange-400" />
                   <span>OFFICIAL NASA & JPL WEBSITES, REPOSITORIES & REAL-TIME PORTALS</span>
                 </div>
-                <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                   Direct verified hyperlinks to all agency web destinations dedicated to Mars exploration.
                 </p>
               </div>
@@ -562,27 +584,27 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                   p.domain.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   p.description.toLowerCase().includes(searchQuery.toLowerCase())
                 ).map((page) => (
-                  <div key={page.id} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 transition-all flex flex-col justify-between space-y-3">
-                    <div className="space-y-1.5">
+                  <div key={page.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all flex flex-col justify-between space-y-3.5">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase bg-slate-800 text-slate-300 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-mono uppercase bg-[#1c191a] text-zinc-300 border border-white/10 px-2 py-0.5 rounded">
                           {page.category}
                         </span>
-                        <span className="text-[10px] font-mono text-cyan-400">{page.domain}</span>
+                        <span className="text-xs font-mono text-orange-400">{page.domain}</span>
                       </div>
-                      <h4 className="text-sm font-bold text-white font-display">{page.title}</h4>
-                      <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                      <h4 className="text-sm font-bold text-white font-sans">{page.title}</h4>
+                      <p className="text-xs text-zinc-300 font-sans leading-relaxed">
                         {page.description}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-slate-400">Audience: {page.recommendedAudience}</span>
+                    <div className="pt-2.5 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[11px] font-mono text-zinc-400">Audience: {page.recommendedAudience}</span>
                       <a
                         href={page.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-1 text-xs font-mono font-bold text-cyan-300 hover:text-cyan-200 transition-colors"
+                        className="flex items-center space-x-1 text-xs font-mono font-bold text-orange-400 hover:text-orange-300 transition-colors"
                       >
                         <span>Visit Site</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -598,7 +620,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
           {activeTab === 'gallery' && (
             <div className="space-y-4">
               {/* Category Filter Pills */}
-              <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-cyan-900/40">
+              <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
                 {['All', 'Rover Landscapes', 'Orbital Imagery', 'Astrobiology & Geology', 'Spacecraft & Heritage', 'Weather & Phenomena'].map((cat) => (
                   <button
                     key={cat}
@@ -606,10 +628,10 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                       setGalleryFilter(cat);
                       audioService.playClick();
                     }}
-                    className={`px-3 py-1 rounded-xl text-xs font-mono transition-all whitespace-nowrap cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all whitespace-nowrap cursor-pointer ${
                       galleryFilter === cat
-                        ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                        : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                        ? 'bg-orange-500 text-black font-bold shadow-md shadow-orange-500/20'
+                        : 'bg-[#221f20] text-zinc-400 hover:text-white border border-white/5'
                     }`}
                   >
                     {cat}
@@ -632,10 +654,10 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                       setSelectedImage(img);
                       audioService.playClick();
                     }}
-                    className="group relative rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden hover:border-cyan-500/60 transition-all cursor-pointer flex flex-col"
+                    className="group relative rounded-2xl bg-[#221f20] border border-white/5 overflow-hidden hover:border-orange-500/50 transition-all cursor-pointer flex flex-col"
                   >
                     {/* Image Thumbnail Container */}
-                    <div className="relative aspect-video w-full overflow-hidden bg-slate-950">
+                    <div className="relative aspect-video w-full overflow-hidden bg-black">
                       <img
                         src={img.thumbnailUrl}
                         alt={img.title}
@@ -646,28 +668,28 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                           (e.target as HTMLImageElement).src = img.imageUrl;
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] font-mono text-cyan-300 border border-cyan-500/40">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80" />
+                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm text-[10px] font-mono text-orange-400 border border-orange-500/40">
                         {img.nasaId}
                       </div>
-                      <div className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/60 text-slate-300 group-hover:text-cyan-300 transition-colors">
+                      <div className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/60 text-zinc-300 group-hover:text-orange-400 transition-colors">
                         <Maximize2 className="w-3.5 h-3.5" />
                       </div>
                     </div>
 
                     {/* Meta & Labels */}
-                    <div className="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between">
+                    <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
                       <div className="space-y-1">
-                        <span className="text-[10px] font-mono uppercase text-cyan-400 block">{img.category}</span>
-                        <h4 className="text-xs font-bold text-white font-display line-clamp-1 group-hover:text-cyan-300 transition-colors">
+                        <span className="text-[10px] font-mono uppercase text-orange-400 block font-semibold">{img.category}</span>
+                        <h4 className="text-xs font-bold text-white font-sans line-clamp-1 group-hover:text-orange-400 transition-colors">
                           {img.title}
                         </h4>
-                        <p className="text-[11px] text-slate-400 font-sans line-clamp-2">
+                        <p className="text-[11px] text-zinc-400 font-sans line-clamp-2">
                           {img.caption}
                         </p>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-800/80 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+                      <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-zinc-400 flex items-center justify-between">
                         <span>{img.instrument}</span>
                         <span>{img.solOrDate}</span>
                       </div>
@@ -681,30 +703,30 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         </main>
 
         {/* ========================================================= */}
-        {/* IMAGE LIGHTBOX MODAL (FULL RESOLUTION & ANNOTATIONS) */}
+        {/* IMAGE LIGHTBOX MODAL (WARM GODDARD LUXURY OBSIDIAN)       */}
         {/* ========================================================= */}
         {selectedImage && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/95 p-3 sm:p-6 animate-in fade-in">
-            <div className="relative max-w-5xl w-full max-h-[92vh] bg-slate-950 border border-cyan-500/40 rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/95 backdrop-blur-xl p-3 sm:p-6 animate-in fade-in">
+            <div className="relative max-w-5xl w-full max-h-[92vh] bg-[#181516] border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
               {/* Lightbox Header */}
-              <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/40">
+              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#141213]">
+                <div className="flex items-center space-x-2.5">
+                  <span className="text-xs font-mono font-bold text-orange-400 bg-orange-600/15 px-2.5 py-0.5 rounded-full border border-orange-500/30">
                     {selectedImage.nasaId}
                   </span>
-                  <h3 className="text-base font-bold text-white font-display">{selectedImage.title}</h3>
+                  <h3 className="text-base font-bold text-white font-sans">{selectedImage.title}</h3>
                 </div>
                 <button
                   onClick={() => setSelectedImage(null)}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all cursor-pointer"
+                  className="p-1.5 rounded-xl bg-[#221f20] hover:bg-white/10 text-zinc-400 hover:text-white border border-white/5 transition-all cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Lightbox Content */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                <div className="relative rounded-xl overflow-hidden bg-black max-h-[50vh] flex items-center justify-center">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin scrollbar-thumb-zinc-700/50">
+                <div className="relative rounded-2xl overflow-hidden bg-black max-h-[50vh] flex items-center justify-center border border-white/5">
                   <img
                     src={selectedImage.imageUrl}
                     alt={selectedImage.title}
@@ -713,26 +735,29 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider block">SCIENTIFIC CAPTION</span>
-                    <p className="text-slate-200 font-sans leading-relaxed">{selectedImage.caption}</p>
-                    <div className="text-[11px] font-mono text-slate-400 pt-1">
+                  <div className="p-4 rounded-2xl bg-[#221f20] border border-white/5 space-y-2">
+                    <span className="text-[10px] font-mono text-orange-400 uppercase tracking-wider block font-bold">SCIENTIFIC CAPTION</span>
+                    <p className="text-zinc-200 font-sans leading-relaxed">{selectedImage.caption}</p>
+                    <div className="text-[11px] font-mono text-zinc-400 pt-1 border-t border-white/5">
                       📸 Credit: {selectedImage.credit}
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">GEOLOGICAL & ASTROBIOLOGICAL INTERPRETATION</span>
-                    <p className="text-emerald-200 font-sans leading-relaxed bg-emerald-950/20 p-3 rounded-xl border border-emerald-500/20">
-                      {selectedImage.geologicalInterpretation}
-                    </p>
-                    <div className="pt-2 flex items-center justify-between text-slate-400 font-mono text-[11px]">
+                  <div className="p-4 rounded-2xl bg-[#221f20] border border-white/5 space-y-2 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block font-bold">GEOLOGICAL & ASTROBIOLOGICAL INTERPRETATION</span>
+                      <p className="text-emerald-300 font-sans leading-relaxed bg-[#1c191a] p-3 rounded-xl border border-emerald-500/20">
+                        {selectedImage.geologicalInterpretation}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-between text-zinc-400 font-mono text-[11px] border-t border-white/5">
                       <span>Mission: {selectedImage.mission}</span>
                       <a
                         href={selectedImage.photojournalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-1 text-cyan-400 hover:text-cyan-300 font-bold"
+                        className="flex items-center space-x-1 text-orange-400 hover:text-orange-300 font-bold"
                       >
                         <span>NASA Photojournal Entry</span>
                         <ExternalLink className="w-3.5 h-3.5" />

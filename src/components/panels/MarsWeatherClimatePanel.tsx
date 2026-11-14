@@ -208,16 +208,23 @@ export const MarsWeatherClimatePanel: React.FC = () => {
       {/* Top Header: Cursive Goddard Signature Script + Mars Explorer + Subtitle & Region Quick Selector */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-white/10 text-xs gap-3">
         <div className="flex items-center space-x-3">
-          {/* Cursive "Goddard" Signature Script replaces NASA meatball */}
-          {/* <MarsExplorerSignatureScript /> */} 
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-display leading-none">
-              Real Weather & Climate of Mars
-            </h1>
-            <p className="text-[11px] text-zinc-400 font-sans tracking-wide mt-1">
-              Climatological data based on LMD/EMARS MY32 Moderate dust
-            </p>
+          <div className="flex items-baseline space-x-2.5">
+            <span
+              className="text-3xl sm:text-4xl text-white font-normal italic tracking-wide select-none"
+              style={{
+                fontFamily: '"Caveat", "Brush Script MT", "Dancing Script", "Segoe Script", "Apple Chancery", cursive',
+                lineHeight: '1',
+                transform: 'rotate(-2deg)'
+              }}
+            >
+              Goddard
+            </span>
+            <span className="text-xl font-bold text-white font-display tracking-tight">Mars Explorer</span>
           </div>
+          <div className="hidden lg:block h-5 w-px bg-white/10 mx-1" />
+          <p className="hidden md:block text-[11px] text-zinc-400 font-sans tracking-wide">
+            Climatological data based on LMD/EMARS MY32 Moderate dust
+          </p>
         </div>
 
         {/* Region Quick Selector Pills & PSG Link */}
