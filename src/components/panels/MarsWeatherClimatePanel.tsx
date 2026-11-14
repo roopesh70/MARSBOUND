@@ -205,26 +205,20 @@ export const MarsWeatherClimatePanel: React.FC = () => {
   return (
     <div className="w-full bg-[#181516] text-zinc-100 rounded-3xl overflow-hidden shadow-2xl border border-white/5 font-sans p-3 sm:p-5 select-none space-y-4">
       
-      {/* Top Header: Cursive Goddard Signature Script + Mars Explorer + Subtitle & Region Quick Selector */}
+      {/* Top Header: Mars Weather & Climate Explorer Title + Subtitle & Region Quick Selector */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-white/10 text-xs gap-3">
         <div className="flex items-center space-x-3">
-          <div className="flex items-baseline space-x-2.5">
-            <span
-              className="text-3xl sm:text-4xl text-white font-normal italic tracking-wide select-none"
-              style={{
-                fontFamily: '"Caveat", "Brush Script MT", "Dancing Script", "Segoe Script", "Apple Chancery", cursive',
-                lineHeight: '1',
-                transform: 'rotate(-2deg)'
-              }}
-            >
-              Goddard
-            </span>
-            <span className="text-xl font-bold text-white font-display tracking-tight">Mars Explorer</span>
+          <div className="p-2.5 bg-orange-600/15 rounded-2xl text-orange-400 border border-orange-500/30 shadow-sm shrink-0">
+            <Sun className="w-5 h-5" />
           </div>
-          <div className="hidden lg:block h-5 w-px bg-white/10 mx-1" />
-          <p className="hidden md:block text-[11px] text-zinc-400 font-sans tracking-wide">
-            Climatological data based on LMD/EMARS MY32 Moderate dust
-          </p>
+          <div>
+            <h1 className="text-xl font-bold text-white font-sans tracking-tight leading-none">
+              Mars Weather & Climate Explorer
+            </h1>
+            <p className="text-[11px] text-zinc-400 font-sans tracking-wide mt-1">
+              Climatological data based on LMD/EMARS MY32 Moderate dust
+            </p>
+          </div>
         </div>
 
         {/* Region Quick Selector Pills & PSG Link */}
@@ -712,28 +706,6 @@ export const MarsWeatherClimatePanel: React.FC = () => {
 // =========================================================================
 // SUBCOMPONENTS & GAUGES
 // =========================================================================
-
-/**
- * Authentic Cursive "Goddard" Signature Script
- * Styled after Dr. Robert H. Goddard's cursive signature
- */
-export function MarsExplorerSignatureScript() {
-  return (
-    <div className="flex items-center">
-      <span
-        className="text-3xl sm:text-4xl text-white font-normal italic tracking-wide drop-shadow-md pr-1.5 select-none"
-        style={{
-          fontFamily: '"Caveat", "Brush Script MT", "Dancing Script", "Segoe Script", "Apple Chancery", cursive',
-          lineHeight: '1',
-          letterSpacing: '0.04em',
-          transform: 'rotate(-2deg)'
-        }}
-      >
-        Mars Explorer
-      </span>
-    </div>
-  );
-}
 
 /**
  * Circular 360-degree Wind Compass Dial

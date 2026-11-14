@@ -14,6 +14,7 @@ import {
 import { audioService } from '../../services/audioService';
 import { MarsWeatherClimatePanel } from './MarsWeatherClimatePanel';
 import {
+  BookOpen,
   Database,
   CloudSun,
   FileText,
@@ -37,11 +38,11 @@ interface MarsLibraryModalProps {
 
 type LibraryTab =
   | 'overview'
-  | 'digital_resources'
-  | 'datasets'
   | 'weather'
+  | 'digital_resources'
   | 'documents'
   | 'web_directory'
+  | 'datasets'
   | 'gallery';
 
 export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onClose }) => {
@@ -66,19 +67,8 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         {/* ========================================================= */}
         <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-b border-white/10 bg-[#141213] shrink-0 gap-4">
           <div className="flex items-center space-x-3.5 w-full sm:w-auto">
-            {/* Cursive Goddard Signature Script & Branding */}
-            <div className="flex items-center space-x-2.5">
-              <span
-                className="text-3xl sm:text-4xl text-white font-normal italic tracking-wide select-none drop-shadow-sm pr-1"
-                style={{
-                  fontFamily: '"Caveat", "Brush Script MT", "Dancing Script", "Segoe Script", "Apple Chancery", cursive',
-                  lineHeight: '1',
-                  transform: 'rotate(-2deg)'
-                }}
-              >
-                Goddard
-              </span>
-              <div className="h-6 w-px bg-white/10 hidden sm:block" />
+            <div className="p-2.5 bg-orange-600/15 rounded-2xl text-orange-400 border border-orange-500/30 shadow-sm shrink-0">
+              <BookOpen className="w-5 h-5" />
             </div>
 
             <div>
@@ -128,11 +118,11 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         <nav className="flex items-center space-x-1.5 px-5 py-2.5 bg-[#141213] border-b border-white/10 overflow-x-auto scrollbar-none shrink-0">
           {[
             { id: 'overview', label: 'About Mars', icon: Sparkles },
-            { id: 'digital_resources', label: 'NASA Digital Resources', icon: Cpu },
-            { id: 'datasets', label: 'NASA Mars Datasets', icon: Database },
             { id: 'weather', label: 'Real Weather & Climate (PSG)', icon: CloudSun },
+            { id: 'digital_resources', label: 'NASA Digital Resources', icon: Cpu },
             { id: 'documents', label: 'Documents & Journals', icon: FileText },
             { id: 'web_directory', label: 'NASA Web Portals', icon: Globe },
+            { id: 'datasets', label: 'NASA Mars Datasets', icon: Database },
             { id: 'gallery', label: 'Mars Image Gallery', icon: ImageIcon }
           ].map((tab) => {
             const Icon = tab.icon;
@@ -320,7 +310,12 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
             </div>
           )}
 
-          {/* TAB 2: NASA MARS DIGITAL RESOURCES */}
+          {/* TAB 2: REAL CURRENT WEATHER & CLIMATE (NASA PSG) */}
+          {activeTab === 'weather' && (
+            <MarsWeatherClimatePanel />
+          )}
+
+          {/* TAB 3: NASA MARS DIGITAL RESOURCES */}
           {activeTab === 'digital_resources' && (
             <div className="space-y-4">
               <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
@@ -387,7 +382,137 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
             </div>
           )}
 
-          {/* TAB 3: ALL NASA DATASETS OF MARS */}
+          {/* TAB 4: NASA DOCUMENTS, ARTICLES & SCIENTIFIC JOURNALS */}
+          {activeTab === 'documents' && (
+            <div className="space-y-4">
+              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
+                    <FileText className="w-4 h-4 text-orange-400" />
+                    <span>PEER-REVIEWED SCIENTIFIC LITERATURE & NASA TECHNICAL REPORTS</span>
+                  </div>
+                  <p className="text-xs text-zinc-300 font-sans leading-relaxed mt-1">
+                    Landmark publications from Science, Nature, JGR Planets, and the NASA Technical Reports Server (NTRS).
+                  </p>
+                </div>
+                <a
+                  href="https://ntrs.nasa.gov/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/40 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer shadow-sm"
+                >
+                  <span>NASA NTRS Server</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              <div className="space-y-3.5">
+                {NASA_MARS_DOCUMENTS.filter(d =>
+                  searchQuery === '' ||
+                  d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  d.authors.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  d.category.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((doc) => (
+                  <div key={doc.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/5 pb-2.5">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-[10px] font-mono uppercase bg-orange-600/15 text-orange-400 px-2.5 py-0.5 rounded-full border border-orange-500/30 font-semibold">
+                            {doc.category}
+                          </span>
+                          <span className="text-[11px] font-mono text-zinc-400">
+                            {doc.journalOrSource} ({doc.year})
+                          </span>
+                        </div>
+                        <h4 className="text-base font-bold text-white font-sans">{doc.title}</h4>
+                        <span className="text-xs font-mono text-zinc-400 block">{doc.authors}</span>
+                      </div>
+
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-[#1c191a] hover:bg-white/10 text-orange-400 border border-white/10 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer"
+                      >
+                        <span>{doc.doiOrReportId}</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+
+                    <p className="text-xs text-zinc-300 font-sans leading-relaxed">
+                      {doc.abstract}
+                    </p>
+
+                    <div className="p-3.5 rounded-xl bg-[#1c191a] border border-white/5 space-y-1.5">
+                      <span className="text-[10px] font-mono font-bold text-orange-400 uppercase tracking-wider block">KEY SCIENTIFIC FINDINGS</span>
+                      <ul className="space-y-1 text-xs font-mono text-zinc-300">
+                        {doc.keyFindings.map((kf, kfi) => (
+                          <li key={kfi} className="flex items-start space-x-1.5">
+                            <span className="text-orange-400 font-bold shrink-0">✦</span>
+                            <span>{kf}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: NASA OFFICIAL WEB DIRECTORY (HYPERLINKED) */}
+          {activeTab === 'web_directory' && (
+            <div className="space-y-4">
+              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
+                <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
+                  <Globe className="w-4 h-4 text-orange-400" />
+                  <span>OFFICIAL NASA & JPL WEBSITES, REPOSITORIES & REAL-TIME PORTALS</span>
+                </div>
+                <p className="text-xs text-zinc-300 font-sans leading-relaxed">
+                  Direct verified hyperlinks to all agency web destinations dedicated to Mars exploration.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {NASA_MARS_WEB_PAGES.filter(p =>
+                  searchQuery === '' ||
+                  p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.domain.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.description.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((page) => (
+                  <div key={page.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all flex flex-col justify-between space-y-3.5">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase bg-[#1c191a] text-zinc-300 border border-white/10 px-2 py-0.5 rounded">
+                          {page.category}
+                        </span>
+                        <span className="text-xs font-mono text-orange-400">{page.domain}</span>
+                      </div>
+                      <h4 className="text-sm font-bold text-white font-sans">{page.title}</h4>
+                      <p className="text-xs text-zinc-300 font-sans leading-relaxed">
+                        {page.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-2.5 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[11px] font-mono text-zinc-400">Audience: {page.recommendedAudience}</span>
+                      <a
+                        href={page.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-1 text-xs font-mono font-bold text-orange-400 hover:text-orange-300 transition-colors"
+                      >
+                        <span>Visit Site</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: ALL NASA DATASETS OF MARS */}
           {activeTab === 'datasets' && (
             <div className="space-y-6">
               <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
@@ -474,141 +599,6 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                           </li>
                         ))}
                       </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: REAL CURRENT WEATHER & CLIMATE (NASA GODDARD MARS EXPLORER / PSG) */}
-          {activeTab === 'weather' && (
-            <MarsWeatherClimatePanel />
-          )}
-
-          {/* TAB 5: NASA DOCUMENTS, ARTICLES & SCIENTIFIC JOURNALS */}
-          {activeTab === 'documents' && (
-            <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
-                    <FileText className="w-4 h-4 text-orange-400" />
-                    <span>PEER-REVIEWED SCIENTIFIC LITERATURE & NASA TECHNICAL REPORTS</span>
-                  </div>
-                  <p className="text-xs text-zinc-300 font-sans leading-relaxed mt-1">
-                    Landmark publications from Science, Nature, JGR Planets, and the NASA Technical Reports Server (NTRS).
-                  </p>
-                </div>
-                <a
-                  href="https://ntrs.nasa.gov/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/40 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer shadow-sm"
-                >
-                  <span>NASA NTRS Server</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              <div className="space-y-3.5">
-                {NASA_MARS_DOCUMENTS.filter(d =>
-                  searchQuery === '' ||
-                  d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  d.authors.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  d.category.toLowerCase().includes(searchQuery.toLowerCase())
-                ).map((doc) => (
-                  <div key={doc.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all space-y-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/5 pb-2.5">
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-[10px] font-mono uppercase bg-orange-600/15 text-orange-400 px-2.5 py-0.5 rounded-full border border-orange-500/30 font-semibold">
-                            {doc.category}
-                          </span>
-                          <span className="text-[11px] font-mono text-zinc-400">
-                            {doc.journalOrSource} ({doc.year})
-                          </span>
-                        </div>
-                        <h4 className="text-base font-bold text-white font-sans">{doc.title}</h4>
-                        <span className="text-xs font-mono text-zinc-400 block">{doc.authors}</span>
-                      </div>
-
-                      <a
-                        href={doc.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-[#1c191a] hover:bg-white/10 text-orange-400 border border-white/10 text-xs font-mono font-bold transition-all shrink-0 cursor-pointer"
-                      >
-                        <span>{doc.doiOrReportId}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-
-                    <p className="text-xs text-zinc-300 font-sans leading-relaxed">
-                      {doc.abstract}
-                    </p>
-
-                    <div className="p-3.5 rounded-xl bg-[#1c191a] border border-white/5 space-y-1.5">
-                      <span className="text-[10px] font-mono font-bold text-orange-400 uppercase tracking-wider block">KEY SCIENTIFIC FINDINGS</span>
-                      <ul className="space-y-1 text-xs font-mono text-zinc-300">
-                        {doc.keyFindings.map((kf, kfi) => (
-                          <li key={kfi} className="flex items-start space-x-1.5">
-                            <span className="text-orange-400 font-bold shrink-0">✦</span>
-                            <span>{kf}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 6: NASA OFFICIAL WEB DIRECTORY (HYPERLINKED) */}
-          {activeTab === 'web_directory' && (
-            <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-[#221f20] border border-white/5 space-y-1.5">
-                <div className="flex items-center space-x-2 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider">
-                  <Globe className="w-4 h-4 text-orange-400" />
-                  <span>OFFICIAL NASA & JPL WEBSITES, REPOSITORIES & REAL-TIME PORTALS</span>
-                </div>
-                <p className="text-xs text-zinc-300 font-sans leading-relaxed">
-                  Direct verified hyperlinks to all agency web destinations dedicated to Mars exploration.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                {NASA_MARS_WEB_PAGES.filter(p =>
-                  searchQuery === '' ||
-                  p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  p.domain.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  p.description.toLowerCase().includes(searchQuery.toLowerCase())
-                ).map((page) => (
-                  <div key={page.id} className="p-5 rounded-2xl bg-[#221f20] border border-white/5 hover:border-orange-500/40 transition-all flex flex-col justify-between space-y-3.5">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase bg-[#1c191a] text-zinc-300 border border-white/10 px-2 py-0.5 rounded">
-                          {page.category}
-                        </span>
-                        <span className="text-xs font-mono text-orange-400">{page.domain}</span>
-                      </div>
-                      <h4 className="text-sm font-bold text-white font-sans">{page.title}</h4>
-                      <p className="text-xs text-zinc-300 font-sans leading-relaxed">
-                        {page.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-2.5 border-t border-white/5 flex items-center justify-between">
-                      <span className="text-[11px] font-mono text-zinc-400">Audience: {page.recommendedAudience}</span>
-                      <a
-                        href={page.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-1 text-xs font-mono font-bold text-orange-400 hover:text-orange-300 transition-colors"
-                      >
-                        <span>Visit Site</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
                     </div>
                   </div>
                 ))}
