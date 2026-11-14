@@ -405,9 +405,9 @@ export const HUD: React.FC<HUDProps> = ({
             <button
               onClick={onOpenLibrary}
               title="Mars Archival Library & Research Facility [L]"
-              className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/50 shadow-[0_0_12px_rgba(56,189,248,0.25)] transition-all cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-cyan-950/70 hover:bg-orange-900 text-orange-300 border border-orange-500/50 shadow-[0_0_12px_rgba(251,146,60,0.25)] transition-all cursor-pointer"
             >
-              <BookOpen className="w-4 h-4 text-cyan-400" />
+              <BookOpen className="w-4 h-4 text-orange-400" />
               <span className="font-bold">LIBRARY [L]</span>
             </button>
 
@@ -457,7 +457,7 @@ export const HUD: React.FC<HUDProps> = ({
               className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-mars-surface hover:bg-white/10 text-white border border-mars-border transition-colors cursor-pointer"
             >
               <BookOpen className="w-4 h-4 text-emerald-400" />
-              <span>JOURNAL [J]</span>
+              <span>JOURNAL</span>
             </button>
 
             <button

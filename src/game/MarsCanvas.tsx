@@ -79,6 +79,8 @@ interface MarsCanvasProps {
   flashlightSignal?: number;
   savedStructures?: OutpostStructure[];
   unlockedTechIds?: string[];
+  solTimeOverride?: { hour: number; minute?: number } | null;
+  solTimeSpeedMultiplier?: number;
 }
 
 export const MarsCanvas: React.FC<MarsCanvasProps> = ({
@@ -99,7 +101,9 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   roverMountSignal,
   flashlightSignal = 0,
   savedStructures,
-  unlockedTechIds = []
+  unlockedTechIds = [],
+  solTimeOverride,
+  solTimeSpeedMultiplier = 30
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<AstronautController | null>(null);
@@ -242,6 +246,21 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     solarIrradianceWm2: 440,
     uvIndex: 7.2
   });
+
+  // Handle Sol Time Override and Time Multiplier
+  useEffect(() => {
+    if (solTimeOverride) {
+      solTimeState.current.hour = solTimeOverride.hour;
+      solTimeState.current.minute = solTimeOverride.minute ?? 0;
+      solTimeState.current.second = 0;
+    }
+  }, [solTimeOverride]);
+
+  useEffect(() => {
+    if (solTimeSpeedMultiplier !== undefined) {
+      solTimeState.current.timeMultiplier = solTimeSpeedMultiplier;
+    }
+  }, [solTimeSpeedMultiplier]);
 
   // Handle Scan action signal
   useEffect(() => {
@@ -504,23 +523,6 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           }
         }
 
-        // Update environment & systems
-        atmosphere.update(now * 0.001, scene, camera);
-        landmarks.update(now * 0.001);
-        outpost.update(now * 0.001);
-        libraryBuilding.update(delta);
-        scanner.update(delta, now * 0.001);
-        dustDevils.update(delta, terrain, { x: controller.position.x, z: controller.position.z });
-
-        // Update Build Mode Preview
-        if (propsRef.current.isBuildMode && buildSystem.isActive) {
-          const forwardDir = new THREE.Vector3();
-          camera.getWorldDirection(forwardDir);
-          forwardDir.y = 0;
-          forwardDir.normalize();
-          buildSystem.update(controller.position, forwardDir);
-        }
-
         // Advance Mars Sol Clock
         const solSecs = delta * solTimeState.current.timeMultiplier;
         solTimeState.current.second += solSecs;
@@ -538,9 +540,29 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           }
         }
 
+        const hourOfDay = solTimeState.current.hour + solTimeState.current.minute / 60 + solTimeState.current.second / 3600;
+
         // Diurnal Temperature shift
-        const hourOfDay = solTimeState.current.hour + solTimeState.current.minute / 60;
         envConditions.current.temperatureCelsius = Math.round(-65 + Math.sin(((hourOfDay - 6) / 24) * Math.PI * 2) * 45);
+        // Diurnal Solar Irradiance (MEDA sensor)
+        envConditions.current.solarIrradianceWm2 = Math.max(0, Math.round(460 * Math.max(0, Math.sin(((hourOfDay - 6) / 24) * Math.PI * 2))));
+
+        // Update environment & systems with live Sol LMST
+        atmosphere.update(now * 0.001, scene, camera, hourOfDay);
+        landmarks.update(now * 0.001);
+        outpost.update(now * 0.001);
+        libraryBuilding.update(delta);
+        scanner.update(delta, now * 0.001);
+        dustDevils.update(delta, terrain, { x: controller.position.x, z: controller.position.z });
+
+        // Update Build Mode Preview
+        if (propsRef.current.isBuildMode && buildSystem.isActive) {
+          const forwardDir = new THREE.Vector3();
+          camera.getWorldDirection(forwardDir);
+          forwardDir.y = 0;
+          forwardDir.normalize();
+          buildSystem.update(controller.position, forwardDir);
+        }
       }
 
       // Render Scene

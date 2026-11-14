@@ -65,6 +65,10 @@ export const App: React.FC = () => {
   const [unlockedTechIds, setUnlockedTechIds] = useState<string[]>([]);
   const [isDrilling, setIsDrilling] = useState<boolean>(false);
 
+  // Martian celestial & time warp states
+  const [solTimeOverride, setSolTimeOverride] = useState<{ hour: number; minute?: number } | null>(null);
+  const [solSpeedMultiplier, setSolSpeedMultiplier] = useState<number>(30);
+
   // Load saved state on mount
   useEffect(() => {
     const saved = StorageService.load();
@@ -649,6 +653,8 @@ export const App: React.FC = () => {
         roverMountSignal={roverSignal}
         flashlightSignal={flashlightSignal}
         savedStructures={structures}
+        solTimeOverride={solTimeOverride}
+        solTimeSpeedMultiplier={solSpeedMultiplier}
       />
 
       {/* Main Astronaut HUD (visible during active gameplay when not in build mode) */}
@@ -849,6 +855,16 @@ export const App: React.FC = () => {
         isMuted={isMuted}
         onToggleMute={() => setIsMuted((prev) => !prev)}
         onResetSave={handleResetSave}
+        currentSolHour={telemetry?.solTime ? telemetry.solTime.hour + telemetry.solTime.minute / 60 : 10.75}
+        onSetSolTime={(hour, minute) => {
+          setSolTimeOverride({ hour, minute: minute ?? 0 });
+          audioService.playClick();
+        }}
+        solSpeedMultiplier={solSpeedMultiplier}
+        onSetSolSpeedMultiplier={(speed) => {
+          setSolSpeedMultiplier(speed);
+          audioService.playClick();
+        }}
       />
     </div>
   );
