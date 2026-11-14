@@ -6,6 +6,8 @@ export type OutpostStructureType =
   | 'science_lab'
   | 'rover_bay';
 
+export type BuildToolMode = 'construct' | 'dismantle';
+
 export interface OutpostStructure {
   id: string;
   type: OutpostStructureType;

@@ -15,7 +15,7 @@ import { CoordinateService } from '../services/coordinateService';
 import { MarsCoordinates, MarsSolTime, EnvironmentalConditions } from '../types/mars';
 import { SuitResources } from '../types/survival';
 import { DiscoveryRecord } from '../types/discovery';
-import { OutpostStructureType, OutpostStructure } from '../types/outpost';
+import { OutpostStructureType, OutpostStructure, BuildToolMode } from '../types/outpost';
 import { audioService } from '../services/audioService';
 
 export interface GameTelemetry {
@@ -37,6 +37,8 @@ export interface GameTelemetry {
   libraryDistance: number;
   isBuildModeActive: boolean;
   isValidBuildPlacement: boolean;
+  buildToolMode?: BuildToolMode;
+  targetedDismantleStructure?: OutpostStructure | null;
   isFlashlightOn: boolean;
   totalPowerGen: number;
   totalPowerCon: number;
@@ -58,9 +60,11 @@ interface MarsCanvasProps {
   onPointerLockChange: (locked: boolean) => void;
   controllerRefOut?: React.MutableRefObject<AstronautController | null>;
   isBuildMode: boolean;
+  buildToolMode?: BuildToolMode;
   selectedBuildType: OutpostStructureType;
   buildRotateSignal: number;
   onStructurePlaced: (structure: OutpostStructure) => void;
+  onStructureDismantled?: (structure: OutpostStructure) => void;
   onOpenLibrary?: () => void;
   roverMountSignal: number;
   flashlightSignal?: number;
@@ -75,9 +79,11 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   onPointerLockChange,
   controllerRefOut,
   isBuildMode,
+  buildToolMode = 'construct',
   selectedBuildType,
   buildRotateSignal,
   onStructurePlaced,
+  onStructureDismantled,
   onOpenLibrary,
   roverMountSignal,
   flashlightSignal = 0,
@@ -98,9 +104,11 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     onOpenDiscovery,
     onPointerLockChange,
     onStructurePlaced,
+    onStructureDismantled,
     onOpenLibrary,
     isPaused,
     isBuildMode,
+    buildToolMode,
     selectedBuildType
   });
 
@@ -110,9 +118,11 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
       onOpenDiscovery,
       onPointerLockChange,
       onStructurePlaced,
+      onStructureDismantled,
       onOpenLibrary,
       isPaused,
       isBuildMode,
+      buildToolMode,
       selectedBuildType
     };
 
@@ -127,12 +137,15 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     if (buildSystemRef.current) {
       if (isBuildMode) {
         buildSystemRef.current.activate();
-        buildSystemRef.current.setStructureType(selectedBuildType);
+        buildSystemRef.current.setMode(buildToolMode);
+        if (buildToolMode === 'construct') {
+          buildSystemRef.current.setStructureType(selectedBuildType);
+        }
       } else {
         buildSystemRef.current.deactivate();
       }
     }
-  }, [isBuildMode, selectedBuildType, isPaused, onTelemetryUpdate, onOpenDiscovery, onPointerLockChange, onStructurePlaced]);
+  }, [isBuildMode, buildToolMode, selectedBuildType, isPaused, onTelemetryUpdate, onOpenDiscovery, onPointerLockChange, onStructurePlaced, onStructureDismantled, onOpenLibrary]);
 
   // Handle build rotation
   useEffect(() => {
@@ -317,9 +330,16 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
       if (propsRef.current.isPaused) return;
 
       if (propsRef.current.isBuildMode && buildSystem.isActive) {
-        const placed = buildSystem.placeCurrentStructure();
-        if (placed) {
-          propsRef.current.onStructurePlaced(placed);
+        if (buildSystem.mode === 'dismantle') {
+          const dismantled = buildSystem.dismantleTargetedStructure();
+          if (dismantled && propsRef.current.onStructureDismantled) {
+            propsRef.current.onStructureDismantled(dismantled);
+          }
+        } else {
+          const placed = buildSystem.placeCurrentStructure();
+          if (placed) {
+            propsRef.current.onStructurePlaced(placed);
+          }
         }
       } else {
         const distToLib = libraryBuilding.distanceTo({ x: controller.position.x, z: controller.position.z });
@@ -344,6 +364,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     let lastTime = performance.now();
     let animFrameId: number;
     let telemetryThrottleTimer = 0;
+    const roverLookTarget = new THREE.Vector3();
 
     const animate = (now: number) => {
       animFrameId = requestAnimationFrame(animate);
@@ -371,15 +392,28 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           rover.update(delta, terrain, roverInputs, collisionSystem);
           audioService.updateRoverEngine(Math.abs(rover.velocity) / rover.maxSpeed, true);
 
-          // Position 3rd-person camera following the rover
-          const cameraOffsetDist = 8.5;
-          const cameraHeight = 3.8;
+          // Smooth Dynamic Spring-Arm Chase Camera
+          const speedRatio = Math.abs(rover.velocity) / rover.maxSpeed;
+          const cameraOffsetDist = 8.0 + speedRatio * 1.5;
+          const cameraHeight = 3.5 + speedRatio * 0.7;
           const targetCamX = rover.position.x + Math.sin(rover.rotationY) * cameraOffsetDist;
           const targetCamZ = rover.position.z + Math.cos(rover.rotationY) * cameraOffsetDist;
-          const targetCamY = terrain.getElevationAt(targetCamX, targetCamZ) + cameraHeight;
+          const targetCamY = Math.max(rover.position.y + 1.6, terrain.getElevationAt(targetCamX, targetCamZ) + cameraHeight);
 
-          camera.position.set(targetCamX, Math.max(rover.position.y + 1.5, targetCamY), targetCamZ);
-          camera.lookAt(rover.position.x, rover.position.y + 1.2, rover.position.z);
+          // Smooth trailing spring damping
+          camera.position.x = THREE.MathUtils.damp(camera.position.x, targetCamX, 7.5, delta);
+          camera.position.y = THREE.MathUtils.damp(camera.position.y, targetCamY, 7.5, delta);
+          camera.position.z = THREE.MathUtils.damp(camera.position.z, targetCamZ, 7.5, delta);
+
+          // Look at rover cabin with subtle terrain micro-rumble
+          const rumble = speedRatio * 0.03 * Math.sin(now * 0.04);
+          roverLookTarget.set(rover.position.x, rover.position.y + 1.25 + rumble, rover.position.z);
+          camera.lookAt(roverLookTarget);
+
+          // Dynamic FOV swell with velocity (sense of planetary speed)
+          const targetFov = 70 + speedRatio * 8;
+          camera.fov = THREE.MathUtils.damp(camera.fov, targetFov, 5.0, delta);
+          camera.updateProjectionMatrix();
 
           // Sync astronaut position with rover
           controller.position.copy(rover.position);
@@ -387,7 +421,12 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           // Rover cabin provides life-support oxygen replenishment!
           suitState.current.oxygen = Math.min(suitState.current.oxygenMax, suitState.current.oxygen + delta * 5);
         } else {
-          // Normal Astronaut EVA Mode
+          // Normal Astronaut EVA Mode: smoothly restore FOV to standard 70 degrees
+          if (Math.abs(camera.fov - 70) > 0.05) {
+            camera.fov = THREE.MathUtils.damp(camera.fov, 70, 6.0, delta);
+            camera.updateProjectionMatrix();
+          }
+
           const isTorchActive = isFlashlightOnRef.current;
           helmetSpotlight.intensity = isTorchActive ? 4.5 : 0;
           suitAmbientPoint.intensity = isTorchActive ? 0.9 : 0;
@@ -498,6 +537,8 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
           libraryDistance: Math.round(distToLib * 10) / 10,
           isBuildModeActive: buildSystem.isActive,
           isValidBuildPlacement: buildSystem.isValidPlacement,
+          buildToolMode: buildSystem.mode,
+          targetedDismantleStructure: buildSystem.targetedStructure,
           isFlashlightOn: isFlashlightOnRef.current,
           totalPowerGen: outpost.getTotalPowerGeneration(),
           totalPowerCon: outpost.getTotalPowerConsumption(),

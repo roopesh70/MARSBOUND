@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   MARS_FACTSHEET,
   MARS_ATMOSPHERE_GASES,
@@ -6,13 +6,13 @@ import {
   MARS_MOONS,
   NASA_MARS_DIGITAL_RESOURCES,
   NASA_MISSION_DATASETS,
-  calculateCurrentMarsWeather,
   NASA_MARS_DOCUMENTS,
   NASA_MARS_WEB_PAGES,
   MARS_IMAGE_GALLERY,
   MarsGalleryImage
 } from '../../data/marsLibraryData';
 import { audioService } from '../../services/audioService';
+import { MarsWeatherClimatePanel } from './MarsWeatherClimatePanel';
 import {
   BookOpen,
   Database,
@@ -23,14 +23,10 @@ import {
   Search,
   ExternalLink,
   X,
-  Thermometer,
   Wind,
-  Sun,
   Maximize2,
   Sparkles,
   ChevronRight,
-  Info,
-  Flame,
   Layers,
   Compass,
   Cpu
@@ -55,9 +51,6 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedImage, setSelectedImage] = useState<MarsGalleryImage | null>(null);
   const [galleryFilter, setGalleryFilter] = useState<string>('All');
-
-  // Real-time weather snapshot calibrated via PSG / MEDA
-  const currentWeather = useMemo(() => calculateCurrentMarsWeather(), []);
 
   if (!isOpen) return null;
 
@@ -466,138 +459,9 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
             </div>
           )}
 
-          {/* TAB 4: REAL CURRENT WEATHER & CLIMATE (PSG & MEDA) */}
+          {/* TAB 4: REAL CURRENT WEATHER & CLIMATE (NASA GODDARD MARS EXPLORER / PSG) */}
           {activeTab === 'weather' && (
-            <div className="space-y-6">
-              {/* PSG Link Banner */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/50 via-slate-900/60 to-blue-950/50 border border-cyan-400/40 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="space-y-1.5">
-                  <div className="flex items-center space-x-2 text-cyan-300 text-xs font-mono font-bold uppercase">
-                    <CloudSun className="w-4 h-4 text-cyan-400" />
-                    <span>NASA Planetary Spectrum Generator (PSG) Integration</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-white font-display">
-                    Real-Time Mars Radiative Transfer & Climate Simulator
-                  </h3>
-                  <p className="text-xs text-slate-300 font-sans leading-relaxed max-w-2xl">
-                    NASA Goddard’s PSG suite simulates the current Martian atmosphere, dust opacity ($\tau$), 
-                    surface temperatures, and radiance curves across Jezero and Gale craters based on astronomical Solar Longitude ($L_s$).
-                  </p>
-                </div>
-                <a
-                  href="https://psg.gsfc.nasa.gov/apps/mars/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all cursor-pointer shrink-0"
-                >
-                  <span>Launch Official NASA PSG App</span>
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-
-              {/* Current Real-Time Mars Atmospheric Dashboard */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 font-mono text-xs">
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>SOLAR LONGITUDE (Ls)</span>
-                    <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                  </div>
-                  <span className="text-lg font-bold text-cyan-300 block">{currentWeather.solarLongitudeLs}°</span>
-                  <span className="text-[10px] text-slate-400 block">{currentWeather.seasonDescription}</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>MISSION SOL & TIME</span>
-                    <Sun className="w-3.5 h-3.5 text-amber-400" />
-                  </div>
-                  <span className="text-lg font-bold text-amber-300 block">Sol {currentWeather.solNumber}</span>
-                  <span className="text-[10px] text-slate-400 block">{currentWeather.localTrueSolarTime}</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>SURFACE PRESSURE</span>
-                    <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                  </div>
-                  <span className="text-lg font-bold text-emerald-300 block">{currentWeather.surfacePressurePa} Pa</span>
-                  <span className="text-[10px] text-slate-400 block">({(currentWeather.surfacePressurePa / 100).toFixed(2)} mbar • {currentWeather.pressureTrend})</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>AIR TEMPERATURE</span>
-                    <Thermometer className="w-3.5 h-3.5 text-rose-400" />
-                  </div>
-                  <span className="text-lg font-bold text-rose-300 block">{currentWeather.airTemperatureCelsius}°C</span>
-                  <span className="text-[10px] text-slate-400 block">Ground: {currentWeather.groundTemperatureCelsius}°C (Min {currentWeather.minMaxTempCelsius.min}°C)</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>DUST OPACITY (TAU)</span>
-                    <Flame className="w-3.5 h-3.5 text-amber-400" />
-                  </div>
-                  <span className="text-lg font-bold text-white block">τ = {currentWeather.dustOpticalDepthTau}</span>
-                  <span className="text-[10px] text-emerald-400 block">Risk: {currentWeather.dustStormRisk}</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>WIND SPEED & VECTOR</span>
-                    <Wind className="w-3.5 h-3.5 text-cyan-400" />
-                  </div>
-                  <span className="text-lg font-bold text-white block">{currentWeather.windSpeedMs} m/s</span>
-                  <span className="text-[10px] text-slate-400 block">{currentWeather.windDirection}</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>UV RADIATION INDEX</span>
-                    <Sun className="w-3.5 h-3.5 text-purple-400" />
-                  </div>
-                  <span className="text-lg font-bold text-purple-300 block">{currentWeather.uvIndex}</span>
-                  <span className="text-[10px] text-slate-400 block">Extreme surface UV flux</span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span>ATMOSPHERIC DENSITY</span>
-                    <Cpu className="w-3.5 h-3.5 text-blue-400" />
-                  </div>
-                  <span className="text-lg font-bold text-white block">{currentWeather.atmosphericDensityKgm3} kg/m³</span>
-                  <span className="text-[10px] text-slate-400 block">Scale height ~11.1 km</span>
-                </div>
-              </div>
-
-              {/* Climate Mechanisms Explained */}
-              <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3 font-sans">
-                <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2">
-                  <Info className="w-4 h-4 text-cyan-400" />
-                  <span>Martian Atmospheric Physics & Planetary Climate Cycles</span>
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300 leading-relaxed">
-                  <div className="space-y-1 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                    <span className="text-cyan-400 font-mono font-bold block">1. Polar Dry-Ice Pumping</span>
-                    <p>
-                      Over 25% to 30% of Mars’s entire atmospheric mass condenses annually onto the winter polar caps as dry ice (CO2 frost), causing massive planetary-scale atmospheric pressure shifts measured by Viking, Curiosity, and Perseverance.
-                    </p>
-                  </div>
-                  <div className="space-y-1 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                    <span className="text-amber-400 font-mono font-bold block">2. Global Dust Storm Season</span>
-                    <p>
-                      During perihelion ($L_s \approx 250^\circ$), intense solar heating triggers convective thermal plumes. Dust devils and regional storms can merge into planet-encircling dust events that plunge daytime temperatures and cover solar panels.
-                    </p>
-                  </div>
-                  <div className="space-y-1 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                    <span className="text-emerald-400 font-mono font-bold block">3. Nocturnal Inversion & Low Boiling Point</span>
-                    <p>
-                      Because surface pressure is near Mars’s water triple point (611.65 Pa), liquid water on the surface instantly boils or freezes. Rapid nocturnal radiative cooling drops temperatures by up to 70°C each night.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <MarsWeatherClimatePanel />
           )}
 
           {/* TAB 5: NASA DOCUMENTS, ARTICLES & SCIENTIFIC JOURNALS */}

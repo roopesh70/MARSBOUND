@@ -38,6 +38,8 @@ Click **"COMMENCE EXPEDITION"** on the introductory screen, then click anywhere 
 | **L** / **T** | **Toggle Helmet Flashlight / Rover Headlights** (dual high-intensity beams for nighttime exploration) |
 | **E** | **Board / Dismount Mars Rover** (approach the rover parked outside base) |
 | **B** | **Toggle Base Build Mode** (press **B** to enter, press **B** again or **Esc** to exit) |
+| **X** | **Toggle Construct vs. Dismantle Mode** in Build Mode (or click the Dismantle card) |
+| **Left Click** | Place building in Construct mode / Click targeted structure to Dismantle & recycle |
 | **F** | **Discovery Scanner & Modal Toggle** (press **F** to scan outcrops; press **F** again to dismiss the discovery dossier!) |
 | **R** | **NASA Provenance Registry Toggle** (press **R** to open, press **R** again to close; rotates structure in Build Mode) |
 | **M** | **Tactical GIS Map Toggle** (press **M** to open full-screen GIS map, press **M** again to close) |
@@ -49,13 +51,31 @@ Click **"COMMENCE EXPEDITION"** on the introductory screen, then click anywhere 
 
 ## 🪐 Major Features & Systems
 
-### 1. Drivable 6-Wheeled Mars Rover (`src/game/rover/MarsRover.ts`)
-* Stationed at Octavia Base. Walk near the rover and press **[E]** to board.
-* Smoothly transitions to a 3rd-person vehicle driving camera.
-* Capable of high-speed long-range expeditions ($\sim 60\text{ km/h}$) to reach distant targets like Kodiak Butte (180m south) in seconds!
-* Dual forward halogen/LED headlights illuminate the dusty Martian surface.
-* Cabin life-support refills your suit oxygen while driving.
-* Electric drive motor hum pitch-shifts dynamically with speed.
+### 1. Realistic NASA Exploration Mars Rover (`src/game/rover/MarsRover.ts`)
+* **Stationed at Octavia Base:** Walk near the rover and press **[E]** to board or dismount.
+* **Authentic NASA 3D Architecture:**
+  - **Rocker-Bogie Suspension Rigging:** Structural titanium rocker tubes and bogie pivot links connecting all 6 wheels to the central differential.
+  - **Machined Aluminum Wheels:** Chevron grousers (cleats), spiral flexure spokes, and planetary gear hub caps.
+  - **Remote Sensing Mast (RSM):** Elevated carbon-fiber mast featuring dual Mastcam-Z stereo zoom lenses, SuperCam laser spectrometer aperture, and MEDA wind sensor booms.
+  - **Articulated Robotic Arm:** Front-right multi-joint arm equipped with a rock coring drill bit and science turret.
+  - **Rear MMRTG & HGA Dish:** Nuclear radioisotope thermoelectric generator with 8 radial radiative cooling fins, High-Gain parabolic antenna dish, and UHF orbital relay.
+  - **Gold Foil & MLI Thermal Blankets:** Gold Kapton foil and silver beta-cloth wrapping across underbody and avionics bays.
+* **6-Wheel Terrain Conformity & Real-Time Suspension:**
+  - Independent terrain elevation sampling under all 6 wheel ground patches.
+  - Computes both **Pitch** and **Roll** so the rover chassis rocks and tilts over uneven terrain, craters, and ridges.
+  - Individual vertical wheel travel ($y = -0.65\text{m} \dots -0.15\text{m}$) allows wheels to climb over rocks while the rocker-bogie absorbs shocks.
+* **4-Corner Ackermann Steering:**
+  - Front wheels turn into curves while rear wheels counter-steer (at $-0.75\times$) for authentic tight zero-radius planetary maneuvers.
+* **Persistent Regolith Tire Tracks:**
+  - Automatically imprints dual chevron tread marks into the Martian regolith trailing behind the rover.
+* **Dynamic Spring-Arm Chase Camera (`src/game/MarsCanvas.tsx`):**
+  - Smooth spring-damper trailing camera with inertial lag when cornering.
+  - Subtle terrain micro-rumble vibration at high speeds.
+  - Dynamic FOV expansion ($70^\circ \to 78^\circ$) scaling with speed for a visceral sense of velocity.
+* **Dual-Tone Planetary Gear Audio (`src/services/audioService.ts`):**
+  - Low-end electric hub motor rumble paired with high-pitch planetary gear reduction whine.
+* **Cabin Life-Support:**
+  - Refills your suit oxygen reserves while driving across long distances.
 
 ### 2. Outpost Base Construction (`src/game/outpost/BuildModeSystem.ts`)
 * Press **[B]** to enter Build Mode with an interactive holographic placement grid.
@@ -68,6 +88,11 @@ Click **"COMMENCE EXPEDITION"** on the introductory screen, then click anywhere 
   - **High-Gain Comms Dish:** $-350\text{ W}$ demand, orbital uplink.
   - **Secondary Habitat Pod:** Inflatable pressurized shelter.
 * Live Outpost Power Grid telemetry displays real-time generation, consumption, and battery storage.
+* **EVA Modular Decommissioning & Dismantle Mode (`[X]`):**
+  - Press **[X]** while in Build Mode (or click the **Dismantle** card) to switch from Construct to Dismantle mode.
+  - Aim at any placed base structure within 16 meters: an amber holographic targeting wireframe locks onto it with prompt `[CLICK TO DISMANTLE: (NAME)]`.
+  - Left-clicking dismantles the structure, disposes its 3D model, plays a decommissioning audio cue, rebalances the power grid, and saves the changes.
+  - **Core Safety Logic:** The primary `Octavia Base Habitat Core Mk I` is locked with life-support protection and cannot be dismantled.
 
 ### 3. Active Roaming Martian Dust Devils (`src/game/environment/DustDevils.ts`)
 * 3 autonomous dust devil vortices traverse the Jezero Crater floor.

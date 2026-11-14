@@ -14,7 +14,7 @@ import { JEZERO_DISCOVERIES } from './data/discoveries';
 import { ALL_MISSIONS } from './data/missions';
 import { DiscoveryRecord } from './types/discovery';
 import { Mission } from './types/mission';
-import { OutpostStructureType, OutpostStructure } from './types/outpost';
+import { OutpostStructureType, OutpostStructure, BuildToolMode } from './types/outpost';
 import { AstronautController } from './game/player/AstronautController';
 import { StorageService } from './services/storageService';
 import { audioService } from './services/audioService';
@@ -38,6 +38,7 @@ export const App: React.FC = () => {
 
   // Build mode states
   const [isBuildMode, setIsBuildMode] = useState(false);
+  const [buildToolMode, setBuildToolMode] = useState<BuildToolMode>('construct');
   const [selectedBuildType, setSelectedBuildType] = useState<OutpostStructureType>('solar_array');
   const [buildRotateSignal, setBuildRotateSignal] = useState(0);
   const [structures, setStructures] = useState<OutpostStructure[]>([]);
@@ -268,9 +269,17 @@ export const App: React.FC = () => {
           break;
 
         case 'KeyC':
-        case 'KeyX':
           if (isBuildMode) {
             setIsBuildMode(false);
+            audioService.playClick();
+          } else if (activeModal !== 'none' && activeModal !== 'intro') {
+            closeActiveModal(false);
+          }
+          break;
+
+        case 'KeyX':
+          if (isBuildMode) {
+            setBuildToolMode((prev) => (prev === 'construct' ? 'dismantle' : 'construct'));
             audioService.playClick();
           } else if (activeModal !== 'none' && activeModal !== 'intro') {
             closeActiveModal(false);
@@ -349,6 +358,27 @@ export const App: React.FC = () => {
     // Advance Mission 03 Objective 1
     completeObjective('mission_03_expand_outpost', 1);
   }, [discoveredIds, collectedSamples, activeMission, telemetry, completeObjective]);
+
+  // Handle structure dismantling in Dismantle Mode
+  const handleStructureDismantled = useCallback((dismantled: OutpostStructure) => {
+    setStructures((prev) => {
+      const updated = prev.filter((s) => s.id !== dismantled.id);
+      StorageService.save({
+        version: 1,
+        discoveredIds,
+        collectedSamples,
+        mission: activeMission,
+        structures: updated,
+        sol: telemetry?.solTime.sol || 142,
+        suitOxygen: telemetry?.suit.oxygen || 100,
+        suitBattery: telemetry?.suit.battery || 100,
+        playerPosition: telemetry?.position || { x: 0, y: 0, z: 0 }
+      });
+      return updated;
+    });
+
+    setMissionToast(`RECYCLED: ${dismantled.name.toUpperCase()} (MATERIALS RECLAIMED)`);
+  }, [discoveredIds, collectedSamples, activeMission, telemetry]);
 
   // Triggered when player opens discovery from scan or map
   const handleOpenDiscovery = useCallback((poi: DiscoveryRecord) => {
@@ -447,9 +477,11 @@ export const App: React.FC = () => {
         }}
         controllerRefOut={controllerRef}
         isBuildMode={isBuildMode}
+        buildToolMode={buildToolMode}
         selectedBuildType={selectedBuildType}
         buildRotateSignal={buildRotateSignal}
         onStructurePlaced={handleStructurePlaced}
+        onStructureDismantled={handleStructureDismantled}
         roverMountSignal={roverSignal}
         flashlightSignal={flashlightSignal}
         savedStructures={structures}
@@ -508,14 +540,22 @@ export const App: React.FC = () => {
       <OutpostBuildModal
         isActive={isBuildMode}
         selectedType={selectedBuildType}
+        buildToolMode={buildToolMode}
+        targetedStructure={telemetry?.targetedDismantleStructure}
         isValidPlacement={telemetry?.isValidBuildPlacement || false}
         onSelectType={(type) => {
           setSelectedBuildType(type);
+          setBuildToolMode('construct');
+          audioService.playClick();
+        }}
+        onToggleToolMode={(mode) => {
+          setBuildToolMode(mode);
           audioService.playClick();
         }}
         onRotate={() => setBuildRotateSignal((prev) => prev + 1)}
         onClose={() => {
           setIsBuildMode(false);
+          setBuildToolMode('construct');
           audioService.playClick();
           controllerRef.current?.lockPointer();
         }}

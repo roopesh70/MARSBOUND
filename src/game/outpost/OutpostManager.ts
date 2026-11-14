@@ -6,6 +6,7 @@ export class OutpostManager {
   public group: THREE.Group;
   public safeZoneRadius = 25; // meters
   public structures: OutpostStructure[] = [];
+  public structureMeshes: Map<string, THREE.Group> = new Map();
   private safeZoneRing: THREE.Mesh;
 
   constructor(scene: THREE.Scene, terrain: JezeroTerrain, savedStructures?: OutpostStructure[]) {
@@ -122,6 +123,7 @@ export class OutpostManager {
       description: desc
     };
 
+    this.structureMeshes.set(structureRecord.id, mesh);
     this.structures.push(structureRecord);
     return structureRecord;
   }
@@ -259,6 +261,78 @@ export class OutpostManager {
   public isInSafeZone(x: number, z: number): boolean {
     const distSq = x * x + z * z;
     return distSq <= (this.safeZoneRadius * this.safeZoneRadius);
+  }
+
+  public dismantleStructure(structureId: string): OutpostStructure | null {
+    // Protected core habitat cannot be dismantled
+    if (structureId === 'outpost_hab_core') {
+      return null;
+    }
+
+    const index = this.structures.findIndex((s) => s.id === structureId);
+    if (index === -1) return null;
+
+    const removed = this.structures[index];
+    this.structures.splice(index, 1);
+
+    const mesh = this.structureMeshes.get(structureId);
+    if (mesh) {
+      this.group.remove(mesh);
+      mesh.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const m = child as THREE.Mesh;
+          if (m.geometry) m.geometry.dispose();
+          if (Array.isArray(m.material)) {
+            m.material.forEach((mat) => mat.dispose());
+          } else if (m.material) {
+            m.material.dispose();
+          }
+        }
+      });
+      this.structureMeshes.delete(structureId);
+    }
+
+    return removed;
+  }
+
+  public findTargetStructure(
+    origin: THREE.Vector3,
+    direction: THREE.Vector3,
+    maxDistance = 16
+  ): { structure: OutpostStructure; mesh: THREE.Group; distance: number } | null {
+    let closest: { structure: OutpostStructure; mesh: THREE.Group; distance: number } | null = null;
+    let minD = maxDistance;
+
+    const normDir = direction.clone().normalize();
+
+    for (const structure of this.structures) {
+      const mesh = this.structureMeshes.get(structure.id);
+      if (!mesh) continue;
+
+      // Vector from player to structure center
+      const toStructure = new THREE.Vector3(
+        structure.position.x - origin.x,
+        structure.position.y - origin.y,
+        structure.position.z - origin.z
+      );
+
+      const forwardDist = toStructure.dot(normDir);
+      if (forwardDist < 1.0 || forwardDist > maxDistance) continue; // Behind or too far
+
+      // Perpendicular distance to the look ray
+      const projected = normDir.clone().multiplyScalar(forwardDist);
+      const perpDist = toStructure.clone().sub(projected).length();
+
+      // Radius tolerance based on structure size
+      const tolerance = structure.type === 'habitat_core' ? 6.2 : structure.type === 'solar_array' ? 4.2 : 3.5;
+
+      if (perpDist <= tolerance && forwardDist < minD) {
+        minD = forwardDist;
+        closest = { structure, mesh, distance: forwardDist };
+      }
+    }
+
+    return closest;
   }
 
   public update(time: number) {

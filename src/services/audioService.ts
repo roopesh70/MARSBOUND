@@ -5,6 +5,8 @@ class MarsAudioService {
   private windOsc: AudioBufferSourceNode | null = null;
   private roverOsc: OscillatorNode | null = null;
   private roverGain: GainNode | null = null;
+  private roverGearOsc: OscillatorNode | null = null;
+  private roverGearGain: GainNode | null = null;
 
   public init() {
     if (this.ctx) return;
@@ -191,6 +193,33 @@ class MarsAudioService {
     }
   }
 
+  public playDismantle() {
+    if (!this.ctx || this.isMuted) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(740, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(370, this.ctx.currentTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(160, this.ctx.currentTime + 0.24);
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(850, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.14, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.26);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.28);
+    } catch {
+      // Ignore
+    }
+  }
+
   public playDustDevilGust() {
     if (!this.ctx || this.isMuted) return;
     try {
@@ -227,10 +256,14 @@ class MarsAudioService {
         if (this.roverGain) {
           this.roverGain.gain.setValueAtTime(0, this.ctx.currentTime);
         }
+        if (this.roverGearGain) {
+          this.roverGearGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        }
         return;
       }
 
       if (!this.roverOsc) {
+        // Low-frequency brushless hub motor rumble
         this.roverOsc = this.ctx.createOscillator();
         this.roverOsc.type = 'sawtooth';
         this.roverGain = this.ctx.createGain();
@@ -238,18 +271,39 @@ class MarsAudioService {
 
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(250, this.ctx.currentTime);
+        filter.frequency.setValueAtTime(280, this.ctx.currentTime);
 
         this.roverOsc.connect(filter);
         filter.connect(this.roverGain);
         this.roverGain.connect(this.ctx.destination);
         this.roverOsc.start();
+
+        // High-frequency planetary gear reduction whine (authentic NASA rover signature)
+        this.roverGearOsc = this.ctx.createOscillator();
+        this.roverGearOsc.type = 'sine';
+        this.roverGearGain = this.ctx.createGain();
+        this.roverGearGain.gain.setValueAtTime(0, this.ctx.currentTime);
+
+        const gearFilter = this.ctx.createBiquadFilter();
+        gearFilter.type = 'bandpass';
+        gearFilter.frequency.setValueAtTime(680, this.ctx.currentTime);
+        gearFilter.Q.setValueAtTime(4.0, this.ctx.currentTime);
+
+        this.roverGearOsc.connect(gearFilter);
+        gearFilter.connect(this.roverGearGain);
+        this.roverGearGain.connect(this.ctx.destination);
+        this.roverGearOsc.start();
       }
 
-      if (this.roverOsc && this.roverGain) {
-        const targetFreq = 50 + speedRatio * 180;
+      if (this.roverOsc && this.roverGain && this.roverGearOsc && this.roverGearGain) {
+        const targetFreq = 48 + speedRatio * 165;
         this.roverOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.05);
-        this.roverGain.gain.setTargetAtTime(0.04 + speedRatio * 0.05, this.ctx.currentTime, 0.05);
+        this.roverGain.gain.setTargetAtTime(0.04 + speedRatio * 0.06, this.ctx.currentTime, 0.05);
+
+        // Planetary gear whine scales with wheel angular velocity
+        const gearFreq = 160 + speedRatio * 520;
+        this.roverGearOsc.frequency.setTargetAtTime(gearFreq, this.ctx.currentTime, 0.05);
+        this.roverGearGain.gain.setTargetAtTime(speedRatio > 0.05 ? 0.02 + speedRatio * 0.04 : 0, this.ctx.currentTime, 0.05);
       }
     } catch {
       // Ignore

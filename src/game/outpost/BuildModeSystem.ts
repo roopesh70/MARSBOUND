@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OutpostStructureType, OutpostStructure } from '../../types/outpost';
+import { OutpostStructureType, OutpostStructure, BuildToolMode } from '../../types/outpost';
 import { OutpostManager } from './OutpostManager';
 import { JezeroTerrain } from '../terrain/JezeroTerrain';
 import { audioService } from '../../services/audioService';
@@ -7,10 +7,16 @@ import { audioService } from '../../services/audioService';
 export class BuildModeSystem {
   public group: THREE.Group;
   public isActive = false;
+  public mode: BuildToolMode = 'construct';
   public selectedType: OutpostStructureType = 'solar_array';
   public previewMesh: THREE.Group | null = null;
   public currentRotationY = 0;
   public isValidPlacement = false;
+
+  // Dismantle targeting
+  public targetedStructure: OutpostStructure | null = null;
+  private dismantleIndicator: THREE.Group;
+  private dismantleIndicatorMat: THREE.MeshBasicMaterial;
 
   private outpostManager: OutpostManager;
   private terrain: JezeroTerrain;
@@ -36,21 +42,59 @@ export class BuildModeSystem {
       opacity: 0.75
     });
 
+    // Holographic dismantle targeting bracket & base ring
+    this.dismantleIndicatorMat = new THREE.MeshBasicMaterial({
+      color: 0xf59e0b,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.85
+    });
+    this.dismantleIndicator = new THREE.Group();
+    const boxGeom = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+    const boxMesh = new THREE.Mesh(boxGeom, this.dismantleIndicatorMat);
+    this.dismantleIndicator.add(boxMesh);
+
+    const ringGeom = new THREE.RingGeometry(0.8, 1.0, 32);
+    ringGeom.rotateX(-Math.PI / 2);
+    const ringMesh = new THREE.Mesh(ringGeom, this.dismantleIndicatorMat);
+    ringMesh.position.y = -0.55;
+    this.dismantleIndicator.add(ringMesh);
+
+    this.dismantleIndicator.visible = false;
+    this.group.add(this.dismantleIndicator);
+
     scene.add(this.group);
+  }
+
+  public setMode(mode: BuildToolMode) {
+    this.mode = mode;
+    if (mode === 'construct') {
+      this.dismantleIndicator.visible = false;
+      this.rebuildPreview();
+    } else {
+      if (this.previewMesh) {
+        this.previewMesh.visible = false;
+      }
+    }
   }
 
   public setStructureType(type: OutpostStructureType) {
     this.selectedType = type;
+    this.mode = 'construct';
     this.rebuildPreview();
   }
 
   public activate() {
     this.isActive = true;
-    this.rebuildPreview();
+    if (this.mode === 'construct') {
+      this.rebuildPreview();
+    }
   }
 
   public deactivate() {
     this.isActive = false;
+    this.targetedStructure = null;
+    this.dismantleIndicator.visible = false;
     if (this.previewMesh) {
       this.group.remove(this.previewMesh);
       this.previewMesh = null;
@@ -97,7 +141,40 @@ export class BuildModeSystem {
   }
 
   public update(playerPos: THREE.Vector3, cameraDir: THREE.Vector3) {
-    if (!this.isActive || !this.previewMesh) return;
+    if (!this.isActive) return;
+
+    if (this.mode === 'dismantle') {
+      if (this.previewMesh) {
+        this.previewMesh.visible = false;
+      }
+
+      // Find structure in line of sight
+      const target = this.outpostManager.findTargetStructure(playerPos, cameraDir, 16);
+      if (target) {
+        this.targetedStructure = target.structure;
+        this.dismantleIndicator.visible = true;
+        this.dismantleIndicator.position.set(
+          target.structure.position.x,
+          target.structure.position.y + (target.structure.type === 'habitat_core' ? 3.0 : 1.5),
+          target.structure.position.z
+        );
+
+        const s = target.structure.type === 'habitat_core' ? 6.5 : target.structure.type === 'solar_array' ? 4.8 : 3.8;
+        this.dismantleIndicator.scale.set(s, s * 0.7, s);
+
+        const isProtected = target.structure.id === 'outpost_hab_core';
+        this.dismantleIndicatorMat.color.setHex(isProtected ? 0xef4444 : 0xf59e0b);
+      } else {
+        this.targetedStructure = null;
+        this.dismantleIndicator.visible = false;
+      }
+      return;
+    }
+
+    // Construction Mode
+    this.dismantleIndicator.visible = false;
+    if (!this.previewMesh) return;
+    this.previewMesh.visible = true;
 
     // Place preview 8 meters in front of the astronaut
     const targetX = playerPos.x + cameraDir.x * 8;
@@ -119,8 +196,27 @@ export class BuildModeSystem {
     });
   }
 
+  public dismantleTargetedStructure(): OutpostStructure | null {
+    if (!this.isActive || this.mode !== 'dismantle' || !this.targetedStructure) {
+      return null;
+    }
+
+    if (this.targetedStructure.id === 'outpost_hab_core') {
+      audioService.playWarningBeep();
+      return null;
+    }
+
+    const removed = this.outpostManager.dismantleStructure(this.targetedStructure.id);
+    if (removed) {
+      audioService.playDismantle();
+      this.targetedStructure = null;
+      this.dismantleIndicator.visible = false;
+    }
+    return removed;
+  }
+
   public placeCurrentStructure(): OutpostStructure | null {
-    if (!this.isActive || !this.previewMesh || !this.isValidPlacement) return null;
+    if (!this.isActive || this.mode !== 'construct' || !this.previewMesh || !this.isValidPlacement) return null;
 
     const x = this.previewMesh.position.x;
     const z = this.previewMesh.position.z;
