@@ -80,10 +80,10 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
   const currentObj = mission.objectives[mission.currentObjectiveIndex];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 animate-in fade-in">
-      <div className="relative w-full max-w-4xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-4xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 md:p-5 border-b border-mars-border/80 bg-mars-panel/90">
+        <div className="flex items-center justify-between p-2 md:p-4 border-b border-mars-border/80 bg-mars-panel/90">
           <div className="flex items-center space-x-2 md:space-x-3 truncate">
             <div className="p-1.5 md:p-2 bg-mars-orange/20 rounded-lg md:rounded-xl text-mars-orange border border-mars-orange/40 shrink-0">
               <Target className="w-4 h-4 md:w-5 md:h-5" />
@@ -157,7 +157,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-3 md:space-y-5 font-mono text-xs">
+        <div className="flex-1 overflow-y-auto p-2.5 md:p-6 space-y-2.5 md:space-y-5 font-mono text-xs">
           {/* Briefing Card */}
           <div className="bg-mars-panel/70 p-2.5 md:p-4 rounded-xl border border-mars-border/70 space-y-1.5 md:space-y-2">
             <div className="flex items-center justify-between text-[9.5px] md:text-[11px] text-mars-sand font-bold tracking-wider uppercase">
@@ -258,7 +258,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
         </div>
 
         {/* Footer & Action Shortcuts */}
-        <div className="p-2.5 md:p-4 border-t border-mars-border/80 bg-mars-panel/90 flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
+        <div className="p-2 md:p-4 border-t border-mars-border/80 bg-mars-panel/90 flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
           <div className="flex items-center space-x-1.5 md:space-x-2">
             <button
               onClick={() => {
@@ -281,7 +281,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
                 className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/50 text-cyan-300 font-mono text-xs transition-colors cursor-pointer"
               >
                 <FlaskConical className="w-3.5 h-3.5 text-cyan-400" />
-                <span>OPEN SCIENCE LAB [K]</span>
+                <span>OPEN SCIENCE LAB<span className="hidden sm:inline"> [K]</span></span>
               </button>
             ) : null}
 
@@ -294,7 +294,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
                 className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/50 text-amber-300 font-mono text-xs transition-colors cursor-pointer"
               >
                 <Radio className="w-3.5 h-3.5 text-amber-400" />
-                <span>OPEN RIMFAX RADAR [U]</span>
+                <span>OPEN RIMFAX RADAR<span className="hidden sm:inline"> [U]</span></span>
               </button>
             ) : null}
 
@@ -307,7 +307,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
                 className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-purple-950/60 hover:bg-purple-900/60 border border-purple-500/50 text-purple-300 font-mono text-xs transition-colors cursor-pointer"
               >
                 <BookOpen className="w-3.5 h-3.5 text-purple-400" />
-                <span>OPEN ARCHIVE LIBRARY [L]</span>
+                <span>OPEN ARCHIVE LIBRARY<span className="hidden sm:inline"> [L]</span></span>
               </button>
             ) : null}
 
@@ -320,7 +320,7 @@ export const MissionPanel: React.FC<MissionPanelProps> = ({
                 className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-orange-950/60 hover:bg-orange-900/60 border border-orange-500/50 text-orange-300 font-mono text-xs transition-colors cursor-pointer"
               >
                 <Hammer className="w-3.5 h-3.5 text-orange-400" />
-                <span>ENTER BUILD MODE [B]</span>
+                <span>ENTER BUILD MODE<span className="hidden sm:inline"> [B]</span></span>
               </button>
             ) : null}
           </div>

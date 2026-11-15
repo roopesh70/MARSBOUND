@@ -83,45 +83,45 @@ export const OutpostBuildModal: React.FC<OutpostBuildModalProps> = ({
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 select-none z-40">
       {/* Top Banner: Grid telemetry, Mode Toggle & Close */}
-      <div className="flex items-center justify-between w-full pointer-events-auto">
+      <div className="flex items-center justify-between w-full pointer-events-auto gap-2">
         {/* Outpost Power Stats */}
-        <div className="flex items-center space-x-4 bg-black/80 backdrop-blur-md px-5 py-3 rounded-2xl border border-mars-orange/60 font-mono shadow-2xl">
-          <div className="flex items-center space-x-2 text-mars-sand font-bold text-xs uppercase">
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>BASE GRID TELEMETRY:</span>
+        <div className="flex items-center space-x-2 md:space-x-4 bg-black/80 backdrop-blur-md px-3 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl border border-mars-orange/60 font-mono shadow-2xl text-[10px] md:text-xs truncate">
+          <div className="flex items-center space-x-1.5 text-mars-sand font-bold uppercase shrink-0">
+            <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-400" />
+            <span className="hidden sm:inline">BASE GRID:</span>
           </div>
 
-          <div className="flex items-center space-x-4 text-xs">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <div>
-              <span className="text-gray-400 text-[10px] block">GENERATION:</span>
-              <span className="text-amber-300 font-bold">{totalPowerGen.toLocaleString()} W</span>
+              <span className="text-gray-400 text-[8.5px] md:text-[10px] block">GEN:</span>
+              <span className="text-amber-300 font-bold">{totalPowerGen.toLocaleString()}W</span>
             </div>
-            <div className="h-4 w-px bg-mars-border" />
+            <div className="h-3 md:h-4 w-px bg-mars-border" />
             <div>
-              <span className="text-gray-400 text-[10px] block">DEMAND:</span>
-              <span className="text-rose-400 font-bold">{totalPowerCon.toLocaleString()} W</span>
+              <span className="text-gray-400 text-[8.5px] md:text-[10px] block">DEMAND:</span>
+              <span className="text-rose-400 font-bold">{totalPowerCon.toLocaleString()}W</span>
             </div>
-            <div className="h-4 w-px bg-mars-border" />
+            <div className="h-3 md:h-4 w-px bg-mars-border" />
             <div>
-              <span className="text-gray-400 text-[10px] block">NET BALANCE:</span>
+              <span className="text-gray-400 text-[8.5px] md:text-[10px] block">NET:</span>
               <span className={`font-bold ${netPower >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {netPower >= 0 ? `+${netPower.toLocaleString()}` : netPower.toLocaleString()} W
+                {netPower >= 0 ? `+${netPower.toLocaleString()}` : netPower.toLocaleString()}W
               </span>
             </div>
-            <div className="h-4 w-px bg-mars-border" />
+            <div className="h-3 md:h-4 w-px bg-mars-border" />
             <div>
-              <span className="text-gray-400 text-[10px] block">STORAGE:</span>
-              <span className="text-cyan-300 font-bold">{(totalBatteryWh / 1000).toFixed(0)} kWh</span>
+              <span className="text-gray-400 text-[8.5px] md:text-[10px] block">STORAGE:</span>
+              <span className="text-cyan-300 font-bold">{(totalBatteryWh / 1000).toFixed(0)}kWh</span>
             </div>
           </div>
         </div>
 
         {/* Mode Switch Pills & Exit Button */}
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center bg-black/80 backdrop-blur-md p-1 rounded-xl border border-mars-border font-mono text-xs">
+        <div className="flex items-center space-x-2 md:space-x-3 shrink-0">
+          <div className="flex items-center bg-black/80 backdrop-blur-md p-0.5 md:p-1 rounded-xl border border-mars-border font-mono text-[10px] md:text-xs">
             <button
               onClick={() => onToggleToolMode('construct')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+              className={`flex items-center space-x-1 md:space-x-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
                 !isDismantleMode
                   ? 'bg-emerald-600 text-white shadow-lg'
                   : 'text-gray-400 hover:text-white'
@@ -131,23 +131,23 @@ export const OutpostBuildModal: React.FC<OutpostBuildModalProps> = ({
             </button>
             <button
               onClick={() => onToggleToolMode('dismantle')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+              className={`flex items-center space-x-1 md:space-x-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
                 isDismantleMode
                   ? 'bg-rose-600 text-white shadow-lg animate-pulse'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>DISMANTLE [X]</span>
+              <Trash2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
+              <span>DISMANTLE<span className="hidden sm:inline"> [X]</span></span>
             </button>
           </div>
 
           <button
             onClick={onClose}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-mars-surface/90 hover:bg-white/10 border border-mars-border text-white font-mono text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center space-x-1.5 px-2.5 md:px-4 py-1.5 md:py-2.5 rounded-lg md:rounded-xl bg-mars-surface/90 hover:bg-white/10 border border-mars-border text-white font-mono text-[10px] md:text-xs font-bold transition-all cursor-pointer"
           >
-            <X className="w-4 h-4 text-mars-sand" />
-            <span>EXIT [B / Esc]</span>
+            <X className="w-3.5 h-3.5 md:w-4 md:h-4 text-mars-sand" />
+            <span>EXIT<span className="hidden sm:inline"> [B / Esc]</span></span>
           </button>
         </div>
       </div>
@@ -201,7 +201,7 @@ export const OutpostBuildModal: React.FC<OutpostBuildModalProps> = ({
             className="flex items-center space-x-1.5 hover:text-white transition-colors cursor-pointer text-amber-300"
           >
             <Recycle className="w-3.5 h-3.5" />
-            <span>[X] Toggle Dismantle / Build</span>
+            <span><span className="hidden sm:inline">[X] </span>Toggle Dismantle / Build</span>
           </button>
           <span>•</span>
           <button
@@ -209,16 +209,16 @@ export const OutpostBuildModal: React.FC<OutpostBuildModalProps> = ({
             className="flex items-center space-x-1.5 hover:text-white transition-colors cursor-pointer"
           >
             <RotateCw className="w-3.5 h-3.5 text-mars-orange" />
-            <span>[R] Rotate (45°)</span>
+            <span><span className="hidden sm:inline">[R] </span>Rotate (45°)</span>
           </button>
           <span>•</span>
-          <span>Left-Click to {isDismantleMode ? 'Dismantle' : 'Place'}</span>
+          <span><span className="hidden sm:inline">Left-Click</span><span className="sm:hidden">Tap</span> to {isDismantleMode ? 'Dismantle' : 'Place'}</span>
         </div>
       </div>
 
       {/* Bottom Structure Selection Palette */}
       <div className="flex justify-center w-full pointer-events-auto">
-        <div className="grid grid-cols-6 gap-3 bg-black/85 backdrop-blur-md p-3 rounded-2xl border border-mars-border/80 shadow-2xl max-w-4xl w-full">
+        <div className="grid grid-cols-6 gap-1.5 md:gap-3 bg-black/85 backdrop-blur-md p-1.5 md:p-3 rounded-xl md:rounded-2xl border border-mars-border/80 shadow-2xl max-w-4xl w-full">
           {STRUCTURE_CARDS.map((card) => {
             const isSelected = !isDismantleMode && selectedType === card.type;
             return (
@@ -228,16 +228,16 @@ export const OutpostBuildModal: React.FC<OutpostBuildModalProps> = ({
                   onSelectType(card.type);
                   onToggleToolMode('construct');
                 }}
-                className={`flex flex-col items-center p-3 rounded-xl border font-mono transition-all text-center cursor-pointer ${
+                className={`flex flex-col items-center p-1.5 md:p-3 rounded-lg md:rounded-xl border font-mono transition-all text-center cursor-pointer ${
                   isSelected
                     ? 'bg-mars-orange/20 border-mars-orange text-white ring-2 ring-mars-orange/50 scale-105'
                     : 'bg-mars-surface border-mars-border/70 text-mars-dust hover:text-white hover:bg-white/5'
                 }`}
               >
-                <div className="p-2 rounded-lg bg-black/40 mb-1.5">{card.icon}</div>
-                <div className="font-bold text-xs">{card.name}</div>
-                <div className="text-[10px] text-amber-300 font-bold mt-0.5">{card.stat}</div>
-                <div className="text-[9px] text-gray-400 leading-tight mt-1 hidden md:block">
+                <div className="p-1 md:p-2 rounded-lg bg-black/40 mb-1">{card.icon}</div>
+                <div className="font-bold text-[9px] md:text-xs truncate max-w-full">{card.name}</div>
+                <div className="text-[8.5px] md:text-[10px] text-amber-300 font-bold mt-0.5">{card.stat}</div>
+                <div className="text-[9px] text-gray-400 leading-tight mt-1 hidden lg:block">
                   {card.desc}
                 </div>
               </button>
@@ -247,19 +247,19 @@ export const OutpostBuildModal: React.FC<OutpostBuildModalProps> = ({
           {/* 6th Card: Dismantle / Salvage Tool */}
           <button
             onClick={() => onToggleToolMode('dismantle')}
-            className={`flex flex-col items-center p-3 rounded-xl border font-mono transition-all text-center cursor-pointer ${
+            className={`flex flex-col items-center p-1.5 md:p-3 rounded-lg md:rounded-xl border font-mono transition-all text-center cursor-pointer ${
               isDismantleMode
                 ? 'bg-rose-950/60 border-rose-500 text-rose-200 ring-2 ring-rose-500/60 scale-105'
                 : 'bg-mars-surface border-rose-900/60 text-rose-300 hover:text-white hover:bg-rose-950/30'
             }`}
           >
-            <div className="p-2 rounded-lg bg-black/40 mb-1.5">
-              <Trash2 className="w-5 h-5 text-rose-400" />
+            <div className="p-1 md:p-2 rounded-lg bg-black/40 mb-1">
+              <Trash2 className="w-4 h-4 md:w-5 md:h-5 text-rose-400" />
             </div>
-            <div className="font-bold text-xs text-rose-300">Dismantle [X]</div>
-            <div className="text-[10px] text-rose-400 font-bold mt-0.5">Salvage Node</div>
-            <div className="text-[9px] text-gray-400 leading-tight mt-1 hidden md:block">
-              Decommission & reclaim base components
+            <div className="font-bold text-[9px] md:text-xs text-rose-300">Dismantle<span className="hidden sm:inline"> [X]</span></div>
+            <div className="text-[8.5px] md:text-[10px] text-rose-400 font-bold mt-0.5">Salvage</div>
+            <div className="text-[9px] text-gray-400 leading-tight mt-1 hidden lg:block">
+              Reclaim materials
             </div>
           </button>
         </div>

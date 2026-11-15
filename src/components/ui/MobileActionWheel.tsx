@@ -142,7 +142,7 @@ export const MobileActionWheel: React.FC<MobileActionWheelProps> = ({
     },
     {
       id: 'light',
-      label: isFlashlightOn ? 'Light [ON]' : 'Light [OFF]',
+      label: isFlashlightOn ? 'Light: ON' : 'Light: OFF',
       shortcut: 'T',
       icon: <Lightbulb className={`w-5 h-5 ${isFlashlightOn ? 'text-amber-300' : 'text-gray-400'}`} />,
       onClick: onToggleLight,
@@ -159,10 +159,10 @@ export const MobileActionWheel: React.FC<MobileActionWheelProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-lg bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-1.5 sm:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[96vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-mars-border/80 bg-mars-panel/90">
+        <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 border-b border-mars-border/80 bg-mars-panel/90">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-mars-orange" />
             <h2 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
@@ -171,14 +171,14 @@ export const MobileActionWheel: React.FC<MobileActionWheelProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-mars-dust hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1 rounded-lg text-mars-dust hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Action Grid (Oversized touch tap targets) */}
-        <div className="p-4 grid grid-cols-3 gap-2.5 overflow-y-auto font-mono text-xs">
+        {/* Action Grid (Oversized touch tap targets: 4 columns in landscape/wide, 3 in portrait) */}
+        <div className="p-2 sm:p-4 grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-2.5 overflow-y-auto font-mono text-xs">
           {actions.map((act) => (
             <button
               key={act.id}
@@ -186,24 +186,21 @@ export const MobileActionWheel: React.FC<MobileActionWheelProps> = ({
                 onClose();
                 act.onClick();
               }}
-              className={`p-3 rounded-xl border flex flex-col items-center justify-center space-y-1.5 transition-all active:scale-95 cursor-pointer shadow-md ${act.color}`}
+              className={`p-2 sm:p-2.5 rounded-lg sm:rounded-xl border flex flex-col items-center justify-center space-y-1 transition-all active:scale-95 cursor-pointer shadow-md ${act.color}`}
             >
               <div>{act.icon}</div>
-              <span className="font-bold text-[11px] text-center leading-tight">
+              <span className="font-bold text-[10.5px] sm:text-[11px] text-center leading-tight">
                 {act.label}
-              </span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-black/50 text-mars-sand/80 font-bold border border-white/10">
-                [{act.shortcut}]
               </span>
             </button>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-mars-border/80 bg-mars-panel/90 text-center">
+        <div className="p-2 sm:p-3 border-t border-mars-border/80 bg-mars-panel/90 text-center">
           <button
             onClick={onClose}
-            className="w-full py-2 rounded-xl bg-mars-surface hover:bg-white/10 border border-mars-border text-mars-dust font-mono text-xs font-bold transition-all"
+            className="w-full py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-mars-surface hover:bg-white/10 border border-mars-border text-mars-dust font-mono text-xs font-bold transition-all cursor-pointer"
           >
             RESUME SURFACE EVA
           </button>

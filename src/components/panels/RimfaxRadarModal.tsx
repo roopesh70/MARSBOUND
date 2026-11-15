@@ -40,44 +40,44 @@ export const RimfaxRadarModal: React.FC<RimfaxRadarModalProps> = ({
   const currentLayers = rimfaxService.getActiveStratigraphy(roverPosition.x, roverPosition.z);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-6 animate-in fade-in">
-      <div className="relative w-full max-w-5xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[88vh] max-h-[820px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-6 animate-in fade-in">
+      <div className="relative w-full max-w-5xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-mars-border/80 bg-mars-panel/90 font-mono">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-400/60 flex items-center justify-center text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-              <Radio className="w-6 h-6 animate-pulse" />
+        <div className="flex items-center justify-between px-2.5 py-1.5 md:px-6 md:py-3 border-b border-mars-border/80 bg-mars-panel/90 font-mono">
+          <div className="flex items-center space-x-2 md:space-x-3 truncate">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-cyan-950 border border-cyan-400/60 flex items-center justify-center text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.3)] shrink-0">
+              <Radio className="w-4 h-4 md:w-6 md:h-6 animate-pulse" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40">
-                  GROUND-PENETRATING RADAR (GPR)
+            <div className="truncate">
+              <div className="flex items-center space-x-1.5 md:space-x-2">
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/80 px-1.5 py-0.2 rounded border border-cyan-500/40 truncate">
+                  RIMFAX GPR
                 </span>
-                <span className="text-gray-500">•</span>
-                <span className="text-xs text-gray-400">150-1200 MHz Ultra-Wideband</span>
+                <span className="text-gray-500 hidden sm:inline">•</span>
+                <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">150-1200 MHz Radar</span>
               </div>
-              <h2 className="text-lg font-bold font-display text-white tracking-wide">
-                RIMFAX SUBSURFACE TOMOGRAPHY CONSOLE
+              <h2 className="text-xs md:text-lg font-bold font-display text-white tracking-wide truncate">
+                RIMFAX SUBSURFACE TOMOGRAPHY
               </h2>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer text-xs"
+            className="flex items-center space-x-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer text-xs shrink-0"
             title="Close [U / Esc]"
           >
-            <span className="text-[10px] font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">U / Esc</span>
+            <span className="text-[10px] font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">U / Esc</span>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-mars-border/80">
+        <div className="flex-1 overflow-hidden grid grid-cols-1 sm:grid-cols-12 divide-y sm:divide-y-0 sm:divide-x divide-mars-border/80">
           
           {/* Left Column: Stratigraphic Column & Current Reading */}
-          <div className="lg:col-span-5 flex flex-col h-full bg-[#0a0f14] p-5 overflow-y-auto font-mono text-xs space-y-4">
+          <div className="sm:col-span-5 flex flex-col h-full bg-[#0a0f14] p-3 md:p-5 overflow-y-auto font-mono text-xs space-y-3 md:space-y-4">
             
             <div className="p-3.5 bg-black/60 border border-cyan-500/30 rounded-xl space-y-2">
               <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider flex items-center space-x-1.5">
@@ -142,7 +142,8 @@ export const RimfaxRadarModal: React.FC<RimfaxRadarModalProps> = ({
           </div>
 
           {/* Right Column: Anomalous Reflector Catalog & Deep Core Drilling */}
-          <div className="lg:col-span-7 flex flex-col h-full bg-black/60 p-5 overflow-y-auto font-mono text-xs space-y-4">
+          {/* Right Column: Live Echogram & Deep Core Coring Drill Controls */}
+          <div className="sm:col-span-7 flex flex-col h-full bg-black/60 p-3 md:p-5 overflow-y-auto font-mono text-xs space-y-3 md:space-y-4">
             
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
@@ -272,9 +273,9 @@ export const RimfaxRadarModal: React.FC<RimfaxRadarModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-mars-border/80 bg-mars-panel/90 flex items-center justify-between font-mono text-xs">
+        <div className="p-2 md:p-4 border-t border-mars-border/80 bg-mars-panel/90 flex items-center justify-between font-mono text-xs">
           <div className="text-gray-400 text-[11px]">
-            Press <span className="text-white font-bold">[G]</span> anytime while driving near reflectors to drill deep core
+            Press <span className="text-white font-bold hidden sm:inline">[G]</span><span className="text-white font-bold sm:hidden">DRILL</span> anytime while driving near reflectors to drill deep core
           </div>
 
           <button
@@ -282,7 +283,7 @@ export const RimfaxRadarModal: React.FC<RimfaxRadarModalProps> = ({
             className="px-4 py-2 rounded-xl bg-mars-surface hover:bg-white/10 text-white font-bold border border-mars-border transition-all cursor-pointer flex items-center space-x-1.5"
           >
             <span>RETURN TO COCKPIT</span>
-            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">[U / Esc]</span>
+            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">[U / Esc]</span>
           </button>
         </div>
       </div>

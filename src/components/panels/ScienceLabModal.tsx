@@ -124,98 +124,98 @@ export const ScienceLabModal: React.FC<ScienceLabModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-6 animate-in fade-in">
-      <div className="relative w-full max-w-6xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh] max-h-[880px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-6 animate-in fade-in">
+      <div className="relative w-full max-w-6xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-mars-border/80 bg-mars-panel/90">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-              <FlaskConical className="w-6 h-6 animate-pulse" />
+        <div className="flex items-center justify-between px-2.5 py-1.5 md:px-6 md:py-3 border-b border-mars-border/80 bg-mars-panel/90">
+          <div className="flex items-center space-x-2 md:space-x-3 truncate">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-emerald-950 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0">
+              <FlaskConical className="w-4 h-4 md:w-6 md:h-6 animate-pulse" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40">
+            <div className="truncate">
+              <div className="flex items-center space-x-1.5 md:space-x-2">
+                <span className="text-[9px] md:text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-500/40 truncate">
                   OCTAVIA RESEARCH MODULE
                 </span>
-                <span className="text-gray-500">•</span>
-                <span className="text-xs font-mono text-gray-400">PIXL XRF & CheMin XRD Facility</span>
+                <span className="text-gray-500 hidden sm:inline">•</span>
+                <span className="text-[10px] md:text-xs font-mono text-gray-400 hidden sm:inline">PIXL & CheMin Facility</span>
               </div>
-              <h2 className="text-lg font-bold font-display text-white tracking-wide">
+              <h2 className="text-xs md:text-lg font-bold font-display text-white tracking-wide truncate">
                 FIELD SCIENCE & GEOCHEMISTRY LABORATORY
               </h2>
             </div>
           </div>
 
           {/* Research Points Counter & Close */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-emerald-950/70 border border-emerald-400/50 text-emerald-300 font-mono shadow-[0_0_12px_rgba(16,185,129,0.2)]">
-              <Award className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-bold">{researchPoints} RP</span>
+          <div className="flex items-center space-x-2 md:space-x-4 shrink-0">
+            <div className="flex items-center space-x-1.5 md:space-x-2 px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-lg md:rounded-xl bg-emerald-950/70 border border-emerald-400/50 text-emerald-300 font-mono shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+              <Award className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-400" />
+              <span className="text-[11px] md:text-xs font-bold">{researchPoints} RP</span>
             </div>
 
             <button
               onClick={onClose}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
+              className="flex items-center space-x-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
               title="Close Science Lab [K / Esc]"
             >
-              <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">K / Esc</span>
+              <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">K / Esc</span>
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Tab Selector */}
-        <div className="flex items-center space-x-2 px-6 py-2.5 bg-black/50 border-b border-mars-border/60 text-xs font-mono">
+        <div className="flex items-center space-x-1.5 md:space-x-2 px-2.5 py-1.5 md:px-6 md:py-2 bg-black/50 border-b border-mars-border/60 text-[11px] md:text-xs font-mono overflow-x-auto shrink-0">
           <button
             onClick={() => setActiveTab('spectrometer')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
+            className={`flex items-center space-x-1.5 md:space-x-2 px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'spectrometer'
                 ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
                 : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Activity className="w-4 h-4" />
+            <Activity className="w-3.5 h-3.5 md:w-4 md:h-4" />
             <span className="font-bold">CHEMIN / PIXL SPECTROMETER</span>
-            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded ml-1 font-mono">
-              {analyzedSampleIds.length}/{effectiveSamples.length} Analyzed
+            <span className="text-[9px] md:text-[10px] bg-white/10 px-1.5 py-0.2 rounded ml-1 font-mono">
+              {analyzedSampleIds.length}/{effectiveSamples.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('tech_tree')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
+            className={`flex items-center space-x-1.5 md:space-x-2 px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'tech_tree'
                 ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
                 : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span className="font-bold">APPLIED RESEARCH TREE</span>
-            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded ml-1 font-mono">
-              {unlockedTechIds.length}/{TECH_TREE_UPGRADES.length} Unlocked
+            <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-400" />
+            <span className="font-bold">APPLIED TECH TREE</span>
+            <span className="text-[9px] md:text-[10px] bg-white/10 px-1.5 py-0.2 rounded ml-1 font-mono">
+              {unlockedTechIds.length}/{TECH_TREE_UPGRADES.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('msr_cache')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
+            className={`flex items-center space-x-1.5 md:space-x-2 px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'msr_cache'
                 ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
                 : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Rocket className="w-4 h-4 text-cyan-400" />
-            <span className="font-bold">MARS SAMPLE RETURN (MSR) CACHE</span>
+            <Rocket className="w-3.5 h-3.5 md:w-4 md:h-4 text-cyan-400" />
+            <span className="font-bold">MSR CACHE</span>
           </button>
         </div>
 
         {/* Tab 1: CheMin / PIXL Spectrometer Analysis */}
         {activeTab === 'spectrometer' && (
-          <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-mars-border/80">
+          <div className="flex-1 overflow-hidden grid grid-cols-1 sm:grid-cols-12 divide-y sm:divide-y-0 sm:divide-x divide-mars-border/80">
             
             {/* Left Column: Sample Inventory Carousel */}
-            <div className="lg:col-span-4 flex flex-col h-full bg-black/40 overflow-hidden">
+            <div className="sm:col-span-4 flex flex-col h-full bg-black/40 overflow-hidden">
               <div className="p-3.5 border-b border-mars-border/60 bg-mars-panel/60 flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
                   <Layers className="w-4 h-4 text-emerald-400" />
@@ -283,7 +283,7 @@ export const ScienceLabModal: React.FC<ScienceLabModalProps> = ({
             </div>
 
             {/* Middle Column: Spectrometer Active Analysis Chamber */}
-            <div className="lg:col-span-4 flex flex-col h-full bg-[#0a0f14] p-5 justify-between relative overflow-hidden">
+            <div className="sm:col-span-4 flex flex-col h-full bg-[#0a0f14] p-3 md:p-5 justify-between relative overflow-y-auto">
               
               {/* Top Instrument Status Readout */}
               <div className="flex items-center justify-between text-xs font-mono">
@@ -377,7 +377,7 @@ export const ScienceLabModal: React.FC<ScienceLabModalProps> = ({
             </div>
 
             {/* Right Column: Geochemical Assay & Biosignature Readout */}
-            <div className="lg:col-span-4 flex flex-col h-full bg-black/60 p-5 overflow-y-auto font-mono text-xs space-y-4">
+            <div className="sm:col-span-4 flex flex-col h-full bg-black/60 p-3 md:p-5 overflow-y-auto font-mono text-xs space-y-3 md:space-y-4">
               
               {/* Target Sample Header */}
               <div className="p-3 bg-mars-panel/90 border border-mars-border/80 rounded-xl space-y-1">
@@ -501,7 +501,7 @@ export const ScienceLabModal: React.FC<ScienceLabModalProps> = ({
 
         {/* Tab 2: Technology & Engineering Research Tree */}
         {activeTab === 'tech_tree' && (
-          <div className="flex-1 overflow-y-auto p-6 font-mono text-xs space-y-6 bg-[#0a0f14]">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 font-mono text-xs space-y-4 sm:space-y-6 bg-[#0a0f14]">
             {/* Intro banner */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-gradient-to-r from-slate-900 to-emerald-950/60 border border-emerald-500/40 gap-3">
               <div>
@@ -619,7 +619,7 @@ export const ScienceLabModal: React.FC<ScienceLabModalProps> = ({
 
         {/* Tab 3: Mars Sample Return (MSR) Cache Depot */}
         {activeTab === 'msr_cache' && (
-          <div className="flex-1 overflow-y-auto p-6 font-mono text-xs space-y-6 bg-[#0a0f14]">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 font-mono text-xs space-y-4 sm:space-y-6 bg-[#0a0f14]">
             <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-black border border-indigo-500/40 space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-400/60 flex items-center justify-center text-indigo-300 shadow-xl">
@@ -728,7 +728,7 @@ export const ScienceLabModal: React.FC<ScienceLabModalProps> = ({
             className="px-4 py-2 rounded-xl bg-mars-surface hover:bg-white/10 text-white font-bold border border-mars-border transition-all cursor-pointer flex items-center space-x-1.5"
           >
             <span>RETURN TO SURFACE</span>
-            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">[K / Esc]</span>
+            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">[K / Esc]</span>
           </button>
         </div>
       </div>

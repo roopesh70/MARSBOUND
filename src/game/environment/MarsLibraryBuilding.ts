@@ -1672,7 +1672,7 @@ export class MarsLibraryBuilding {
 
     ctx.fillStyle = '#34d399';
     ctx.font = 'bold 22px monospace';
-    ctx.fillText('PRESS [L] TO ACCESS', 192, 78);
+    ctx.fillText('ACCESS ARCHIVE', 192, 78);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '13px sans-serif';
@@ -1800,11 +1800,11 @@ export class MarsLibraryBuilding {
 
     ctx.fillStyle = '#34d399';
     ctx.font = 'bold 22px monospace';
-    ctx.fillText('PRESS [L]', 128, 72);
+    ctx.fillText('ACCESS ARCHIVE', 128, 72);
 
     ctx.fillStyle = '#e2e8f0';
     ctx.font = '14px sans-serif';
-    ctx.fillText('CLICK TO ENTER', 128, 102);
+    ctx.fillText('CLICK / TAP TO ENTER', 128, 102);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;

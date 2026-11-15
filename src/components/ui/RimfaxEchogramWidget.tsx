@@ -126,7 +126,7 @@ export const RimfaxEchogramWidget: React.FC<RimfaxEchogramWidgetProps> = ({
           </span>
           <button
             onClick={onOpenFullRadar}
-            title="Expand Full Radar Tomography Terminal [U]"
+            title="Expand Full Radar Tomography Terminal"
             className="flex items-center space-x-0.5 md:space-x-1 text-[8.5px] md:text-[10px] text-cyan-300 hover:text-white bg-cyan-900/60 hover:bg-cyan-800 px-1.5 md:px-2 py-0.2 md:py-0.5 rounded border border-cyan-400/40 transition-colors cursor-pointer"
           >
             <span>FULL</span>

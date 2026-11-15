@@ -26,8 +26,10 @@ export default {
         }
       },
       fontFamily: {
-        mono: ['Courier New', 'Consolas', 'monospace'],
-        display: ['Orbitron', 'Rajdhani', 'sans-serif']
+        sans: ['"Doto"', 'Rajdhani', 'sans-serif'],
+        main: ['"Doto"', 'Rajdhani', 'sans-serif'],
+        display: ['"Doto"', 'Rajdhani', 'sans-serif'],
+        mono: ['"Space Mono"', 'monospace']
       }
     },
   },

@@ -196,7 +196,7 @@ export const MARS_ATMOSPHERE_GASES: AtmosphereGas[] = [
     notes: 'Formed via UV photolysis of CO2 and H2O; exhibits mysterious seasonal variations observed by Curiosity SAM in Gale Crater.'
   },
   {
-    name: 'Carbon Monoxide',
+    name: 'Carbon monoxide',
     chemicalFormula: 'CO',
     percentage: 0.08,
     notes: 'Photochemical dissociation byproduct of atmospheric carbon dioxide.'

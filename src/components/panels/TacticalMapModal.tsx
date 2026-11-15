@@ -277,35 +277,49 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
     ? Math.round(Math.hypot(rulerPoints.end.x - rulerPoints.start.x, rulerPoints.end.z - rulerPoints.start.z))
     : null;
 
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-2 md:p-6 animate-in fade-in select-none">
-      <div className="relative w-full max-w-6xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-1 sm:p-2 md:p-6 animate-in fade-in select-none">
+      <div className="relative w-full max-w-6xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         
         {/* Modal Header Bar */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-b border-mars-border/80 bg-mars-panel/90">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-mars-orange/20 rounded-xl text-mars-orange border border-mars-orange/40">
-              <Navigation className="w-5 h-5" />
+        <div className="flex items-center justify-between px-2.5 py-1.5 md:px-6 md:py-3.5 border-b border-mars-border/80 bg-mars-panel/90">
+          <div className="flex items-center space-x-2 md:space-x-3 truncate">
+            <div className="p-1.5 md:p-2 bg-mars-orange/20 rounded-lg md:rounded-xl text-mars-orange border border-mars-orange/40 shrink-0">
+              <Navigation className="w-4 h-4 md:w-5 md:h-5" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h2 className="text-base md:text-lg font-bold font-display text-white tracking-wider">
-                  JEZERO CRATER TACTICAL GIS WORKSTATION
+            <div className="truncate">
+              <div className="flex items-center space-x-1.5 md:space-x-2">
+                <h2 className="text-xs md:text-lg font-bold font-display text-white tracking-wider truncate">
+                  JEZERO CRATER TACTICAL GIS
                 </h2>
-                <span className="text-[10px] font-mono bg-mars-border px-2 py-0.5 rounded text-mars-sand uppercase">
-                  MRO / HiRISE / MOLA / CRISM
+                <span className="text-[9px] md:text-[10px] font-mono bg-mars-border px-1.5 py-0.2 rounded text-mars-sand uppercase hidden sm:inline">
+                  MRO / HiRISE
                 </span>
-                <span className="text-[10px] font-mono bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 px-2 py-0.5 rounded">
+                <span className="text-[9px] md:text-[10px] font-mono bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 px-1.5 py-0.2 rounded shrink-0">
                   GPS LIVE
                 </span>
               </div>
-              <p className="text-xs font-mono text-mars-sand">
-                CURRENT COORDINATES: {CoordinateService.formatCoordinates(playerCoordinates)} | DATUM: MOLA AREOID
+              <p className="text-[9px] md:text-xs font-mono text-mars-sand truncate">
+                POS: {CoordinateService.formatCoordinates(playerCoordinates)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1.5 md:space-x-3 shrink-0">
+            {/* Mobile Layers Toggle */}
+            <button
+              onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
+              className={`md:hidden flex items-center space-x-1 px-2 py-1 rounded-lg border text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                isMobileSidebarOpen
+                  ? 'bg-mars-orange text-white border-mars-orange shadow-md'
+                  : 'bg-black/60 border-mars-border text-mars-orange hover:bg-white/10'
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              <span>LAYERS</span>
+            </button>
             {/* Quick Zoom Presets (Google Maps style) */}
             <div className="flex items-center space-x-1 bg-black/60 p-1 rounded-xl border border-mars-border/80 text-xs font-mono">
               <button
@@ -373,7 +387,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
               className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
               title="Close Tactical Map [M / Esc / C]"
             >
-              <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">M / Esc</span>
+              <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">M / Esc</span>
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -1403,7 +1417,9 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
           </div>
 
           {/* Right Sidebar: Scientific GIS Layers & Discovery Directory */}
-          <div className="w-80 bg-mars-panel border-l border-mars-border p-4 flex flex-col justify-between overflow-y-auto font-mono text-xs">
+          <div className={`${
+            isMobileSidebarOpen ? 'flex absolute inset-y-0 right-0 z-30 shadow-2xl' : 'hidden'
+          } md:flex w-72 md:w-80 bg-mars-panel border-l border-mars-border p-3 md:p-4 flex flex-col justify-between overflow-y-auto font-mono text-xs`}>
             <div className="space-y-3">
               {/* Sidebar Tab Switcher */}
               <div className="flex items-center p-1 bg-black/50 rounded-xl border border-mars-border text-xs">

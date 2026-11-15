@@ -16,10 +16,10 @@ export const ProvenanceRegistryModal: React.FC<ProvenanceRegistryModalProps> = (
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-4xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-4xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-mars-border/80 bg-mars-panel/90">
+        <div className="flex items-center justify-between p-2 md:p-4 border-b border-mars-border/80 bg-mars-panel/90">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 border border-emerald-500/40">
               <Database className="w-5 h-5" />
@@ -38,13 +38,13 @@ export const ProvenanceRegistryModal: React.FC<ProvenanceRegistryModalProps> = (
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
             title="Close Registry [R / Esc / C]"
           >
-            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">R / Esc</span>
+            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">R / Esc</span>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 font-mono text-xs">
+        <div className="flex-1 overflow-y-auto p-2.5 md:p-6 space-y-3 md:space-y-6 font-mono text-xs">
           {/* Mission & Challenge Context */}
           <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 to-cyan-950/40 border border-blue-500/30 space-y-2">
             <div className="flex items-center space-x-2 text-cyan-300 font-bold">
@@ -166,7 +166,7 @@ export const ProvenanceRegistryModal: React.FC<ProvenanceRegistryModalProps> = (
             className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-mars-surface hover:bg-white/10 text-white font-mono text-xs font-bold border border-mars-border transition-all cursor-pointer"
           >
             <span>CLOSE REGISTRY</span>
-            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">[R / Esc]</span>
+            <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">[R / Esc]</span>
           </button>
         </div>
       </div>

@@ -15,7 +15,7 @@ export const ScannerReticle: React.FC<ScannerReticleProps> = ({
   onScan,
   battery
 }) => {
-  const inRange = distance <= 18;
+  const inRange = distance <= 14;
   const canScan = battery >= 12;
 
   return (
@@ -55,7 +55,7 @@ export const ScannerReticle: React.FC<ScannerReticleProps> = ({
               }`}
             >
               <Scan className="w-3 h-3 md:w-3.5 md:h-3.5 shrink-0" />
-              <span>{canScan ? 'SCAN [F] / TAP' : 'INSUFFICIENT BATTERY'}</span>
+              <span>{canScan ? <>SCAN TARGET<span className="hidden md:inline"> [F]</span></> : 'INSUFFICIENT BATTERY'}</span>
             </button>
           )}
         </div>

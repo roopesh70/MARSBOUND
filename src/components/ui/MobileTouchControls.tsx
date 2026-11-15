@@ -1,19 +1,26 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AstronautController } from '../../game/player/AstronautController';
-import { ArrowUp, Zap, Scan, Menu } from 'lucide-react';
+import { ArrowUp, Zap, Scan, Menu, Car, Radio } from 'lucide-react';
 
 interface MobileTouchControlsProps {
   controller: AstronautController | null;
   onOpenActionWheel: () => void;
   onScan: () => void;
   isDrivingRover?: boolean;
+  onToggleRover?: () => void;
+  onOpenRimfaxRadar?: () => void;
+  onDeployCoreDrill?: () => void;
+  isActionWheelOpen?: boolean;
 }
 
 export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
   controller,
   onOpenActionWheel,
   onScan,
-  isDrivingRover = false
+  isDrivingRover = false,
+  onToggleRover,
+  onOpenRimfaxRadar,
+  isActionWheelOpen = false
 }) => {
   const [isSprinting, setIsSprinting] = useState(false);
   const [joystickActive, setJoystickActive] = useState(false);
@@ -44,10 +51,18 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
 
   // Touch listener handlers
   useEffect(() => {
+    if (isActionWheelOpen) return;
+
     const handleTouchStart = (e: TouchEvent) => {
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i];
         const screenWidth = window.innerWidth;
+
+        // Skip any touch on interactive UI elements (buttons, modals, inputs, links)
+        const target = touch.target as HTMLElement;
+        if (target && target.closest('button, [role="button"], a, input, select, textarea, .pointer-events-auto')) {
+          continue;
+        }
 
         // Left half of screen (Joystick zone)
         if (touch.clientX < screenWidth * 0.45 && joystickTouchIdRef.current === null) {
@@ -59,11 +74,6 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
         }
         // Right half of screen (Look around zone)
         else if (touch.clientX >= screenWidth * 0.45 && lookTouchIdRef.current === null) {
-          // Verify we aren't tapping an interactive HUD button
-          const target = touch.target as HTMLElement;
-          if (target && target.closest('button, [role="button"], a, input')) {
-            continue;
-          }
           lookTouchIdRef.current = touch.identifier;
           lastLookPosRef.current = { x: touch.clientX, y: touch.clientY };
           if (e.cancelable) e.preventDefault();
@@ -150,14 +160,14 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [controller, isSprinting]);
+  }, [controller, isSprinting, isActionWheelOpen]);
 
   return (
     <div className="fixed inset-0 pointer-events-none select-none z-30">
       {/* 1. Virtual Joystick Indicator (Bottom Left) */}
-      <div className="absolute bottom-8 left-8 pointer-events-auto">
+      <div className="absolute bottom-5 left-5 pointer-events-auto">
         <div
-          className={`w-28 h-28 rounded-full border-2 transition-all flex items-center justify-center backdrop-blur-sm ${
+          className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 transition-all flex items-center justify-center backdrop-blur-sm ${
             joystickActive
               ? 'border-mars-orange bg-black/40 shadow-[0_0_15px_rgba(249,115,22,0.4)]'
               : 'border-white/20 bg-black/20'
@@ -171,7 +181,7 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
 
           {/* Floating Joystick Knob */}
           <div
-            className={`w-12 h-12 rounded-full border flex items-center justify-center shadow-lg transition-transform ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center shadow-lg transition-transform ${
               joystickActive
                 ? 'bg-mars-orange border-white text-white scale-110 shadow-[0_0_12px_rgba(249,115,22,0.6)]'
                 : 'bg-white/15 border-white/30 text-white/40'
@@ -180,60 +190,82 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
               transform: `translate(${joystickPos.x}px, ${joystickPos.y}px)`
             }}
           >
-            <div className="w-4 h-4 rounded-full bg-white/40" />
+            <div className="w-3.5 h-3.5 rounded-full bg-white/40" />
           </div>
         </div>
 
-        <div className="text-[9px] font-mono font-bold text-center mt-1 text-mars-sand/60">
+        <div className="text-[8.5px] font-mono font-bold text-center mt-1 text-mars-sand/60">
           {isDrivingRover ? 'STEER / DRIVE' : 'MOVE'}
         </div>
       </div>
 
-      {/* 2. Right Action Buttons Cluster (Bottom Right) */}
-      <div className="absolute bottom-8 right-8 pointer-events-auto flex items-end space-x-3">
-        {/* EVA Tools Wheel Button */}
+      {/* 2. Ergonomic 2x2 Thumb Cluster (Bottom Right) */}
+      <div className="absolute bottom-5 right-5 pointer-events-auto grid grid-cols-2 gap-2">
+        {/* Top-Left: EVA Action Tools Menu */}
         <button
           onClick={onOpenActionWheel}
-          className="w-14 h-14 rounded-2xl bg-mars-orange hover:bg-mars-rust border-2 border-white/60 text-white shadow-2xl flex flex-col items-center justify-center active:scale-95 transition-all cursor-pointer ring-2 ring-mars-orange/40"
-          title="EVA Action Dial"
+          className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-black/60 hover:bg-black/80 border border-mars-orange/70 text-white shadow-lg flex flex-col items-center justify-center active:scale-90 transition-all cursor-pointer backdrop-blur-sm"
+          title="EVA Tools Drawer"
         >
-          <Menu className="w-5 h-5" />
-          <span className="text-[8px] font-mono font-bold uppercase mt-0.5">TOOLS</span>
+          <Menu className="w-4 h-4 text-mars-orange" />
+          <span className="text-[7.5px] font-mono font-bold uppercase mt-0.5">TOOLS</span>
         </button>
 
-        {/* Raman Spectrometer Quick Scan Button */}
-        <button
-          onClick={onScan}
-          className="w-12 h-12 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-400 text-cyan-200 shadow-xl flex flex-col items-center justify-center active:scale-95 transition-all cursor-pointer"
-          title="Spectrometer Scan [F]"
-        >
-          <Scan className="w-4 h-4 text-cyan-400" />
-          <span className="text-[8px] font-mono font-bold uppercase mt-0.5">SCAN</span>
-        </button>
-
-        {/* Sprint / Fast Hike Toggle Button */}
+        {/* Top-Right: Sprint / Turbo Toggle */}
         <button
           onClick={toggleSprint}
-          className={`w-12 h-12 rounded-xl border flex flex-col items-center justify-center active:scale-95 transition-all cursor-pointer shadow-xl ${
+          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl border flex flex-col items-center justify-center active:scale-90 transition-all cursor-pointer shadow-lg backdrop-blur-sm ${
             isSprinting
               ? 'bg-amber-500 text-black border-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.5)]'
-              : 'bg-black/60 text-mars-dust border-mars-border'
+              : 'bg-black/60 text-mars-dust border-white/20'
           }`}
-          title="Toggle Sprint / Hike"
+          title={isDrivingRover ? 'Toggle Rover Turbo' : 'Toggle Sprint'}
         >
           <Zap className={`w-4 h-4 ${isSprinting ? 'text-black' : 'text-amber-400'}`} />
-          <span className="text-[8px] font-mono font-bold uppercase mt-0.5">SPRINT</span>
+          <span className="text-[7.5px] font-mono font-bold uppercase mt-0.5">
+            {isDrivingRover ? 'TURBO' : 'SPRINT'}
+          </span>
         </button>
 
-        {/* Hop / Low-Gravity Jump Button */}
-        {!isDrivingRover && (
+        {/* Bottom-Left: Rover Radar OR Astronaut Spectrometer Scan */}
+        {isDrivingRover ? (
+          <button
+            onClick={onOpenRimfaxRadar}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-400 text-cyan-200 shadow-lg flex flex-col items-center justify-center active:scale-90 transition-all cursor-pointer backdrop-blur-sm"
+            title="Subsurface RIMFAX Radar"
+          >
+            <Radio className="w-4 h-4 text-cyan-400" />
+            <span className="text-[7.5px] font-mono font-bold uppercase mt-0.5">RADAR</span>
+          </button>
+        ) : (
+          <button
+            onClick={onScan}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-400 text-cyan-200 shadow-lg flex flex-col items-center justify-center active:scale-90 transition-all cursor-pointer backdrop-blur-sm"
+            title="Spectrometer Scan"
+          >
+            <Scan className="w-4 h-4 text-cyan-400" />
+            <span className="text-[7.5px] font-mono font-bold uppercase mt-0.5">SCAN</span>
+          </button>
+        )}
+
+        {/* Bottom-Right: Hop (Astronaut) OR Exit / Dismount (Rover) */}
+        {!isDrivingRover ? (
           <button
             onClick={handleJump}
-            className="w-14 h-14 rounded-2xl bg-mars-surface/90 hover:bg-white/20 border-2 border-mars-orange text-white shadow-2xl flex flex-col items-center justify-center active:scale-95 transition-all cursor-pointer"
-            title="Low-gravity Hop [Space]"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r from-mars-red to-mars-orange border-2 border-white/80 text-white shadow-xl flex flex-col items-center justify-center active:scale-90 transition-all cursor-pointer ring-2 ring-mars-orange/40"
+            title="Low-gravity Hop"
           >
-            <ArrowUp className="w-5 h-5 text-mars-orange" />
-            <span className="text-[8px] font-mono font-bold uppercase mt-0.5">HOP</span>
+            <ArrowUp className="w-5 h-5 text-white" />
+            <span className="text-[8px] font-mono font-bold uppercase">HOP</span>
+          </button>
+        ) : (
+          <button
+            onClick={onToggleRover}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r from-amber-600 to-mars-orange border-2 border-white text-white shadow-xl flex flex-col items-center justify-center active:scale-90 transition-all cursor-pointer ring-2 ring-amber-400/50"
+            title="Dismount Mars Rover"
+          >
+            <Car className="w-4 h-4 text-white" />
+            <span className="text-[7.5px] font-mono font-bold uppercase mt-0.5">EXIT</span>
           </button>
         )}
       </div>

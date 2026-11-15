@@ -28,10 +28,10 @@ export const JournalPanel: React.FC<JournalPanelProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-4xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-4xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-mars-border/80 bg-mars-panel/90">
+        <div className="flex items-center justify-between p-2 md:p-4 border-b border-mars-border/80 bg-mars-panel/90">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-mars-orange/20 rounded-lg text-mars-orange border border-mars-orange/40">
               <BookOpen className="w-5 h-5" />
@@ -50,13 +50,13 @@ export const JournalPanel: React.FC<JournalPanelProps> = ({
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
             title="Close Journal [J / Esc / C]"
           >
-            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">J / Esc</span>
+            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">J / Esc</span>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 font-mono text-xs">
+        <div className="flex-1 overflow-y-auto p-2.5 md:p-6 space-y-3 md:space-y-6 font-mono text-xs">
           {/* Discovered Features Grid */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -67,7 +67,7 @@ export const JournalPanel: React.FC<JournalPanelProps> = ({
 
             {discoveredPois.length === 0 ? (
               <div className="p-6 rounded-xl border border-dashed border-mars-border text-center text-mars-dust">
-                No features discovered yet. Explore Jezero Crater and use your scanner [F] near marked locations.
+                No features discovered yet. Explore Jezero Crater and use your scanner near marked locations.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

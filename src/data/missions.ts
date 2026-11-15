@@ -14,7 +14,7 @@ export const MISSION_01_GEOLOGICAL_OUTCROP: Mission = {
       id: 'obj_101_map',
       order: 1,
       title: 'Review Expedition Brief & Open Tactical Map',
-      description: 'Press [M] to open your Tactical GIS Map and locate the Delta Scarp target coordinates.',
+      description: 'Open your Tactical GIS Map and locate the Delta Scarp target coordinates.',
       completed: false,
       type: 'reach_location'
     },
@@ -33,7 +33,7 @@ export const MISSION_01_GEOLOGICAL_OUTCROP: Mission = {
       id: 'obj_103_scan',
       order: 3,
       title: 'Scan Outcrop with Raman Spectrometer',
-      description: 'Approach within 18 meters of the outcrop and press [F] to activate your scanner tool.',
+      description: 'Approach within 18 meters of the outcrop and activate your scanner tool.',
       targetDiscoveryId: 'poi_delta_scarp',
       completed: false,
       type: 'scan_target'
@@ -83,7 +83,7 @@ export const MISSION_02_LABORATORY_ASSAY: Mission = {
       id: 'obj_201_enter_lab',
       order: 1,
       title: 'Enter Field Science & Geochemistry Laboratory',
-      description: 'Press [K] on your keyboard, or approach the Science Lab habitat module and press [E] to enter the cleanroom.',
+      description: 'Open the Field Science Laboratory or approach the habitat cleanroom to enter.',
       completed: false,
       type: 'reach_location'
     },
@@ -131,21 +131,21 @@ export const MISSION_03_RIMFAX_SUBSURFACE: Mission = {
   tier: 'TIER 2: LABORATORY & SUBSURFACE',
   estimatedDuration: '25-30 Min Rover Traverse',
   briefing:
-    'Visible surface outcrops only reveal a fraction of Jezero’s history. Board the Mars Exploration Rover [E], which is equipped with the RIMFAX Ground-Penetrating Radar antenna. Survey the crater floor by monitoring the real-time radargram [U]. When your antenna detects an anomalous dielectric reflector—such as the buried Paleochannel or Glacial Ice Lens—deploy the robotic arm deep-core drill [G] to extract pristine subsurface stratigraphy.',
+    'Visible surface outcrops only reveal a fraction of Jezero’s history. Board the Mars Exploration Rover, equipped with the RIMFAX Ground-Penetrating Radar antenna. Survey the crater floor by monitoring the real-time radargram. When your antenna detects an anomalous dielectric reflector—such as the buried Paleochannel or Glacial Ice Lens—deploy the robotic arm deep-core drill to extract pristine subsurface stratigraphy.',
   objectives: [
     {
       id: 'obj_301_board_rover',
       order: 1,
       title: 'Board the Exploration Rover',
-      description: 'Approach the Mars Rover parked outside Octavia Base and press [E] to engage driving controls.',
+      description: 'Approach the Mars Rover parked outside Octavia Base and engage driving controls.',
       completed: false,
       type: 'reach_location'
     },
     {
       id: 'obj_302_inspect_radar',
       order: 2,
-      title: 'Engage RIMFAX Radar & Open Echogram [U]',
-      description: 'Press [U] or inspect the cockpit HUD to activate 15-200 MHz ground-penetrating radar soundings.',
+      title: 'Engage RIMFAX Radar & Open Echogram',
+      description: 'Inspect the cockpit HUD or radar terminal to activate 15-200 MHz ground-penetrating radar soundings.',
       completed: false,
       type: 'radar_sounding'
     },
@@ -160,8 +160,8 @@ export const MISSION_03_RIMFAX_SUBSURFACE: Mission = {
     {
       id: 'obj_304_deploy_drill',
       order: 4,
-      title: 'Deploy Robotic Arm Deep Core Drill [G]',
-      description: 'Halt the rover above the radar anomaly and press [G] to deploy the rotary percussive coring drill.',
+      title: 'Deploy Robotic Arm Deep Core Drill',
+      description: 'Halt the rover above the radar anomaly and deploy the rotary percussive coring drill.',
       completed: false,
       type: 'deep_core_drill'
     },
@@ -193,13 +193,13 @@ export const MISSION_04_EXPAND_OUTPOST: Mission = {
   tier: 'TIER 1: FOUNDATION',
   estimatedDuration: '15-20 Min Base Building',
   briefing:
-    'As scientific expeditions and rover charging demands escalate, Octavia Base requires higher sustained electrical power and cryo-storage capacity. Press [B] to enter Outpost Build Mode. Place an additional Photovoltaic Tracking Solar Array and a Cryo-Battery Storage Module within the base perimeter to ensure continuous life support through the freezing Martian night.',
+    'As scientific expeditions and rover charging demands escalate, Octavia Base requires higher sustained electrical power and cryo-storage capacity. Enter Outpost Build Mode to place an additional Photovoltaic Tracking Solar Array and a Cryo-Battery Storage Module within the base perimeter to ensure continuous life support through the freezing Martian night.',
   objectives: [
     {
       id: 'obj_401_open_build',
       order: 1,
-      title: 'Enter Outpost Build Mode [B]',
-      description: 'Press [B] on your keyboard or click the BUILD button on the cockpit hotbar.',
+      title: 'Enter Outpost Build Mode',
+      description: 'Access Outpost Build Mode from the cockpit action controls.',
       completed: false,
       type: 'reach_location'
     },
@@ -207,7 +207,7 @@ export const MISSION_04_EXPAND_OUTPOST: Mission = {
       id: 'obj_402_place_solar',
       order: 2,
       title: 'Deploy Photovoltaic Tracking Solar Array',
-      description: 'Select Solar Array [1], rotate to align with prevailing sunlight, and left-click on the ground to construct.',
+      description: 'Select Solar Array, rotate to align with prevailing sunlight, and deploy on the ground to construct.',
       targetStructureType: 'solar_array',
       completed: false,
       type: 'build_structure'
@@ -216,7 +216,7 @@ export const MISSION_04_EXPAND_OUTPOST: Mission = {
       id: 'obj_403_place_battery',
       order: 3,
       title: 'Deploy Cryo-Battery Storage Module',
-      description: 'Select Battery Bank [2] and place it adjacent to habitat modules to expand electrical storage capacity.',
+      description: 'Select Battery Bank and place it adjacent to habitat modules to expand electrical storage capacity.',
       targetStructureType: 'battery_bank',
       completed: false,
       type: 'build_structure'
@@ -283,7 +283,7 @@ export const MISSION_05_NERETVA_EXPEDITION: Mission = {
       id: 'obj_503_scan_canyon',
       order: 3,
       title: 'Scan Ancient Neretva Canyon Wall Bedrock',
-      description: 'Approach within 25 meters of Neretva Canyon Wall (Coordinates: 18.5200°N, 77.2900°E) and trigger spectrometer [F].',
+      description: 'Approach within 25 meters of Neretva Canyon Wall (Coordinates: 18.5200°N, 77.2900°E) and trigger spectrometer scanner.',
       targetDiscoveryId: 'poi_neretva_canyon',
       completed: false,
       type: 'scan_target'
@@ -326,13 +326,13 @@ export const MISSION_06_CHEYAVA_ASTROBIOLOGY: Mission = {
   tier: 'TIER 4: ASTROBIOLOGY',
   estimatedDuration: '30-45 Min Astrobiology Campaign',
   briefing:
-    'In July 2024, NASA announced the discovery of "leopard spots" at Cheyava Falls in Bright Angel Valley—the most compelling biosignature candidate ever identified on Mars. First, visit the NASA Archival Library [L] to cross-examine historical rover records. Next, navigate northwest to Cheyava Falls, perform a micro-spectroscopic scan of the iron-phosphate reaction rims, collect the spotted mudstone core, and observe the forward Mie scattering Martian Blue Sunset at twilight (18:15 LMST).',
+    'In July 2024, NASA announced the discovery of "leopard spots" at Cheyava Falls in Bright Angel Valley—the most compelling biosignature candidate ever identified on Mars. First, visit the NASA Archival Library to cross-examine historical rover records. Next, navigate northwest to Cheyava Falls, perform a micro-spectroscopic scan of the iron-phosphate reaction rims, collect the spotted mudstone core, and observe the forward Mie scattering Martian Blue Sunset at twilight (18:15 LMST).',
   objectives: [
     {
       id: 'obj_601_visit_library',
       order: 1,
-      title: 'Access NASA Archival Library [L]',
-      description: 'Press [L] or visit the NASA Archival Library building to review the Astrobiology & Biosignature candidate dossier.',
+      title: 'Access NASA Archival Library',
+      description: 'Visit the NASA Archival Library building or open the research archive to review the Astrobiology & Biosignature candidate dossier.',
       completed: false,
       type: 'visit_library'
     },
@@ -350,7 +350,7 @@ export const MISSION_06_CHEYAVA_ASTROBIOLOGY: Mission = {
       id: 'obj_603_scan_leopard_spots',
       order: 3,
       title: 'Scan Leopard Spots Halos with Micro-Spectrometer',
-      description: 'Activate scanner [F] within 20m of Cheyava Falls to map vivianite (iron phosphate) and organic carbon signatures.',
+      description: 'Activate scanner within 20m of Cheyava Falls to map vivianite (iron phosphate) and organic carbon signatures.',
       targetDiscoveryId: 'poi_cheyava_falls',
       completed: false,
       type: 'scan_target'

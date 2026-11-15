@@ -21,10 +21,10 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Vanadium (120 ppm)', 'Nickel (85 ppm)', 'Yttrium (24 ppm)']
     },
     mineralPhases: [
-      { name: 'Vivianite (Iron Phosphate)', formula: 'Fe₃(PO₄)₂·8H₂O', wtPercent: 14.5, crystalSystem: 'Monoclinic' },
-      { name: 'Calcium Sulfate (Bassanite)', formula: 'CaSO₄·0.5H₂O', wtPercent: 18.2, crystalSystem: 'Monoclinic' },
+      { name: 'Vivianite (Iron Phosphate)', formula: 'Fe₃(PO₄)₂·8H₂O', wtPercent: 14.5, crystalSystem: 'monoclinic' },
+      { name: 'Calcium Sulfate (Bassanite)', formula: 'CaSO₄·0.5H₂O', wtPercent: 18.2, crystalSystem: 'monoclinic' },
       { name: 'Hematite (Fe Oxide Rim)', formula: 'Fe₂O₃', wtPercent: 12.0, crystalSystem: 'Trigonal' },
-      { name: 'Fe-Smectite (Nontronite)', formula: 'Na₀.₃Fe₂³⁺(Si,Al)₄O₁₀(OH)₂·nH₂O', wtPercent: 36.5, crystalSystem: 'Monoclinic' },
+      { name: 'Fe-Smectite (Nontronite)', formula: 'Na₀.₃Fe₂³⁺(Si,Al)₄O₁₀(OH)₂·nH₂O', wtPercent: 36.5, crystalSystem: 'monoclinic' },
       { name: 'Amorphous Silica Matrix', formula: 'SiO₂·nH₂O', wtPercent: 18.8, crystalSystem: 'Amorphous' }
     ],
     biosignature: {
@@ -72,7 +72,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Chromium (240 ppm)', 'Strontium (180 ppm)', 'Zirconium (70 ppm)']
     },
     mineralPhases: [
-      { name: 'Fe/Mg-Smectite (Saponite)', formula: '(Ca/2,Na)₀.₃(Mg,Fe)₃(Si,Al)₄O₁₀(OH)₂·4H₂O', wtPercent: 44.0, crystalSystem: 'Monoclinic' },
+      { name: 'Fe/Mg-Smectite (Saponite)', formula: '(Ca/2,Na)₀.₃(Mg,Fe)₃(Si,Al)₄O₁₀(OH)₂·4H₂O', wtPercent: 44.0, crystalSystem: 'monoclinic' },
       { name: 'Anhydrite Sulfate', formula: 'CaSO₄', wtPercent: 16.5, crystalSystem: 'Orthorhombic' },
       { name: 'Albite Plagioclase', formula: 'NaAlSi₃O₈', wtPercent: 19.5, crystalSystem: 'Triclinic' },
       { name: 'Magnetite', formula: 'Fe₃O₄', wtPercent: 8.0, crystalSystem: 'Isometric' },
@@ -123,8 +123,8 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Zinc (95 ppm)', 'Copper (45 ppm)', 'Cobalt (30 ppm)']
     },
     mineralPhases: [
-      { name: 'Gypsum (Hydrated Sulfate)', formula: 'CaSO₄·2H₂O', wtPercent: 28.0, crystalSystem: 'Monoclinic' },
-      { name: 'Magnesian Smectite', formula: 'Mg₃Si₄O₁₀(OH)₂', wtPercent: 34.0, crystalSystem: 'Monoclinic' },
+      { name: 'Gypsum (Hydrated Sulfate)', formula: 'CaSO₄·2H₂O', wtPercent: 28.0, crystalSystem: 'monoclinic' },
+      { name: 'Magnesian Smectite', formula: 'Mg₃Si₄O₁₀(OH)₂', wtPercent: 34.0, crystalSystem: 'monoclinic' },
       { name: 'Ferrihydrite', formula: 'Fe₂O₃·0.5H₂O', wtPercent: 14.5, crystalSystem: 'Trigonal' },
       { name: 'Quartz / Microcrystalline Silica', formula: 'SiO₂', wtPercent: 21.0, crystalSystem: 'Trigonal' }
     ],
@@ -172,10 +172,10 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Barium (110 ppm)', 'Lithium (35 ppm)']
     },
     mineralPhases: [
-      { name: 'Nontronite Clay (Fe-smectite)', formula: 'Na₀.₃Fe₂³⁺(Si,Al)₄O₁₀(OH)₂·nH₂O', wtPercent: 42.0, crystalSystem: 'Monoclinic' },
+      { name: 'Nontronite Clay (Fe-smectite)', formula: 'Na₀.₃Fe₂³⁺(Si,Al)₄O₁₀(OH)₂·nH₂O', wtPercent: 42.0, crystalSystem: 'monoclinic' },
       { name: 'Opaline Silica', formula: 'SiO₂·nH₂O', wtPercent: 24.5, crystalSystem: 'Amorphous' },
-      { name: 'Bassanite (Calcium Sulfate)', formula: 'CaSO₄·0.5H₂O', wtPercent: 15.5, crystalSystem: 'Monoclinic' },
-      { name: 'Augite Pyroxene', formula: '(Ca,Mg,Fe)₂Si₂O₆', wtPercent: 16.0, crystalSystem: 'Monoclinic' }
+      { name: 'Bassanite (Calcium Sulfate)', formula: 'CaSO₄·0.5H₂O', wtPercent: 15.5, crystalSystem: 'monoclinic' },
+      { name: 'Augite Pyroxene', formula: '(Ca,Mg,Fe)₂Si₂O₆', wtPercent: 16.0, crystalSystem: 'monoclinic' }
     ],
     biosignature: {
       score: 78,
@@ -222,7 +222,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
     },
     mineralPhases: [
       { name: 'Forsteritic Olivine (Fo72)', formula: '(Mg₀.₇₂Fe₀.₂₈)₂SiO₄', wtPercent: 52.0, crystalSystem: 'Orthorhombic' },
-      { name: 'Augite Pyroxene', formula: 'Ca(Mg,Fe)Si₂O₆', wtPercent: 28.5, crystalSystem: 'Monoclinic' },
+      { name: 'Augite Pyroxene', formula: 'Ca(Mg,Fe)Si₂O₆', wtPercent: 28.5, crystalSystem: 'monoclinic' },
       { name: 'Magnesium Carbonate (Alteration)', formula: 'MgCO₃', wtPercent: 8.5, crystalSystem: 'Trigonal' },
       { name: 'Chromite Spinel', formula: 'FeCr₂O₄', wtPercent: 4.5, crystalSystem: 'Isometric' },
       { name: 'Plagioclase Feldspar', formula: 'CaAl₂Si₂O₈', wtPercent: 5.5, crystalSystem: 'Triclinic' }
@@ -272,7 +272,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
     },
     mineralPhases: [
       { name: 'Plagioclase Feldspar (Anorthite)', formula: 'CaAl₂Si₂O₈', wtPercent: 86.0, crystalSystem: 'Triclinic' },
-      { name: 'Diopside Pyroxene', formula: 'CaMgSi₂O₆', wtPercent: 8.5, crystalSystem: 'Monoclinic' },
+      { name: 'Diopside Pyroxene', formula: 'CaMgSi₂O₆', wtPercent: 8.5, crystalSystem: 'monoclinic' },
       { name: 'Quartz Micro-Veins', formula: 'SiO₂', wtPercent: 3.5, crystalSystem: 'Trigonal' }
     ],
     biosignature: {
@@ -319,7 +319,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Manganese (620 ppm)', 'Strontium (310 ppm)']
     },
     mineralPhases: [
-      { name: 'Hydromagnesite / Magnesite', formula: 'Mg₅(CO₃)₄(OH)₂·4H₂O', wtPercent: 46.0, crystalSystem: 'Monoclinic' },
+      { name: 'Hydromagnesite / Magnesite', formula: 'Mg₅(CO₃)₄(OH)₂·4H₂O', wtPercent: 46.0, crystalSystem: 'monoclinic' },
       { name: 'Microcrystalline Chert (Silica)', formula: 'SiO₂', wtPercent: 32.0, crystalSystem: 'Trigonal' },
       { name: 'Dolomite', formula: 'CaMg(CO₃)₂', wtPercent: 14.5, crystalSystem: 'Trigonal' }
     ],
@@ -371,7 +371,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       { name: 'Quartz / Detrital Silica', formula: 'SiO₂', wtPercent: 38.0, crystalSystem: 'Trigonal' },
       { name: 'Plagioclase Feldspar', formula: 'NaAlSi₃O₈ - CaAl₂Si₂O₈', wtPercent: 28.0, crystalSystem: 'Triclinic' },
       { name: 'Hematite Matrix Cement', formula: 'Fe₂O₃', wtPercent: 18.5, crystalSystem: 'Trigonal' },
-      { name: 'Smectite Matrix', formula: 'Clay Silicates', wtPercent: 12.0, crystalSystem: 'Monoclinic' }
+      { name: 'Smectite Matrix', formula: 'Clay Silicates', wtPercent: 12.0, crystalSystem: 'monoclinic' }
     ],
     biosignature: {
       score: 42,
@@ -418,8 +418,8 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
     },
     mineralPhases: [
       { name: 'Shocked Pyroxene (Enstatite)', formula: 'Mg₂Si₂O₆', wtPercent: 38.0, crystalSystem: 'Orthorhombic' },
-      { name: 'Calc-alkaline Feldspar', formula: 'KAlSi₃O₈', wtPercent: 32.0, crystalSystem: 'Monoclinic' },
-      { name: 'Chlorite Alteration', formula: '(Mg,Fe)₅Al(AlSi₃O₁₀)(OH)₈', wtPercent: 16.5, crystalSystem: 'Monoclinic' },
+      { name: 'Calc-alkaline Feldspar', formula: 'KAlSi₃O₈', wtPercent: 32.0, crystalSystem: 'monoclinic' },
+      { name: 'Chlorite Alteration', formula: '(Mg,Fe)₅Al(AlSi₃O₁₀)(OH)₈', wtPercent: 16.5, crystalSystem: 'monoclinic' },
       { name: 'Impact Melt Glass', formula: 'Amorphous Silicate', wtPercent: 11.0, crystalSystem: 'Amorphous' }
     ],
     biosignature: {
@@ -468,7 +468,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
     mineralPhases: [
       { name: 'Low-Calcium Pyroxene', formula: '(Mg,Fe)SiO₃', wtPercent: 41.0, crystalSystem: 'Orthorhombic' },
       { name: 'Plagioclase', formula: 'CaAl₂Si₂O₈', wtPercent: 29.0, crystalSystem: 'Triclinic' },
-      { name: 'Iron-Saponite Clays', formula: 'Smectite Silicate', wtPercent: 18.0, crystalSystem: 'Monoclinic' },
+      { name: 'Iron-Saponite Clays', formula: 'Smectite Silicate', wtPercent: 18.0, crystalSystem: 'monoclinic' },
       { name: 'Magnetite Matrix', formula: 'Fe₃O₄', wtPercent: 10.5, crystalSystem: 'Isometric' }
     ],
     biosignature: {
@@ -515,7 +515,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
     mineralPhases: [
       { name: 'Amorphous H₂O Ice Matrix', formula: 'H₂O(s)', wtPercent: 31.0, crystalSystem: 'Hexagonal' },
       { name: 'Magnesium Sulfate Hydrate', formula: 'MgSO₄·7H₂O', wtPercent: 24.5, crystalSystem: 'Orthorhombic' },
-      { name: 'Smectite Clay Permafrost', formula: 'Hydrated Phyllosilicate', wtPercent: 28.5, crystalSystem: 'Monoclinic' },
+      { name: 'Smectite Clay Permafrost', formula: 'Hydrated Phyllosilicate', wtPercent: 28.5, crystalSystem: 'monoclinic' },
       { name: 'Halite Micro-Crystals', formula: 'NaCl', wtPercent: 16.0, crystalSystem: 'Isometric' }
     ],
     biosignature: {
@@ -561,7 +561,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Aromatic Organics (24 ppm)', 'Vanadium (140 ppm)']
     },
     mineralPhases: [
-      { name: 'Lacustrine Fe-Smectite', formula: 'Na₀.₃Fe₂³⁺Si₄O₁₀(OH)₂·nH₂O', wtPercent: 48.0, crystalSystem: 'Monoclinic' },
+      { name: 'Lacustrine Fe-Smectite', formula: 'Na₀.₃Fe₂³⁺Si₄O₁₀(OH)₂·nH₂O', wtPercent: 48.0, crystalSystem: 'monoclinic' },
       { name: 'Detrital Quartz', formula: 'SiO₂', wtPercent: 26.0, crystalSystem: 'Trigonal' },
       { name: 'Anhydrite Sulfate', formula: 'CaSO₄', wtPercent: 14.5, crystalSystem: 'Orthorhombic' },
       { name: 'Polycyclic Aromatic Carbon', formula: 'C_n H_m', wtPercent: 1.8, crystalSystem: 'Amorphous' }
@@ -608,7 +608,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
       traceElements: ['Nickel (450 ppm)', 'Chromium (920 ppm)']
     },
     mineralPhases: [
-      { name: 'Titanaugite Pyroxene', formula: 'Ca(Mg,Fe,Ti)(Si,Al)₂O₆', wtPercent: 46.0, crystalSystem: 'Monoclinic' },
+      { name: 'Titanaugite Pyroxene', formula: 'Ca(Mg,Fe,Ti)(Si,Al)₂O₆', wtPercent: 46.0, crystalSystem: 'monoclinic' },
       { name: 'Labradorite Feldspar', formula: '(Ca,Na)(Al,Si)₄O₈', wtPercent: 36.5, crystalSystem: 'Triclinic' },
       { name: 'Forsterite Olivine', formula: 'Mg₂SiO₄', wtPercent: 12.0, crystalSystem: 'Orthorhombic' },
       { name: 'Titanomagnetite', formula: 'Fe₂.₅Ti₀.₅O₄', wtPercent: 5.5, crystalSystem: 'Isometric' }
@@ -701,7 +701,7 @@ export const SAMPLE_ANALYSIS_PROFILES: Record<string, SampleAnalysisProfile> = {
     },
     mineralPhases: [
       { name: 'Shocked Maskelynite Glass', formula: 'CaAl₂Si₂O₈ (Amorphous)', wtPercent: 52.0, crystalSystem: 'Amorphous' },
-      { name: 'Coesite (High-Pressure Silica)', formula: 'SiO₂', wtPercent: 12.5, crystalSystem: 'Monoclinic' },
+      { name: 'Coesite (High-Pressure Silica)', formula: 'SiO₂', wtPercent: 12.5, crystalSystem: 'monoclinic' },
       { name: 'Shocked Pyroxene', formula: '(Mg,Fe)SiO₃', wtPercent: 28.0, crystalSystem: 'Orthorhombic' },
       { name: 'Native Iron Spherules', formula: 'Fe-Ni', wtPercent: 7.5, crystalSystem: 'Isometric' }
     ],
@@ -763,8 +763,8 @@ export function getSampleAnalysisProfile(discoveryId: string, sampleName: string
         traceElements: ['Zinc (80 ppm)', 'Nickel (120 ppm)', 'Cobalt (40 ppm)']
       },
       mineralPhases: [
-        { name: 'Fe-Smectite Clay', formula: 'Na₀.₃Fe₂³⁺(Si,Al)₄O₁₀(OH)₂·nH₂O', wtPercent: 44.0, crystalSystem: 'Monoclinic' },
-        { name: 'Calcium Sulfate Veinlets', formula: 'CaSO₄·0.5H₂O', wtPercent: 22.0, crystalSystem: 'Monoclinic' },
+        { name: 'Fe-Smectite Clay', formula: 'Na₀.₃Fe₂³⁺(Si,Al)₄O₁₀(OH)₂·nH₂O', wtPercent: 44.0, crystalSystem: 'monoclinic' },
+        { name: 'Calcium Sulfate Veinlets', formula: 'CaSO₄·0.5H₂O', wtPercent: 22.0, crystalSystem: 'monoclinic' },
         { name: 'Magnesium Carbonate', formula: 'MgCO₃', wtPercent: 16.0, crystalSystem: 'Trigonal' },
         { name: 'Aromatic Carbon Inclusions', formula: 'Polycyclic Rings', wtPercent: 1.5, crystalSystem: 'Amorphous' }
       ],
@@ -811,7 +811,7 @@ export function getSampleAnalysisProfile(discoveryId: string, sampleName: string
         traceElements: ['Chromium (1200 ppm)', 'Nickel (380 ppm)']
       },
       mineralPhases: [
-        { name: 'Augite Pyroxene', formula: 'Ca(Mg,Fe)Si₂O₆', wtPercent: 42.0, crystalSystem: 'Monoclinic' },
+        { name: 'Augite Pyroxene', formula: 'Ca(Mg,Fe)Si₂O₆', wtPercent: 42.0, crystalSystem: 'monoclinic' },
         { name: 'Plagioclase (Labradorite)', formula: '(Ca,Na)Al(Al,Si)Si₂O₈', wtPercent: 34.0, crystalSystem: 'Triclinic' },
         { name: 'Olivine', formula: '(Mg,Fe)₂SiO₄', wtPercent: 14.0, crystalSystem: 'Orthorhombic' },
         { name: 'Titanomagnetite', formula: 'Fe₃₋ₓTiₓO₄', wtPercent: 8.5, crystalSystem: 'Isometric' }
@@ -859,7 +859,7 @@ export function getSampleAnalysisProfile(discoveryId: string, sampleName: string
       traceElements: ['Zirconium (95 ppm)', 'Vanadium (110 ppm)']
     },
     mineralPhases: [
-      { name: 'Smectite Phyllosilicates', formula: 'Hydrated Clay Silicate', wtPercent: 38.0, crystalSystem: 'Monoclinic' },
+      { name: 'Smectite Phyllosilicates', formula: 'Hydrated Clay Silicate', wtPercent: 38.0, crystalSystem: 'monoclinic' },
       { name: 'Detrital Quartz / Silica', formula: 'SiO₂', wtPercent: 28.0, crystalSystem: 'Trigonal' },
       { name: 'Plagioclase Feldspar', formula: 'CaAl₂Si₂O₈', wtPercent: 20.0, crystalSystem: 'Triclinic' },
       { name: 'Hematite Matrix', formula: 'Fe₂O₃', wtPercent: 12.5, crystalSystem: 'Trigonal' }

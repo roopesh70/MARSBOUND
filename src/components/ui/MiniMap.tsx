@@ -386,7 +386,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({
 
       {/* Mini-map Footer Quick Actions */}
       <div className="mt-1 md:mt-1.5 flex items-center justify-between text-[7.5px] md:text-[9px] text-mars-dust px-0.5 md:px-1">
-        <span>[M] FULL GIS MAP</span>
+        <span><span className="hidden md:inline">[M] </span>TACTICAL GIS MAP</span>
         <button
           onClick={onOpenFullMap}
           className="text-mars-orange hover:text-white font-bold flex items-center space-x-0.5 md:space-x-1 cursor-pointer transition-colors"

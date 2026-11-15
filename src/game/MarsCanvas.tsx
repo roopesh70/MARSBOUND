@@ -63,6 +63,7 @@ export interface GameTelemetry {
 interface MarsCanvasProps {
   onTelemetryUpdate: (telemetry: GameTelemetry) => void;
   onOpenDiscovery: (poi: DiscoveryRecord) => void;
+  onScanMiss?: (message: string) => void;
   isPaused: boolean;
   activeScanSignal: number;
   onPointerLockChange: (locked: boolean) => void;
@@ -86,6 +87,7 @@ interface MarsCanvasProps {
 export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   onTelemetryUpdate,
   onOpenDiscovery,
+  onScanMiss,
   isPaused,
   activeScanSignal,
   onPointerLockChange,
@@ -118,6 +120,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   const propsRef = useRef({
     onTelemetryUpdate,
     onOpenDiscovery,
+    onScanMiss,
     onPointerLockChange,
     onStructurePlaced,
     onStructureDismantled,
@@ -134,6 +137,7 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     propsRef.current = {
       onTelemetryUpdate,
       onOpenDiscovery,
+      onScanMiss,
       onPointerLockChange,
       onStructurePlaced,
       onStructureDismantled,
@@ -265,17 +269,28 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
   // Handle Scan action signal
   useEffect(() => {
     if (activeScanSignal > 0 && scannerRef.current && controllerRef.current) {
+      if (roverRef.current?.isOccupied) {
+        audioService.playWarningBeep();
+        propsRef.current.onScanMiss?.('MOUNTED IN ROVER • USE RIMFAX RADAR OR DISMOUNT TO SCAN');
+        return;
+      }
+
       if (suitState.current.battery >= suitState.current.scannerBatteryCost) {
         suitState.current.battery = Math.max(0, suitState.current.battery - suitState.current.scannerBatteryCost);
         scannerRef.current.triggerScan(controllerRef.current.camera);
         audioService.playScanBeep();
 
-        if (controllerRef.current.nearestPoi && controllerRef.current.nearestPoiDistance <= 22) {
+        const SCAN_PROXIMITY_THRESHOLD = 14; // Must be close to site (<= 14m)
+        if (controllerRef.current.nearestPoi && controllerRef.current.nearestPoiDistance <= SCAN_PROXIMITY_THRESHOLD) {
           audioService.playDiscoveryFound();
           propsRef.current.onOpenDiscovery(controllerRef.current.nearestPoi);
+        } else {
+          audioService.playWarningBeep();
+          propsRef.current.onScanMiss?.('NO SCIENCE TARGET IN SCAN RANGE • APPROACH WITHIN 14m');
         }
       } else {
         audioService.playWarningBeep();
+        propsRef.current.onScanMiss?.('INSUFFICIENT SUIT BATTERY FOR SPECTROMETER SCAN');
       }
     }
   }, [activeScanSignal]);

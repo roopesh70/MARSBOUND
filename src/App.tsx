@@ -770,6 +770,10 @@ export const App: React.FC = () => {
         unlockedTechIds={unlockedTechIds}
         isPaused={activeModal !== 'none'}
         activeScanSignal={scanSignal}
+        onScanMiss={(msg) => {
+          setMissionToast(msg);
+          setTimeout(() => setMissionToast((prev) => (prev === msg ? null : prev)), 3500);
+        }}
         onPointerLockChange={(locked) => {
           setIsPointerLocked(locked);
           setTelemetry((prev) => (prev ? { ...prev, isPointerLocked: locked } : null));
@@ -866,6 +870,17 @@ export const App: React.FC = () => {
           }}
           onScan={() => setScanSignal((prev) => prev + 1)}
           isDrivingRover={telemetry?.isDrivingRover}
+          onToggleRover={() => setRoverSignal((prev) => prev + 1)}
+          onOpenRimfaxRadar={() => {
+            if (telemetry?.isDrivingRover) {
+              setActiveModal('rimfax');
+              completeObjective('mission_03_rimfax_subsurface', 1);
+              audioService.playClick();
+            } else {
+              setMissionToast('MOUNT MARS ROVER TO ENGAGE RIMFAX GPR');
+            }
+          }}
+          isActionWheelOpen={isActionWheelOpen}
         />
       )}
 
@@ -1023,7 +1038,7 @@ export const App: React.FC = () => {
             completeObjective('mission_03_rimfax_subsurface', 1);
             audioService.playClick();
           } else {
-            setMissionToast('MOUNT MARS ROVER [E] TO ENGAGE RIMFAX GPR');
+            setMissionToast('MOUNT MARS ROVER TO ENGAGE RIMFAX GPR');
           }
         }}
         onToggleBuildMode={() => {

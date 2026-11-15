@@ -59,52 +59,52 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl p-2 sm:p-4 md:p-6 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-7xl h-[94vh] bg-[#181516] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(249,115,22,0.12)] overflow-hidden flex flex-col font-sans text-zinc-100 select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl p-1 sm:p-2 md:p-6 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-7xl h-[98vh] max-h-[98vh] bg-[#181516] border border-white/10 rounded-2xl md:rounded-3xl shadow-[0_0_60px_rgba(249,115,22,0.12)] overflow-hidden flex flex-col font-sans text-zinc-100 select-none">
         
         {/* ========================================================= */}
         {/* TOP GODDARD ARCHIVAL COMMAND HEADER                       */}
         {/* ========================================================= */}
-        <header className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-b border-white/10 bg-[#141213] shrink-0 gap-4">
-          <div className="flex items-center space-x-3.5 w-full sm:w-auto">
-            <div className="p-2.5 bg-orange-600/15 rounded-2xl text-orange-400 border border-orange-500/30 shadow-sm shrink-0">
-              <BookOpen className="w-5 h-5" />
+        <header className="flex flex-row items-center justify-between px-3 py-2 sm:px-6 sm:py-3 border-b border-white/10 bg-[#141213] shrink-0 gap-2 sm:gap-4">
+          <div className="flex items-center space-x-2 sm:space-x-3.5 truncate">
+            <div className="p-1.5 sm:p-2.5 bg-orange-600/15 rounded-xl sm:rounded-2xl text-orange-400 border border-orange-500/30 shadow-sm shrink-0">
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
 
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-mono tracking-widest uppercase bg-orange-600/15 border border-orange-500/30 text-orange-400 px-2.5 py-0.5 rounded-full font-semibold">
-                  NASA Planetary Science Division
+            <div className="truncate">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                <span className="text-[9px] sm:text-[10px] font-mono tracking-widest uppercase bg-orange-600/15 border border-orange-500/30 text-orange-400 px-2 py-0.2 sm:px-2.5 sm:py-0.5 rounded-full font-semibold truncate">
+                  NASA Mars Archive
                 </span>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
-                  ARCHIVES ONLINE
+                <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-[9px] sm:text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider hidden sm:inline">
+                  ONLINE
                 </span>
               </div>
-              <h1 className="text-lg sm:text-xl font-bold font-sans tracking-tight text-white flex items-center gap-2 mt-0.5">
-                Mars Archival Library & Research Facility
+              <h1 className="text-xs sm:text-lg md:text-xl font-bold font-sans tracking-tight text-white flex items-center gap-1.5 sm:gap-2 truncate">
+                Mars Archival Library
               </h1>
             </div>
           </div>
 
           {/* Search Bar & Close Button */}
-          <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
-            <div className="relative flex-1 sm:w-72">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-orange-400/80" />
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+            <div className="relative w-36 sm:w-72">
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-orange-400/80" />
               <input
                 type="text"
-                placeholder="Search repository..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 bg-[#221f20] border border-white/10 rounded-xl text-xs font-sans text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20 transition-all"
+                className="w-full pl-8 sm:pl-9 pr-3 py-1 sm:py-1.5 bg-[#221f20] border border-white/10 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-sans text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500/60 transition-all"
               />
             </div>
             <button
               onClick={onClose}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#221f20] hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-all cursor-pointer shrink-0"
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-[#221f20] hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-all cursor-pointer shrink-0"
               title="Close Library [L / Esc]"
             >
-              <span className="text-[10px] font-mono font-bold bg-white/5 px-1.5 py-0.5 rounded text-orange-400">
+              <span className="text-[10px] font-mono font-bold bg-white/5 px-1.5 py-0.5 rounded text-orange-400 hidden sm:inline">
                 L / Esc
               </span>
               <X className="w-4 h-4" />
@@ -115,7 +115,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         {/* ========================================================= */}
         {/* MAIN NAVIGATION TAB PILL BAR (GODDARD WARM OBSIDIAN)       */}
         {/* ========================================================= */}
-        <nav className="flex items-center space-x-1.5 px-5 py-2.5 bg-[#141213] border-b border-white/10 overflow-x-auto scrollbar-none shrink-0">
+        <nav className="flex items-center space-x-1 sm:space-x-1.5 px-3 py-1.5 sm:px-5 sm:py-2 bg-[#141213] border-b border-white/10 overflow-x-auto scrollbar-none shrink-0 text-xs">
           {[
             { id: 'overview', label: 'About Mars', icon: Sparkles },
             { id: 'weather', label: 'Real Weather & Climate (PSG)', icon: CloudSun },
@@ -147,7 +147,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         {/* ========================================================= */}
         {/* TAB CONTENT CONTAINER (SCROLLABLE)                         */}
         {/* ========================================================= */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-thin scrollbar-thumb-zinc-700/50 bg-[#181516]">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-zinc-700/50 bg-[#181516]">
 
           {/* TAB 1: ALL ABOUT MARS (PLANETARY COMPENDIUM) */}
           {activeTab === 'overview' && (

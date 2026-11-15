@@ -375,7 +375,7 @@ export class NasaLandmarks {
       roughness: 0.5
     });
 
-    // 1. Twin Monolithic Fluvial Pillars (12m and 14m tall) flanking the roadway
+    // 1. Twin monolithic Fluvial Pillars (12m and 14m tall) flanking the roadway
     const pillarGeom1 = new THREE.CylinderGeometry(1.6, 2.4, 12, 7);
     const pillar1 = new THREE.Mesh(pillarGeom1, darkBasaltMat);
     pillar1.position.set(-14, 6, 0);

@@ -29,10 +29,10 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({
   if (!isOpen || !poi) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-3xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-3xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-mars-border/80 bg-mars-panel/90">
+        <div className="flex items-start justify-between p-2 md:p-4 border-b border-mars-border/80 bg-mars-panel/90">
           <div className="space-y-1">
             <div className="flex items-center space-x-2.5">
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-mars-sand">
@@ -53,13 +53,13 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
             title="Dismiss Discovery [F / Esc / C]"
           >
-            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">F / Esc</span>
+            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">F / Esc</span>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 font-mono text-xs">
+        <div className="flex-1 overflow-y-auto p-2.5 md:p-6 space-y-3 md:space-y-6 font-mono text-xs">
           {/* NASA Photo Feature Section */}
           <div className="rounded-xl overflow-hidden border border-mars-border/80 bg-black/60 shadow-xl">
             {/* Image Header with Camera & Date */}
@@ -244,7 +244,7 @@ export const DiscoveryModal: React.FC<DiscoveryModalProps> = ({
               title="Dismiss [F / Esc]"
             >
               <span>DISMISS</span>
-              <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">[F / Esc]</span>
+              <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">[F / Esc]</span>
             </button>
           </div>
         </div>

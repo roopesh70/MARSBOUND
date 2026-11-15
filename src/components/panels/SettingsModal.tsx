@@ -28,10 +28,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-xl bg-mars-surface border border-mars-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-1 sm:p-2 md:p-4 animate-in fade-in">
+      <div className="relative w-full max-w-xl bg-mars-surface border border-mars-border rounded-xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[98vh] max-h-[98vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-mars-border/80 bg-mars-panel/90">
+        <div className="flex items-center justify-between p-2 md:p-4 border-b border-mars-border/80 bg-mars-panel/90">
           <div className="flex items-center space-x-2.5">
             <div className="p-2 bg-mars-surface rounded-lg text-mars-orange border border-mars-border">
               <Settings className="w-5 h-5" />
@@ -45,13 +45,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-mars-dust hover:text-white hover:bg-white/10 border border-mars-border/50 transition-all cursor-pointer"
             title="Close Settings [Esc / C]"
           >
-            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand">Esc</span>
+            <span className="text-[10px] font-mono font-bold bg-white/10 px-1.5 py-0.5 rounded text-mars-sand hidden sm:inline">Esc</span>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-5 font-mono text-xs overflow-y-auto">
+        <div className="p-2.5 md:p-5 space-y-3 md:space-y-4 font-mono text-xs overflow-y-auto">
           {/* Martian Solar Cycle & Blue Sunset Presets */}
           <div className="p-4 rounded-xl border border-cyan-500/40 bg-gradient-to-br from-cyan-950/20 via-black/40 to-mars-panel/60 space-y-3">
             <div className="flex items-center justify-between">
@@ -188,21 +188,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* Controls Reference */}
           <div className="p-3.5 rounded-xl border border-mars-border bg-black/40 space-y-2 text-[11px]">
-            <span className="text-mars-sand font-bold block uppercase">KEYBOARD & MOUSE CONTROLS</span>
-            <div className="grid grid-cols-2 gap-y-1.5 text-gray-300">
-              <div><span className="text-mars-orange font-bold">[W, A, S, D]</span> Move Astronaut / Rover</div>
-              <div><span className="text-mars-orange font-bold">[Mouse]</span> Look around (Click to lock)</div>
-              <div><span className="text-mars-orange font-bold">[Space]</span> Low-gravity Hop</div>
-              <div><span className="text-mars-orange font-bold">[Shift]</span> Sprint / Fast hike</div>
-              <div><span className="text-mars-orange font-bold">[F]</span> Activate Field Scanner</div>
-              <div><span className="text-mars-orange font-bold">[M]</span> Tactical GIS Map</div>
-              <div><span className="text-mars-orange font-bold">[J]</span> Research Journal</div>
-              <div><span className="text-mars-orange font-bold">[U]</span> Subsurface RIMFAX Radargram</div>
-              <div><span className="text-mars-orange font-bold">[G]</span> Deploy Core Drill</div>
-              <div><span className="text-mars-orange font-bold">[B]</span> Outpost Build Mode</div>
-              <div><span className="text-mars-orange font-bold">[E]</span> Mount/Dismount Rover</div>
-              <div><span className="text-mars-orange font-bold">[Esc / C]</span> Settings / Celestial Warp</div>
-            </div>
+            {typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? (
+              <>
+                <span className="text-mars-sand font-bold block uppercase">MOBILE TOUCH CONTROLS</span>
+                <div className="grid grid-cols-2 gap-y-1.5 text-gray-300">
+                  <div><span className="text-mars-orange font-bold">[Left Joystick]</span> Move Astronaut / Rover</div>
+                  <div><span className="text-mars-orange font-bold">[Swipe Screen]</span> Look Around & Rotate</div>
+                  <div><span className="text-mars-orange font-bold">[HOP Button]</span> Low-gravity Hop</div>
+                  <div><span className="text-mars-orange font-bold">[SPRINT Button]</span> Fast Traverse Hike</div>
+                  <div><span className="text-mars-orange font-bold">[SCAN Button]</span> Raman Spectrometer</div>
+                  <div><span className="text-mars-orange font-bold">[TOOLS Button]</span> Quick EVA Action Dial</div>
+                  <div><span className="text-mars-orange font-bold">[Top Status Bar]</span> Tactical Map & Radar</div>
+                  <div><span className="text-mars-orange font-bold">[Context Pills]</span> Board Rover / Enter Lab</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <span className="text-mars-sand font-bold block uppercase">KEYBOARD & MOUSE CONTROLS</span>
+                <div className="grid grid-cols-2 gap-y-1.5 text-gray-300">
+                  <div><span className="text-mars-orange font-bold">[W, A, S, D]</span> Move Astronaut / Rover</div>
+                  <div><span className="text-mars-orange font-bold">[Mouse]</span> Look around (Click to lock)</div>
+                  <div><span className="text-mars-orange font-bold">[Space]</span> Low-gravity Hop</div>
+                  <div><span className="text-mars-orange font-bold">[Shift]</span> Sprint / Fast hike</div>
+                  <div><span className="text-mars-orange font-bold">[F]</span> Activate Field Scanner</div>
+                  <div><span className="text-mars-orange font-bold">[M]</span> Tactical GIS Map</div>
+                  <div><span className="text-mars-orange font-bold">[J]</span> Research Journal</div>
+                  <div><span className="text-mars-orange font-bold">[U]</span> Subsurface RIMFAX Radargram</div>
+                  <div><span className="text-mars-orange font-bold">[G]</span> Deploy Core Drill</div>
+                  <div><span className="text-mars-orange font-bold">[B]</span> Outpost Build Mode</div>
+                  <div><span className="text-mars-orange font-bold">[E]</span> Mount/Dismount Rover</div>
+                  <div><span className="text-mars-orange font-bold">[Esc / C]</span> Settings / Celestial Warp</div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Reset Progress */}
