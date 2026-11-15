@@ -205,7 +205,7 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ onStart, onOpenProve
 
           <div className="flex items-center space-x-3 text-[9.5px] sm:text-[10px]">
             <span className="hidden md:inline text-mars-dust/60">OCTAVIA E. BUTLER BASE // 18.44°N 77.45°E</span>
-            <span className="text-mars-orange font-bold">SOL 1042 // {solTime} LST</span>
+            <span className="text-mars-orange font-bold">SOL 142 // {solTime} LST</span>
             <button
               onClick={handleToggleAudio}
               className="p-1 rounded text-mars-sand/70 hover:text-white transition-colors cursor-pointer"
