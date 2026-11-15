@@ -864,6 +864,7 @@ export const App: React.FC = () => {
       {isTouchDevice && activeModal === 'none' && !isBuildMode && (
         <MobileTouchControls
           controller={controllerRef.current}
+          controllerRef={controllerRef}
           onOpenActionWheel={() => {
             setIsActionWheelOpen(true);
             audioService.playClick();

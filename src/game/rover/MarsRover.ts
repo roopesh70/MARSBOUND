@@ -561,7 +561,7 @@ export class MarsRover {
   public update(
     delta: number,
     terrain: JezeroTerrain,
-    inputs: { forward: boolean; backward: boolean; left: boolean; right: boolean; brake: boolean },
+    inputs: { forward: boolean; backward: boolean; left: boolean; right: boolean; brake: boolean; boost?: boolean },
     collisionSystem?: BuildingCollisionSystem
   ) {
     const dt = Math.min(delta, 0.08);
@@ -586,13 +586,16 @@ export class MarsRover {
       }
 
       // 2. Realistic Low-Gravity Acceleration, Torque Curve & Braking
+      const currentMaxSpeed = inputs.boost ? this.maxSpeed * 1.35 : this.maxSpeed;
+      const currentAccel = inputs.boost ? this.acceleration * 1.3 : this.acceleration;
+
       if (inputs.forward) {
         // High initial electric torque, tapering off at top speed
-        const torqueMult = Math.max(0.35, 1.0 - (this.velocity / this.maxSpeed) * 0.7);
-        this.velocity = Math.min(this.maxSpeed, this.velocity + this.acceleration * torqueMult * dt);
-        this.battery = Math.max(0, this.battery - dt * 0.22);
+        const torqueMult = Math.max(0.35, 1.0 - (this.velocity / currentMaxSpeed) * 0.7);
+        this.velocity = Math.min(currentMaxSpeed, this.velocity + currentAccel * torqueMult * dt);
+        this.battery = Math.max(0, this.battery - dt * (inputs.boost ? 0.45 : 0.22));
       } else if (inputs.backward) {
-        this.velocity = Math.max(-this.reverseSpeed, this.velocity - this.acceleration * 0.8 * dt);
+        this.velocity = Math.max(-this.reverseSpeed, this.velocity - currentAccel * 0.8 * dt);
         this.battery = Math.max(0, this.battery - dt * 0.18);
       } else {
         // Rolling regolith resistance & mechanical drag

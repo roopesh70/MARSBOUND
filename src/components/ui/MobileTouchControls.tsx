@@ -3,7 +3,8 @@ import { AstronautController } from '../../game/player/AstronautController';
 import { ArrowUp, Zap, Scan, Menu, Car, Radio } from 'lucide-react';
 
 interface MobileTouchControlsProps {
-  controller: AstronautController | null;
+  controller?: AstronautController | null;
+  controllerRef?: React.MutableRefObject<AstronautController | null>;
   onOpenActionWheel: () => void;
   onScan: () => void;
   isDrivingRover?: boolean;
@@ -14,7 +15,8 @@ interface MobileTouchControlsProps {
 }
 
 export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
-  controller,
+  controller = null,
+  controllerRef,
   onOpenActionWheel,
   onScan,
   isDrivingRover = false,
@@ -26,30 +28,109 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
   const [joystickActive, setJoystickActive] = useState(false);
   const [joystickPos, setJoystickPos] = useState({ x: 0, y: 0 });
 
+  const joystickBaseRef = useRef<HTMLDivElement | null>(null);
   const joystickOriginRef = useRef<{ x: number; y: number } | null>(null);
   const joystickTouchIdRef = useRef<number | null>(null);
   const lookTouchIdRef = useRef<number | null>(null);
   const lastLookPosRef = useRef<{ x: number; y: number } | null>(null);
 
+  // Keep references fresh so event handlers never see stale closures
+  const internalControllerRef = useRef<AstronautController | null>(controller);
+  useEffect(() => {
+    internalControllerRef.current = controller;
+  }, [controller]);
+
+  const isSprintingRef = useRef(isSprinting);
+  useEffect(() => {
+    isSprintingRef.current = isSprinting;
+  }, [isSprinting]);
+
+  const getActiveController = useCallback((): AstronautController | null => {
+    return controllerRef?.current || internalControllerRef.current || controller;
+  }, [controller, controllerRef]);
+
   // Sync sprint state to controller
   const toggleSprint = useCallback(() => {
     setIsSprinting((prev) => {
       const next = !prev;
-      if (controller) {
-        controller.isSprinting = next;
+      const ctrl = getActiveController();
+      if (ctrl) {
+        ctrl.isSprinting = next;
       }
       return next;
     });
-  }, [controller]);
+  }, [getActiveController]);
 
   // Jump / Hop
   const handleJump = useCallback(() => {
-    if (controller) {
-      controller.jump();
+    const ctrl = getActiveController();
+    if (ctrl) {
+      ctrl.jump();
     }
-  }, [controller]);
+  }, [getActiveController]);
 
-  // Touch listener handlers
+  // Update virtual joystick input
+  const applyJoystickInput = useCallback((clientX: number, clientY: number, originX: number, originY: number) => {
+    const maxRadius = 45; // max joystick travel in pixels
+    const dx = clientX - originX;
+    const dy = clientY - originY;
+    const dist = Math.hypot(dx, dy);
+
+    const clampedDist = Math.min(dist, maxRadius);
+    const angle = dist > 0 ? Math.atan2(dy, dx) : 0;
+    const knobX = Math.cos(angle) * clampedDist;
+    const knobY = Math.sin(angle) * clampedDist;
+
+    setJoystickPos({ x: knobX, y: knobY });
+
+    // Normalized input (-1.0 to 1.0)
+    const normX = clampedDist > 0 ? knobX / maxRadius : 0;
+    const normY = clampedDist > 0 ? knobY / maxRadius : 0;
+
+    const ctrl = getActiveController();
+    if (ctrl) {
+      ctrl.setVirtualMoveInput(normX, normY, isSprintingRef.current);
+    }
+  }, [getActiveController]);
+
+  const resetJoystick = useCallback(() => {
+    joystickTouchIdRef.current = null;
+    joystickOriginRef.current = null;
+    setJoystickActive(false);
+    setJoystickPos({ x: 0, y: 0 });
+
+    const ctrl = getActiveController();
+    if (ctrl) {
+      ctrl.setVirtualMoveInput(0, 0, false);
+    }
+  }, [getActiveController]);
+
+  // Direct joystick touch handlers (guaranteed responsiveness on the joystick element)
+  const handleJoystickTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    if (isActionWheelOpen) return;
+    e.stopPropagation();
+
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+
+    joystickTouchIdRef.current = touch.identifier;
+
+    // Use center of the joystick ring as origin
+    if (joystickBaseRef.current) {
+      const rect = joystickBaseRef.current.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+      joystickOriginRef.current = { x: originX, y: originY };
+      setJoystickActive(true);
+      applyJoystickInput(touch.clientX, touch.clientY, originX, originY);
+    } else {
+      joystickOriginRef.current = { x: touch.clientX, y: touch.clientY };
+      setJoystickActive(true);
+      setJoystickPos({ x: 0, y: 0 });
+    }
+  }, [isActionWheelOpen, applyJoystickInput]);
+
+  // Global touch listener for look around & flexible area joystick
   useEffect(() => {
     if (isActionWheelOpen) return;
 
@@ -57,22 +138,39 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i];
         const screenWidth = window.innerWidth;
-
-        // Skip any touch on interactive UI elements (buttons, modals, inputs, links)
         const target = touch.target as HTMLElement;
-        if (target && target.closest('button, [role="button"], a, input, select, textarea, .pointer-events-auto')) {
+
+        // Skip touches on interactive buttons/links (never intercept menu or hotbar clicks!)
+        if (target && target.closest('button, [role="button"], a, input, select, textarea')) {
           continue;
         }
 
+        // Check if touch is on or inside the joystick element
+        const isInsideJoystick = joystickBaseRef.current && (joystickBaseRef.current === target || joystickBaseRef.current.contains(target));
+
         // Left half of screen (Joystick zone)
-        if (touch.clientX < screenWidth * 0.45 && joystickTouchIdRef.current === null) {
+        if ((isInsideJoystick || touch.clientX < screenWidth * 0.45) && joystickTouchIdRef.current === null) {
           joystickTouchIdRef.current = touch.identifier;
-          joystickOriginRef.current = { x: touch.clientX, y: touch.clientY };
+
+          let originX = touch.clientX;
+          let originY = touch.clientY;
+
+          if (joystickBaseRef.current) {
+            const rect = joystickBaseRef.current.getBoundingClientRect();
+            // If touch is near the base ring, snap origin to the ring center for ideal ergonomics
+            if (isInsideJoystick || Math.hypot(touch.clientX - (rect.left + rect.width / 2), touch.clientY - (rect.top + rect.height / 2)) < 80) {
+              originX = rect.left + rect.width / 2;
+              originY = rect.top + rect.height / 2;
+            }
+          }
+
+          joystickOriginRef.current = { x: originX, y: originY };
           setJoystickActive(true);
-          setJoystickPos({ x: 0, y: 0 });
+          applyJoystickInput(touch.clientX, touch.clientY, originX, originY);
+
           if (e.cancelable) e.preventDefault();
         }
-        // Right half of screen (Look around zone)
+        // Right half of screen (Camera look zone)
         else if (touch.clientX >= screenWidth * 0.45 && lookTouchIdRef.current === null) {
           lookTouchIdRef.current = touch.identifier;
           lastLookPosRef.current = { x: touch.clientX, y: touch.clientY };
@@ -86,42 +184,26 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i];
 
-        // Process Joystick Touch Move
+        // Process Joystick Move
         if (touch.identifier === joystickTouchIdRef.current && joystickOriginRef.current) {
           handled = true;
-          const maxRadius = 45; // max joystick travel in pixels
-          const dx = touch.clientX - joystickOriginRef.current.x;
-          const dy = touch.clientY - joystickOriginRef.current.y;
-          const dist = Math.hypot(dx, dy);
-
-          const clampedDist = Math.min(dist, maxRadius);
-          const angle = Math.atan2(dy, dx);
-          const knobX = Math.cos(angle) * clampedDist;
-          const knobY = Math.sin(angle) * clampedDist;
-
-          setJoystickPos({ x: knobX, y: knobY });
-
-          // Normalized input (-1 to 1)
-          const normX = knobX / maxRadius;
-          const normY = knobY / maxRadius;
-
-          if (controller) {
-            controller.setVirtualMoveInput(normX, normY, isSprinting);
-          }
+          applyJoystickInput(touch.clientX, touch.clientY, joystickOriginRef.current.x, joystickOriginRef.current.y);
         }
 
-        // Process Look Touch Move
+        // Process Camera Look Move
         if (touch.identifier === lookTouchIdRef.current && lastLookPosRef.current) {
           handled = true;
           const deltaX = touch.clientX - lastLookPosRef.current.x;
           const deltaY = touch.clientY - lastLookPosRef.current.y;
           lastLookPosRef.current = { x: touch.clientX, y: touch.clientY };
 
-          if (controller) {
-            controller.rotateCamera(deltaX, deltaY);
+          const ctrl = getActiveController();
+          if (ctrl) {
+            ctrl.rotateCamera(deltaX, deltaY);
           }
         }
       }
+
       if (handled && e.cancelable) {
         e.preventDefault();
       }
@@ -132,14 +214,7 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
         const touch = e.changedTouches[i];
 
         if (touch.identifier === joystickTouchIdRef.current) {
-          joystickTouchIdRef.current = null;
-          joystickOriginRef.current = null;
-          setJoystickActive(false);
-          setJoystickPos({ x: 0, y: 0 });
-
-          if (controller) {
-            controller.setVirtualMoveInput(0, 0, false);
-          }
+          resetJoystick();
         }
 
         if (touch.identifier === lookTouchIdRef.current) {
@@ -160,47 +235,53 @@ export const MobileTouchControls: React.FC<MobileTouchControlsProps> = ({
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [controller, isSprinting, isActionWheelOpen]);
+  }, [isActionWheelOpen, applyJoystickInput, resetJoystick, getActiveController]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none select-none z-30">
+    <div className="fixed inset-0 pointer-events-none select-none z-30 touch-none">
       {/* 1. Virtual Joystick Indicator (Bottom Left) */}
-      <div className="absolute bottom-5 left-5 pointer-events-auto">
+      <div
+        ref={joystickBaseRef}
+        onTouchStart={handleJoystickTouchStart}
+        className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 pointer-events-auto touch-none cursor-pointer p-2"
+      >
         <div
-          className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 transition-all flex items-center justify-center backdrop-blur-sm ${
+          className={`relative w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 transition-all flex items-center justify-center backdrop-blur-sm ${
             joystickActive
-              ? 'border-mars-orange bg-black/40 shadow-[0_0_15px_rgba(249,115,22,0.4)]'
-              : 'border-white/20 bg-black/20'
+              ? 'border-mars-orange bg-black/60 shadow-[0_0_20px_rgba(249,115,22,0.6)] scale-105'
+              : 'border-white/30 bg-black/30'
           }`}
         >
-          {/* Outer Ring Cardinal Compass Crosshairs */}
-          <div className="absolute top-1 w-1.5 h-1.5 bg-mars-sand/40 rounded-full" />
-          <div className="absolute bottom-1 w-1.5 h-1.5 bg-mars-sand/40 rounded-full" />
-          <div className="absolute left-1 w-1.5 h-1.5 bg-mars-sand/40 rounded-full" />
-          <div className="absolute right-1 w-1.5 h-1.5 bg-mars-sand/40 rounded-full" />
+          {/* Outer Ring Cardinal Crosshairs */}
+          <div className="absolute top-1.5 w-1.5 h-1.5 bg-mars-sand/50 rounded-full" />
+          <div className="absolute bottom-1.5 w-1.5 h-1.5 bg-mars-sand/50 rounded-full" />
+          <div className="absolute left-1.5 w-1.5 h-1.5 bg-mars-sand/50 rounded-full" />
+          <div className="absolute right-1.5 w-1.5 h-1.5 bg-mars-sand/50 rounded-full" />
 
           {/* Floating Joystick Knob */}
           <div
-            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center shadow-lg transition-transform ${
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center shadow-2xl transition-transform ${
               joystickActive
-                ? 'bg-mars-orange border-white text-white scale-110 shadow-[0_0_12px_rgba(249,115,22,0.6)]'
-                : 'bg-white/15 border-white/30 text-white/40'
+                ? 'bg-mars-orange border-white text-white scale-110 shadow-[0_0_15px_rgba(249,115,22,0.8)]'
+                : 'bg-white/20 border-white/40 text-white/50'
             }`}
             style={{
               transform: `translate(${joystickPos.x}px, ${joystickPos.y}px)`
             }}
           >
-            <div className="w-3.5 h-3.5 rounded-full bg-white/40" />
+            <div className="w-4 h-4 rounded-full bg-white/60 shadow-sm" />
           </div>
         </div>
 
-        <div className="text-[8.5px] font-mono font-bold text-center mt-1 text-mars-sand/60">
+        <div className={`text-[8.5px] font-mono font-bold text-center mt-1 uppercase tracking-wider transition-colors ${
+          joystickActive ? 'text-mars-orange font-black' : 'text-mars-sand/70'
+        }`}>
           {isDrivingRover ? 'STEER / DRIVE' : 'MOVE'}
         </div>
       </div>
 
       {/* 2. Ergonomic 2x2 Thumb Cluster (Bottom Right) */}
-      <div className="absolute bottom-5 right-5 pointer-events-auto grid grid-cols-2 gap-2">
+      <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 pointer-events-auto grid grid-cols-2 gap-2 touch-none">
         {/* Top-Left: EVA Action Tools Menu */}
         <button
           onClick={onOpenActionWheel}

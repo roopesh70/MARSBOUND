@@ -212,7 +212,7 @@ export const MarsWeatherClimatePanel: React.FC = () => {
             <Sun className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white font-sans tracking-tight leading-none">
+            <h1 className="text-xl font-bold text-white font-main tracking-tight leading-none">
               Mars Weather & Climate Explorer
             </h1>
             <p className="text-[11px] text-zinc-400 font-sans tracking-wide mt-1">

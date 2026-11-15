@@ -26,8 +26,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Doto"', 'Rajdhani', 'sans-serif'],
-        main: ['"Doto"', 'Rajdhani', 'sans-serif'],
+        sans: ['"Space Mono"', 'Rajdhani', 'sans-serif'],
+        main: ['Rajdhani', 'Orbitron', 'sans-serif'],
         display: ['"Doto"', 'Rajdhani', 'sans-serif'],
         mono: ['"Space Mono"', 'monospace']
       }

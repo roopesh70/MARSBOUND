@@ -81,7 +81,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                   ONLINE
                 </span>
               </div>
-              <h1 className="text-xs sm:text-lg md:text-xl font-bold font-sans tracking-tight text-white flex items-center gap-1.5 sm:gap-2 truncate">
+              <h1 className="text-xs sm:text-lg md:text-xl font-bold font-display tracking-tight text-white flex items-center gap-1.5 sm:gap-2 truncate">
                 Mars Archival Library
               </h1>
             </div>
@@ -118,12 +118,12 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
         <nav className="flex items-center space-x-1 sm:space-x-1.5 px-3 py-1.5 sm:px-5 sm:py-2 bg-[#141213] border-b border-white/10 overflow-x-auto scrollbar-none shrink-0 text-xs">
           {[
             { id: 'overview', label: 'About Mars', icon: Sparkles },
-            { id: 'weather', label: 'Real Weather & Climate (PSG)', icon: CloudSun },
+            { id: 'weather', label: 'Real Weather & Climate', icon: CloudSun },
             { id: 'digital_resources', label: 'NASA Digital Resources', icon: Cpu },
             { id: 'documents', label: 'Documents & Journals', icon: FileText },
             { id: 'web_directory', label: 'NASA Web Portals', icon: Globe },
             { id: 'datasets', label: 'NASA Mars Datasets', icon: Database },
-            { id: 'gallery', label: 'Mars Image Gallery', icon: ImageIcon }
+            { id: 'gallery', label: 'Mars Gallery', icon: ImageIcon }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -159,7 +159,7 @@ export const MarsLibraryModal: React.FC<MarsLibraryModalProps> = ({ isOpen, onCl
                     <Sparkles className="w-4 h-4" />
                     <span>Planetary Compendium: {MARS_FACTSHEET.name}</span>
                   </div>
-                  <h2 className="text-2xl font-bold font-sans text-white tracking-tight">
+                  <h2 className="text-2xl font-bold font-main text-white tracking-tight">
                     The Red Planet: Sol IV Complete Science Dossier
                   </h2>
                   <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">

@@ -444,7 +444,8 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
             backward: controller.moveBackward,
             left: controller.moveLeft,
             right: controller.moveRight,
-            brake: !controller.isGrounded // Space key
+            brake: !controller.isGrounded, // Space key
+            boost: controller.isSprinting
           };
 
           rover.update(delta, terrain, roverInputs, collisionSystem);

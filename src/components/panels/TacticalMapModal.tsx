@@ -99,9 +99,16 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   // Right sidebar tab: 'layers' | 'discoveries'
   const [sidebarTab, setSidebarTab] = useState<'layers' | 'discoveries'>('layers');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mapFrameRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<{ clientX: number; clientY: number; initialPanX: number; initialPanY: number; initialDist?: number }>({
+    clientX: 0,
+    clientY: 0,
+    initialPanX: 0,
+    initialPanY: 0
+  });
 
   // Hover handlers for discovery POI markers
   const handlePoiMouseEnter = (poi: DiscoveryRecord) => {
@@ -228,6 +235,48 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
     setIsDragging(false);
   };
 
+  // Touch drag & pinch-to-zoom handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      touchStartRef.current = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        initialPanX: pan.x,
+        initialPanY: pan.y
+      };
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchStartRef.current.initialDist = dist;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      const deltaX = (touch.clientX - touchStartRef.current.clientX) * 0.18;
+      const deltaY = (touch.clientY - touchStartRef.current.clientY) * 0.18;
+      setPan({
+        x: touchStartRef.current.initialPanX + deltaX,
+        y: touchStartRef.current.initialPanY + deltaY
+      });
+    } else if (e.touches.length === 2 && touchStartRef.current.initialDist) {
+      const newDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const ratio = newDist / touchStartRef.current.initialDist;
+      if (ratio > 1.04) {
+        setZoom((prev) => Math.min(4.0, Number((prev * 1.025).toFixed(2))));
+      } else if (ratio < 0.96) {
+        setZoom((prev) => Math.max(0.35, Number((prev / 1.025).toFixed(2))));
+      }
+    }
+  };
+
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     if (e.deltaY < 0) {
@@ -276,8 +325,6 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
   const rulerDistance = rulerPoints.start && rulerPoints.end
     ? Math.round(Math.hypot(rulerPoints.end.x - rulerPoints.start.x, rulerPoints.end.z - rulerPoints.start.z))
     : null;
-
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-1 sm:p-2 md:p-6 animate-in fade-in select-none">
@@ -403,14 +450,16 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onWheel={handleWheel}
-            className={`flex-1 bg-[#0c0503] relative overflow-hidden flex items-center justify-center p-3 cursor-${
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            className={`flex-1 bg-[#0c0503] relative overflow-hidden flex items-center justify-center p-1 sm:p-2 md:p-3 cursor-${
               isDragging ? 'grabbing' : activeTool === 'waypoint' ? 'crosshair' : activeTool === 'ruler' ? 'crosshair' : 'grab'
             }`}
           >
             {/* Map Canvas Frame */}
             <div
               ref={mapFrameRef}
-              className="relative w-full h-full max-h-[720px] aspect-square rounded-2xl overflow-hidden border border-mars-border/80 shadow-2xl bg-[#110805]"
+              className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden border border-mars-border/80 shadow-2xl bg-[#140b07]"
             >
               
               {/* GIS LAYER 1: HiRISE True-Color Surface Ortho */}
@@ -419,7 +468,7 @@ export const TacticalMapModal: React.FC<TacticalMapModalProps> = ({
                   activeLayer === 'hirise' ? 'opacity-95' : 'opacity-30'
                 }`}
                 style={{
-                  background: 'radial-gradient(circle at 45% 40%, #7c3a22 0%, #4a2113 45%, #2a1109 85%, #180905 100%)'
+                  background: 'radial-gradient(circle at 45% 40%, #a85333 0%, #8b3e23 35%, #5e2816 65%, #3a160b 88%, #200c06 100%)'
                 }}
               />
 
