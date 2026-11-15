@@ -66,11 +66,11 @@ export const NASA_CHALLENGE_RESOURCES: NasaChallengeResource[] = [
   },
   {
     id: 'crism_mineralogy',
-    title: 'CRISM Hyperspectral Mineralogy Data (JHU/APL)',
+    title: 'CRISM Hyperspectral Mineralogy Data (NASA PDS / JHU APL)',
     category: 'geology',
     description: 
-      'Orbital spectrometer data mapping phyllosilicates (smectite clays), carbonates, and olivine in Jezero Crater.',
-    url: 'https://crism.jhuapl.edu/',
+      'Orbital spectrometer data mapping phyllosilicates (smectite clays), carbonates, and olivine in Jezero Crater, archived in NASA PDS Geosciences Node.',
+    url: 'https://pds-geosciences.wustl.edu/missions/mro/crism.htm',
     usageInMarsbound: 
       'Powers the Tactical Map Mineralogy Layer, guiding the player to high-value astrobiological sample locations.',
     challengeRequirementMet: 'Identification of high-priority scientific targets during EVA Marswalks.'

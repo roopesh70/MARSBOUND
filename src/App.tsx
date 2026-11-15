@@ -81,6 +81,25 @@ export const App: React.FC = () => {
       if (saved.structures && saved.structures.length > 0) {
         setStructures(saved.structures);
       }
+      if (saved.allMissions && saved.allMissions.length > 0) {
+        const merged = ALL_MISSIONS.map((m) => {
+          const found = saved.allMissions?.find((sm) => sm.id === m.id);
+          if (!found) return m;
+          return {
+            ...m,
+            completed: found.completed,
+            currentObjectiveIndex: found.currentObjectiveIndex,
+            objectives: m.objectives.map((obj, idx) => ({
+              ...obj,
+              completed: found.objectives[idx]?.completed ?? false
+            }))
+          };
+        });
+        setMissions(merged);
+      }
+      if (saved.activeMissionId) {
+        setActiveMissionId(saved.activeMissionId);
+      }
     }
   }, []);
 
@@ -91,6 +110,8 @@ export const App: React.FC = () => {
     setMissions((currentMissions) => {
       let changed = false;
       let toastMessage = '';
+      let earnedRp = 0;
+      let nextActiveId: string | null = null;
 
       const updated = currentMissions.map((m) => {
         if (m.id !== missionId) return m;
@@ -99,10 +120,22 @@ export const App: React.FC = () => {
           const objs = [...m.objectives];
           objs[objectiveIndex] = { ...objs[objectiveIndex], completed: true };
           changed = true;
-          toastMessage = `✦ OBJECTIVE COMPLETED: ${objs[objectiveIndex].title}`;
 
           const nextIdx = objs.findIndex((o) => !o.completed);
           const allDone = nextIdx === -1;
+
+          if (allDone && !m.completed) {
+            earnedRp = m.rewards.researchPointsReward;
+            toastMessage = `🏆 EXPEDITION ACCOMPLISHED: ${m.title.toUpperCase()} (+${earnedRp} RP)`;
+            // Search for next incomplete expedition
+            const nextMission = currentMissions.find((other) => other.id !== m.id && !other.completed);
+            if (nextMission) {
+              nextActiveId = nextMission.id;
+            }
+          } else {
+            toastMessage = `✦ OBJECTIVE COMPLETED: ${objs[objectiveIndex].title}`;
+          }
+
           return {
             ...m,
             objectives: objs,
@@ -116,7 +149,16 @@ export const App: React.FC = () => {
       if (changed) {
         audioService.playDiscoveryFound();
         setMissionToast(toastMessage);
-        setTimeout(() => setMissionToast((prev) => (prev === toastMessage ? null : prev)), 4500);
+        setTimeout(() => setMissionToast((prev) => (prev === toastMessage ? null : prev)), 5000);
+
+        if (earnedRp > 0) {
+          setResearchPoints((prev) => prev + earnedRp);
+        }
+
+        if (nextActiveId) {
+          setActiveMissionId(nextActiveId);
+        }
+
         return updated;
       }
       return currentMissions;
@@ -171,6 +213,7 @@ export const App: React.FC = () => {
               closeActiveModal(false);
             } else if (activeModal === 'none') {
               setActiveModal('science_lab');
+              completeObjective('mission_02_laboratory_assay', 0);
               audioService.playClick();
             }
           }
@@ -183,6 +226,7 @@ export const App: React.FC = () => {
               closeActiveModal(false);
             } else if (activeModal === 'none') {
               setActiveModal('library');
+              completeObjective('mission_06_cheyava_astrobiology', 0);
               audioService.playClick();
             }
           }
@@ -231,7 +275,13 @@ export const App: React.FC = () => {
         // Base Build Mode Toggle [B]: press B to open, press B again to close!
         case 'KeyB':
           if (activeModal === 'none') {
-            setIsBuildMode((prev) => !prev);
+            setIsBuildMode((prev) => {
+              const next = !prev;
+              if (next) {
+                completeObjective('mission_04_expand_outpost', 0);
+              }
+              return next;
+            });
             audioService.playClick();
           }
           break;
@@ -241,12 +291,15 @@ export const App: React.FC = () => {
           if (activeModal === 'none' && !isBuildMode) {
             if (telemetry?.isNearScienceLab) {
               setActiveModal('science_lab');
+              completeObjective('mission_02_laboratory_assay', 0);
               audioService.playClick();
             } else if (telemetry?.isNearLibrary) {
               setActiveModal('library');
+              completeObjective('mission_06_cheyava_astrobiology', 0);
               audioService.playClick();
             } else {
               setRoverSignal((prev) => prev + 1);
+              completeObjective('mission_03_rimfax_subsurface', 0);
             }
           }
           break;
@@ -279,6 +332,7 @@ export const App: React.FC = () => {
               closeActiveModal(false);
             } else if (activeModal === 'none' && telemetry?.isDrivingRover) {
               setActiveModal('rimfax');
+              completeObjective('mission_03_rimfax_subsurface', 1);
               audioService.playClick();
             }
           }
@@ -354,7 +408,7 @@ export const App: React.FC = () => {
       return prev;
     });
 
-    // MISSION 01: Delta Scarp
+    // MISSION 01: Delta Scarp Reconnaissance
     if (t.nearestPoi?.id === 'poi_delta_scarp' && t.nearestPoiDistance <= 35) {
       completeObjective('mission_01_geological_outcrop', 1);
     }
@@ -363,24 +417,60 @@ export const App: React.FC = () => {
       completeObjective('mission_01_geological_outcrop', 4);
     }
 
-    // MISSION 02: Kodiak Butte Rover Expedition
-    if (t.isDrivingRover) {
-      completeObjective('mission_02_kodiak_expedition', 0);
-    }
-    if (t.nearestPoi?.id === 'poi_kodiak_butte' && t.nearestPoiDistance <= 45) {
-      completeObjective('mission_02_kodiak_expedition', 1);
-    }
-    const m2 = missions.find((m) => m.id === 'mission_02_kodiak_expedition');
-    if (m2?.objectives[3].completed && !m2.objectives[4].completed && (t.suit.isInSafeZone || Math.hypot(t.position.x, t.position.z) <= 25)) {
-      completeObjective('mission_02_kodiak_expedition', 4);
+    // MISSION 02: Laboratory Assay
+    if (t.isNearScienceLab) {
+      completeObjective('mission_02_laboratory_assay', 0);
     }
 
-    // MISSION 03: Expand Outpost
+    // MISSION 03: RIMFAX Subsurface Tomography
+    if (t.isDrivingRover) {
+      completeObjective('mission_03_rimfax_subsurface', 0);
+      completeObjective('mission_03_rimfax_subsurface', 1);
+      if (t.rimfax.nearbyAnomaly) {
+        completeObjective('mission_03_rimfax_subsurface', 2);
+      }
+    }
+
+    // MISSION 04: Expand Outpost
     if (isBuildMode) {
-      completeObjective('mission_03_expand_outpost', 0);
+      completeObjective('mission_04_expand_outpost', 0);
     }
     if (t.totalPowerGen >= 4800) {
-      completeObjective('mission_03_expand_outpost', 2);
+      completeObjective('mission_04_expand_outpost', 3);
+    }
+    const m4 = missions.find((m) => m.id === 'mission_04_expand_outpost');
+    if (m4?.objectives[3].completed && !m4.objectives[4].completed && t.suit.isInSafeZone) {
+      completeObjective('mission_04_expand_outpost', 4);
+    }
+
+    // MISSION 05: Neretva Vallis Megaflood
+    if (t.nearestPoi?.id === 'poi_kodiak_butte' && t.nearestPoiDistance <= 60) {
+      completeObjective('mission_05_neretva_expedition', 0);
+    }
+    if (t.activeRegionId === 'neretva_vallis' || (t.position.x < -195 && t.position.z < -140)) {
+      completeObjective('mission_05_neretva_expedition', 1);
+    }
+    if (t.nearestPoi?.id === 'poi_neretva_canyon' && t.nearestPoiDistance <= 40) {
+      completeObjective('mission_05_neretva_expedition', 2);
+    }
+    const m5 = missions.find((m) => m.id === 'mission_05_neretva_expedition');
+    if (m5?.objectives[3].completed && !m5.objectives[4].completed && (t.suit.isInSafeZone || Math.hypot(t.position.x, t.position.z) <= 28)) {
+      completeObjective('mission_05_neretva_expedition', 4);
+    }
+
+    // MISSION 06: Cheyava Falls Astrobiology
+    if (t.isNearLibrary) {
+      completeObjective('mission_06_cheyava_astrobiology', 0);
+    }
+    if (t.nearestPoi?.id === 'poi_cheyava_falls' && t.nearestPoiDistance <= 45) {
+      completeObjective('mission_06_cheyava_astrobiology', 1);
+    }
+    const m6 = missions.find((m) => m.id === 'mission_06_cheyava_astrobiology');
+    if (m6?.objectives[3].completed && !m6.objectives[4].completed) {
+      const hour = t.solTime.hour + t.solTime.minute / 60;
+      if (hour >= 17.0 && hour <= 18.85) {
+        completeObjective('mission_06_cheyava_astrobiology', 4);
+      }
     }
   }, [missions, isBuildMode, completeObjective]);
 
@@ -394,6 +484,8 @@ export const App: React.FC = () => {
         discoveredIds,
         collectedSamples,
         mission: activeMission,
+        allMissions: missions,
+        activeMissionId,
         structures: updated,
         sol: telemetry?.solTime.sol || 142,
         suitOxygen: telemetry?.suit.oxygen || 100,
@@ -403,9 +495,13 @@ export const App: React.FC = () => {
       return updated;
     });
 
-    // Advance Mission 03 Objective 1
-    completeObjective('mission_03_expand_outpost', 1);
-  }, [discoveredIds, collectedSamples, activeMission, telemetry, completeObjective]);
+    // Advance Mission 04 Construction Objectives
+    if (newStructure.type === 'solar_array') {
+      completeObjective('mission_04_expand_outpost', 1);
+    } else if (newStructure.type === 'battery_bank') {
+      completeObjective('mission_04_expand_outpost', 2);
+    }
+  }, [discoveredIds, collectedSamples, activeMission, missions, activeMissionId, telemetry, completeObjective]);
 
   // Handle structure dismantling in Dismantle Mode
   const handleStructureDismantled = useCallback((dismantled: OutpostStructure) => {
@@ -446,8 +542,15 @@ export const App: React.FC = () => {
       completeObjective('mission_01_geological_outcrop', 2);
     }
     if (poi.id === 'poi_kodiak_butte') {
-      completeObjective('mission_02_kodiak_expedition', 1);
-      completeObjective('mission_02_kodiak_expedition', 2);
+      completeObjective('mission_05_neretva_expedition', 0);
+    }
+    if (poi.id === 'poi_neretva_canyon') {
+      completeObjective('mission_05_neretva_expedition', 1);
+      completeObjective('mission_05_neretva_expedition', 2);
+    }
+    if (poi.id === 'poi_cheyava_falls') {
+      completeObjective('mission_06_cheyava_astrobiology', 1);
+      completeObjective('mission_06_cheyava_astrobiology', 2);
     }
   }, [completeObjective]);
 
@@ -473,8 +576,11 @@ export const App: React.FC = () => {
     if (poi.id === 'poi_delta_scarp') {
       completeObjective('mission_01_geological_outcrop', 3);
     }
-    if (poi.id === 'poi_kodiak_butte') {
-      completeObjective('mission_02_kodiak_expedition', 3);
+    if (poi.id === 'poi_neretva_canyon') {
+      completeObjective('mission_05_neretva_expedition', 3);
+    }
+    if (poi.id === 'poi_cheyava_falls') {
+      completeObjective('mission_06_cheyava_astrobiology', 3);
     }
   }, [telemetry, completeObjective]);
 
@@ -492,6 +598,8 @@ export const App: React.FC = () => {
           researchPoints: newRp,
           unlockedTechIds,
           mission: activeMission,
+          allMissions: missions,
+          activeMissionId,
           structures,
           sol: telemetry?.solTime.sol || 142,
           suitOxygen: telemetry?.suit.oxygen || 100,
@@ -503,9 +611,12 @@ export const App: React.FC = () => {
       return newRp;
     });
 
+    completeObjective('mission_02_laboratory_assay', 1);
+    completeObjective('mission_02_laboratory_assay', 2);
+
     setMissionToast(`✦ GEOCHEMICAL ASSAY COMPLETE: +${pointsAwarded} RESEARCH POINTS!`);
     setTimeout(() => setMissionToast((prev) => (prev?.includes('ASSAY') ? null : prev)), 4500);
-  }, [discoveredIds, collectedSamples, unlockedTechIds, activeMission, structures, telemetry]);
+  }, [discoveredIds, collectedSamples, unlockedTechIds, activeMission, missions, activeMissionId, structures, telemetry, completeObjective]);
 
   // Handle tech tree research upgrade in the Science Lab
   const handleUnlockTech = useCallback((techId: string, costRP: number) => {
@@ -521,6 +632,8 @@ export const App: React.FC = () => {
           researchPoints: newRp,
           unlockedTechIds: newTechs,
           mission: activeMission,
+          allMissions: missions,
+          activeMissionId,
           structures,
           sol: telemetry?.solTime.sol || 142,
           suitOxygen: telemetry?.suit.oxygen || 100,
@@ -532,9 +645,11 @@ export const App: React.FC = () => {
       return newRp;
     });
 
+    completeObjective('mission_02_laboratory_assay', 3);
+
     setMissionToast(`✦ TECH UPGRADE RESEARCHED: SYSTEMS ENHANCED!`);
     setTimeout(() => setMissionToast((prev) => (prev?.includes('TECH UPGRADE') ? null : prev)), 4500);
-  }, [discoveredIds, collectedSamples, analyzedSampleIds, activeMission, structures, telemetry]);
+  }, [discoveredIds, collectedSamples, analyzedSampleIds, activeMission, missions, activeMissionId, structures, telemetry, completeObjective]);
 
   // Handle RIMFAX Subsurface Core Drilling from the Rover
   const handleDeployCoreDrill = useCallback(() => {
@@ -555,6 +670,9 @@ export const App: React.FC = () => {
         rimfaxService.recordDrilledAnomaly(anom.id);
       }
 
+      completeObjective('mission_03_rimfax_subsurface', 3);
+      completeObjective('mission_03_rimfax_subsurface', 4);
+
       const newSample = {
         id: `subsurface_core_${Date.now()}`,
         discoveryId: sampleDiscoveryId,
@@ -574,6 +692,8 @@ export const App: React.FC = () => {
           researchPoints: researchPoints + bonusRp,
           unlockedTechIds,
           mission: activeMission,
+          allMissions: missions,
+          activeMissionId,
           structures,
           sol: telemetry.solTime.sol || 142,
           suitOxygen: telemetry.suit.oxygen || 100,
@@ -588,7 +708,7 @@ export const App: React.FC = () => {
       setMissionToast(`✦ SUBSURFACE CORE EXTRACTED: ${sampleName.toUpperCase()} (+${bonusRp} RP)!`);
       setTimeout(() => setMissionToast((prev) => (prev?.includes('SUBSURFACE') ? null : prev)), 5000);
     }, 2400);
-  }, [isDrilling, telemetry, discoveredIds, analyzedSampleIds, researchPoints, unlockedTechIds, activeMission, structures]);
+  }, [isDrilling, telemetry, discoveredIds, analyzedSampleIds, researchPoints, unlockedTechIds, activeMission, missions, activeMissionId, structures, completeObjective]);
 
   const handleOpenMap = useCallback(() => {
     handleToggleMap();
@@ -630,10 +750,12 @@ export const App: React.FC = () => {
         onOpenDiscovery={handleOpenDiscovery}
         onOpenLibrary={() => {
           setActiveModal('library');
+          completeObjective('mission_06_cheyava_astrobiology', 0);
           audioService.playClick();
         }}
         onOpenScienceLab={() => {
           setActiveModal('science_lab');
+          completeObjective('mission_02_laboratory_assay', 0);
           audioService.playClick();
         }}
         unlockedTechIds={unlockedTechIds}
@@ -679,16 +801,19 @@ export const App: React.FC = () => {
           onOpenLibrary={() => {
             audioService.playClick();
             setActiveModal('library');
+            completeObjective('mission_06_cheyava_astrobiology', 0);
           }}
           onOpenScienceLab={() => {
             audioService.playClick();
             setActiveModal('science_lab');
+            completeObjective('mission_02_laboratory_assay', 0);
           }}
           researchPoints={researchPoints}
           onDeployCoreDrill={handleDeployCoreDrill}
           onOpenRimfaxRadar={() => {
             audioService.playClick();
             setActiveModal('rimfax');
+            completeObjective('mission_03_rimfax_subsurface', 1);
           }}
           isDrilling={isDrilling}
           onOpenSettings={() => {
@@ -800,6 +925,34 @@ export const App: React.FC = () => {
         isOpen={activeModal === 'mission'}
         onClose={closeActiveModal}
         onOpenMap={handleOpenMap}
+        onOpenScienceLab={() => {
+          closeActiveModal(false);
+          setActiveModal('science_lab');
+          completeObjective('mission_02_laboratory_assay', 0);
+          audioService.playClick();
+        }}
+        onOpenLibrary={() => {
+          closeActiveModal(false);
+          setActiveModal('library');
+          completeObjective('mission_06_cheyava_astrobiology', 0);
+          audioService.playClick();
+        }}
+        onOpenRimfaxRadar={() => {
+          closeActiveModal(false);
+          if (telemetry?.isDrivingRover) {
+            setActiveModal('rimfax');
+            completeObjective('mission_03_rimfax_subsurface', 1);
+            audioService.playClick();
+          } else {
+            setMissionToast('MOUNT MARS ROVER [E] TO ENGAGE RIMFAX GPR');
+          }
+        }}
+        onToggleBuildMode={() => {
+          closeActiveModal(false);
+          setIsBuildMode(true);
+          completeObjective('mission_04_expand_outpost', 0);
+          audioService.playClick();
+        }}
       />
 
       {/* Research Journal & Samples Panel */}

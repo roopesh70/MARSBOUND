@@ -121,8 +121,8 @@ export const JEZERO_DISCOVERIES: DiscoveryRecord[] = [
         url: 'https://www.science.org/doi/10.1126/science.abo4738'
       },
       {
-        title: 'CRISM Hyperspectral Characterization of Jezero Crater Western Delta',
-        url: 'https://crism.jhuapl.edu/'
+        title: 'CRISM Hyperspectral Characterization of Jezero Crater Western Delta (NASA PDS)',
+        url: 'https://pds-geosciences.wustl.edu/missions/mro/crism.htm'
       }
     ],
     verificationStatus: 'verified'

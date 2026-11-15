@@ -25,7 +25,8 @@ import {
   Lock,
   Unlock,
   FlaskConical,
-  Radio
+  Radio,
+  CheckCircle2
 } from 'lucide-react';
 import { RimfaxEchogramWidget } from './RimfaxEchogramWidget';
 
@@ -89,12 +90,27 @@ export const HUD: React.FC<HUDProps> = ({
     ? JEZERO_DISCOVERIES.find((p) => p.id === currentObjective.targetDiscoveryId)
     : null;
 
+  let targetWorldPos: { x: number; z: number } | null = null;
+  if (targetPoi) {
+    targetWorldPos = { x: targetPoi.worldPosition.x, z: targetPoi.worldPosition.z };
+  } else if (currentObjective?.type === 'return_outpost') {
+    targetWorldPos = { x: 0, z: 0 };
+  } else if (currentObjective?.targetRegionId === 'neretva_vallis') {
+    targetWorldPos = { x: -220, z: -110 };
+  } else if (currentObjective?.type === 'visit_library') {
+    targetWorldPos = { x: 26, z: -26 };
+  } else if (currentObjective?.type === 'analyze_sample' || currentObjective?.type === 'unlock_tech') {
+    targetWorldPos = { x: -18, z: -16 };
+  } else if (currentObjective?.type === 'radar_sounding' || currentObjective?.type === 'deep_core_drill') {
+    targetWorldPos = { x: -80, z: -45 };
+  }
+
   let targetDistance: number | null = null;
   let targetDirectionStr: string = '';
-  if (targetPoi && telemetry) {
-    const dx = targetPoi.worldPosition.x - telemetry.position.x;
-    const dz = targetPoi.worldPosition.z - telemetry.position.z;
-    targetDistance = Math.round(Math.sqrt(dx * dx + dz * dz));
+  if (targetWorldPos && telemetry) {
+    const dx = targetWorldPos.x - telemetry.position.x;
+    const dz = targetWorldPos.z - telemetry.position.z;
+    targetDistance = Math.round(Math.hypot(dx, dz));
     const angleRad = Math.atan2(dx, -dz);
     let deg = Math.round((angleRad * (180 / Math.PI)) % 360);
     if (deg < 0) deg += 360;
@@ -159,7 +175,7 @@ export const HUD: React.FC<HUDProps> = ({
           />
           
           {/* Mission Mini-Objective Tracker */}
-          {currentObjective && !mission.completed && (
+          {currentObjective && !mission.completed ? (
             <div 
               onClick={onOpenMission}
               className="bg-black/80 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-mars-orange/60 text-xs font-mono max-w-md cursor-pointer hover:bg-black/95 transition-all shadow-2xl pointer-events-auto ring-1 ring-mars-orange/30 group"
@@ -167,7 +183,7 @@ export const HUD: React.FC<HUDProps> = ({
               <div className="flex items-center justify-between text-mars-orange font-bold text-[10px] uppercase">
                 <div className="flex items-center space-x-1.5">
                   <Target className="w-3.5 h-3.5 animate-pulse" />
-                  <span>MISSION STEP {mission.currentObjectiveIndex + 1}/{mission.objectives.length}</span>
+                  <span>STEP {mission.currentObjectiveIndex + 1}/{mission.objectives.length} • {mission.code}</span>
                 </div>
                 {targetDistance !== null && (
                   <span className="text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/40 font-bold">
@@ -182,7 +198,28 @@ export const HUD: React.FC<HUDProps> = ({
                 {currentObjective.description}
               </div>
             </div>
-          )}
+          ) : mission.completed ? (
+            <div
+              onClick={onOpenMission}
+              className="bg-emerald-950/80 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-emerald-500/60 text-xs font-mono max-w-md cursor-pointer hover:bg-emerald-900/80 transition-all shadow-2xl pointer-events-auto ring-1 ring-emerald-500/40 group animate-in fade-in"
+            >
+              <div className="flex items-center justify-between text-emerald-400 font-bold text-[10px] uppercase">
+                <div className="flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>EXPEDITION ACCOMPLISHED</span>
+                </div>
+                <span className="text-emerald-300 bg-emerald-900/70 px-2 py-0.5 rounded border border-emerald-500/50 font-bold">
+                  +{mission.rewards.researchPointsReward} RP
+                </span>
+              </div>
+              <div className="text-white font-semibold text-xs mt-1 truncate group-hover:text-emerald-200 transition-colors">
+                {mission.title}
+              </div>
+              <div className="text-[11px] text-emerald-300/80 mt-0.5">
+                Press [O] to view all expeditions & select next campaign
+              </div>
+            </div>
+          ) : null}
 
           {/* Custom Waypoint Distance Tracker */}
           {customWaypoint && (

@@ -404,15 +404,15 @@ export const NASA_MARS_DIGITAL_RESOURCES: NasaDigitalResource[] = [
   },
   {
     id: 'res_crism_spectral',
-    title: 'CRISM Hyperspectral Mineralogy Data System',
+    title: 'CRISM Hyperspectral Mineralogy Data System (NASA PDS)',
     category: 'spectroscopy',
-    provider: 'Johns Hopkins Applied Physics Laboratory (JHU/APL) / NASA',
-    description: 'Orbital imaging spectrometer archive collecting 544 visible and infrared channels (0.36 to 3.92 µm) to detect minerals formed in liquid water.',
-    url: 'https://crism.jhuapl.edu/',
+    provider: 'NASA Planetary Data System (PDS) Geosciences / JHU APL',
+    description: 'Permanent NASA PDS archive of CRISM orbital imaging spectrometer data, collecting 544 visible and infrared channels (0.36 to 3.92 µm) to detect minerals formed in liquid water.',
+    url: 'https://pds-geosciences.wustl.edu/missions/mro/crism.htm',
     capabilities: [
       'Targeted hyperspectral map tiles identifying smectite clays, jarosite, sulfates, and carbonates',
       'Summary parameter maps highlighting phyllosilicate absorption bands at 1.9 µm and 2.3 µm',
-      'Atmospherically corrected surface reflectance cubes'
+      'Atmospherically corrected surface reflectance cubes and Mars Orbital Data Explorer (ODE) access'
     ],
     scientificValue: 'Key data suite that proved Mars had diverse liquid water environments in the Noachian era.'
   },
@@ -853,10 +853,10 @@ export const NASA_MARS_DOCUMENTS: NasaMarsDocument[] = [
     title: 'Moon to Mars Architecture Definition Document (ESDMD-001)',
     authors: 'NASA Exploration Systems Development Mission Directorate (ESDMD)',
     year: 2023,
-    journalOrSource: 'NASA Technical Reports Server (NTRS), Document 20230002829',
+    journalOrSource: 'NASA Technical Reports Server (NTRS), Document 20230002706',
     category: 'Engineering & Architecture',
-    doiOrReportId: 'NTRS: 20230002829',
-    url: 'https://ntrs.nasa.gov/citations/20230002829',
+    doiOrReportId: 'NTRS: 20230002706',
+    url: 'https://ntrs.nasa.gov/citations/20230002706',
     abstract: 'Defines the agency-wide technical roadmap for sustainable human exploration of Mars. Establishes the recurring cadence of lunar Artemis missions that qualify ECLSS life support, deep-space transit habitats, 25 kWe surface fission power (Kilopower), and 30-day to 500-day surface stay architectures.',
     keyFindings: [
       'Validates 2-crew and 4-crew Mars surface stay profiles utilizing pre-deployed In-Situ Resource Utilization (ISRU) methane/O2 plants.',
@@ -866,18 +866,18 @@ export const NASA_MARS_DOCUMENTS: NasaMarsDocument[] = [
   },
   {
     id: 'doc_meda_meteorology_2023',
-    title: 'Mars Environmental Dynamics Analyzer (MEDA): Results from the First Mars Year of Operation in Jezero Crater',
+    title: 'The Diverse Meteorology of Jezero Crater Over the First 250 Sols of Perseverance on Mars',
     authors: 'Rodriguez-Manfredi, J. A., de la Torre Juarez, M., Sanchez-Lavega, A., et al.',
     year: 2023,
-    journalOrSource: 'Journal of Geophysical Research: Planets, 128(4)',
+    journalOrSource: 'Nature Geoscience, 16(1), 19–28',
     category: 'Atmosphere & Climate',
-    doiOrReportId: 'doi:10.1029/2022JE007584',
-    url: 'https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2022JE007584',
-    abstract: 'Comprehensive review of the first complete Martian year (668.6 sols) of meteorological observations by MEDA on Perseverance. Quantifies diurnal thermal tides, nocturnal katabatic downslope winds from the Jezero crater rim, and hundreds of convective dust devil vortices.',
+    doiOrReportId: 'doi:10.1038/s41561-022-01084-0',
+    url: 'https://doi.org/10.1038/s41561-022-01084-0',
+    abstract: 'Comprehensive review of the meteorological observations by the MEDA environmental sensor suite on Perseverance in Jezero Crater. Quantifies diurnal thermal cycles, nocturnal katabatic downslope winds from the crater rim, atmospheric dust opacity, and convective dust devil vortices.',
     keyFindings: [
-      'Documented daily temperature swings exceeding 65°C between day and night in Jezero.',
-      'Identified diurnal semi-diurnal thermal tides controlling global atmospheric oscillations.',
-      'Calibrated radiative feedback from airborne dust during regional dust storm events.'
+      'Documented daily surface and near-surface air temperature swings exceeding 60°C between day and night in Jezero.',
+      'Identified diurnal and semi-diurnal thermal atmospheric tides controlling regional wind flow oscillations.',
+      'Calibrated radiative feedback from airborne dust and quantified localized convective boundary layer turbulence.'
     ]
   },
   {
@@ -920,7 +920,7 @@ export const NASA_MARS_DOCUMENTS: NasaMarsDocument[] = [
     journalOrSource: 'Geophysical Research Letters, 43(18)',
     category: 'Geology',
     doiOrReportId: 'doi:10.1002/2016GL070138',
-    url: 'https://agupubs.onlinelibrary.wiley.com/doi/10.1002/2016GL070138',
+    url: 'https://doi.org/10.1002/2016GL070138',
     abstract: 'Using orbital ground-penetrating radar from SHARAD on MRO, researchers discovered a subsurface sheet of 50% to 85% pure water ice spanning hundreds of kilometers across Utopia Planitia at depths of only 1 to 10 meters.',
     keyFindings: [
       'Estimated total water volume exceeds 14,300 cubic kilometers (equivalent to Lake Superior).',

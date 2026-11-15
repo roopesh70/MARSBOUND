@@ -18,6 +18,8 @@ export interface SavedGameState {
   researchPoints?: number;
   unlockedTechIds?: string[];
   mission: Mission;
+  allMissions?: Mission[];
+  activeMissionId?: string;
   structures: OutpostStructure[];
   sol: number;
   suitOxygen: number;

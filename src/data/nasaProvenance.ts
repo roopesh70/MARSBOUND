@@ -44,7 +44,7 @@ export const NASA_PROVENANCE_REGISTRY: DatasetProvenance[] = [
     mission: 'Mars Reconnaissance Orbiter (MRO)',
     instrument: 'Compact Reconnaissance Imaging Spectrometer for Mars (CRISM)',
     productIdOrVersion: 'FRT00005C5E_07_IF166L_TRR3',
-    sourceUrl: 'https://crism.jhuapl.edu/',
+    sourceUrl: 'https://pds-geosciences.wustl.edu/missions/mro/crism.htm',
     archiveId: 'NASA PDS Geosciences Node / MRO-M-CRISM-3-RDR-TARGETED-V1.0',
     acquisitionDate: '2007-04-12',
     spatialCoverage: 'Jezero Western Delta Scarp & Crater Floor',
