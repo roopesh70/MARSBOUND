@@ -20,16 +20,16 @@ export const Compass: React.FC<CompassProps> = ({ heading }) => {
   const cardinal = getCardinal(heading);
 
   return (
-    <div className="flex items-center space-x-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-mars-border/60 text-mars-dust font-mono shadow-lg">
-      <CompassIcon className="w-5 h-5 text-mars-orange animate-pulse" />
-      <div className="flex items-baseline space-x-2">
-        <span className="text-lg font-bold text-white tracking-widest">{cardinal}</span>
-        <span className="text-xs text-mars-sand font-mono">{heading.toString().padStart(3, '0')}°</span>
+    <div className="flex items-center space-x-1.5 md:space-x-3 bg-black/65 backdrop-blur-md px-2 py-1 md:px-4 md:py-2 rounded-lg border border-mars-border/60 text-mars-dust font-mono shadow-lg">
+      <CompassIcon className="w-3.5 h-3.5 md:w-5 md:h-5 text-mars-orange animate-pulse shrink-0" />
+      <div className="flex items-baseline space-x-1 md:space-x-2">
+        <span className="text-sm md:text-lg font-bold text-white tracking-wider md:tracking-widest">{cardinal}</span>
+        <span className="text-[9px] md:text-xs text-mars-sand font-mono">{heading.toString().padStart(3, '0')}°</span>
       </div>
-      <div className="h-4 w-px bg-mars-border mx-1" />
-      <div className="w-32 h-2 bg-mars-surface rounded-full overflow-hidden relative">
+      <div className="h-3 md:h-4 w-px bg-mars-border mx-0.5 md:mx-1" />
+      <div className="w-14 sm:w-20 md:w-32 h-1 md:h-2 bg-mars-surface rounded-full overflow-hidden relative">
         <div 
-          className="absolute top-0 bottom-0 w-3 bg-mars-accent rounded-full transition-all duration-75"
+          className="absolute top-0 bottom-0 w-2 md:w-3 bg-mars-accent rounded-full transition-all duration-75"
           style={{ left: `${(heading / 360) * 100}%` }}
         />
       </div>

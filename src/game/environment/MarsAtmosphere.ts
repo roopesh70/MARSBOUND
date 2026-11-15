@@ -54,11 +54,14 @@ export class MarsAtmosphere {
     this.group.add(this.ambientLight);
 
     // 2. Solar Directional Light (Crisp, high-contrast shadows due to low air dispersion)
+    const isMobileDevice = typeof window !== 'undefined' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth < 1024);
+    const shadowMapRes = isMobileDevice ? 1024 : 2048;
+
     this.sunLight = new THREE.DirectionalLight(0xfffaed, 1.45);
     this.sunLight.position.set(0, 200, 0);
     this.sunLight.castShadow = true;
-    this.sunLight.shadow.mapSize.width = 2048;
-    this.sunLight.shadow.mapSize.height = 2048;
+    this.sunLight.shadow.mapSize.width = shadowMapRes;
+    this.sunLight.shadow.mapSize.height = shadowMapRes;
     this.sunLight.shadow.camera.near = 10;
     this.sunLight.shadow.camera.far = 650;
     this.sunLight.shadow.camera.left = -220;
@@ -278,7 +281,8 @@ export class MarsAtmosphere {
     this.group.add(this.deimosMesh);
 
     // 10. Floating Atmospheric Dust & Low-Altitude Dune Drifts
-    const dustCount = 850;
+    const isMobileDust = typeof window !== 'undefined' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth < 1024);
+    const dustCount = isMobileDust ? 340 : 850;
     const dustGeom = new THREE.BufferGeometry();
     const dustPositions = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {

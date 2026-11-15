@@ -111,32 +111,32 @@ export const RimfaxEchogramWidget: React.FC<RimfaxEchogramWidgetProps> = ({
   const anomaly = telemetry.nearbyAnomaly;
 
   return (
-    <div className="flex flex-col bg-slate-950/90 border border-cyan-500/50 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.25)] backdrop-blur-md overflow-hidden pointer-events-auto font-mono text-xs w-[340px] sm:w-[420px]">
+    <div className="flex flex-col bg-slate-950/90 border border-cyan-500/50 rounded-xl md:rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.25)] backdrop-blur-md overflow-hidden pointer-events-auto font-mono text-[9px] md:text-xs w-[260px] sm:w-[340px] md:w-[420px]">
       
       {/* Widget Header */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-cyan-950/70 border-b border-cyan-500/40">
-        <div className="flex items-center space-x-2 text-cyan-300">
-          <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-          <span className="font-bold tracking-wider text-[11px]">RIMFAX SUBSURFACE RADAR</span>
+      <div className="flex items-center justify-between px-2 py-1 md:px-3 md:py-1.5 bg-cyan-950/70 border-b border-cyan-500/40">
+        <div className="flex items-center space-x-1.5 md:space-x-2 text-cyan-300">
+          <Radio className="w-3 h-3 md:w-3.5 md:h-3.5 text-cyan-400 animate-pulse shrink-0" />
+          <span className="font-bold tracking-wider text-[9px] md:text-[11px] truncate">RIMFAX RADAR</span>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <span className="text-[10px] text-gray-400 bg-black/50 px-1.5 py-0.5 rounded border border-cyan-500/30">
-            ε_r = {telemetry.currentDielectricConstant.toFixed(1)}
+        <div className="flex items-center space-x-1 md:space-x-2 shrink-0">
+          <span className="text-[8.5px] md:text-[10px] text-gray-400 bg-black/50 px-1 md:px-1.5 py-0.2 md:py-0.5 rounded border border-cyan-500/30">
+            ε_r={telemetry.currentDielectricConstant.toFixed(1)}
           </span>
           <button
             onClick={onOpenFullRadar}
             title="Expand Full Radar Tomography Terminal [U]"
-            className="flex items-center space-x-1 text-[10px] text-cyan-300 hover:text-white bg-cyan-900/60 hover:bg-cyan-800 px-2 py-0.5 rounded border border-cyan-400/40 transition-colors cursor-pointer"
+            className="flex items-center space-x-0.5 md:space-x-1 text-[8.5px] md:text-[10px] text-cyan-300 hover:text-white bg-cyan-900/60 hover:bg-cyan-800 px-1.5 md:px-2 py-0.2 md:py-0.5 rounded border border-cyan-400/40 transition-colors cursor-pointer"
           >
-            <span>FULL [U]</span>
-            <ChevronUp className="w-3 h-3" />
+            <span>FULL</span>
+            <ChevronUp className="w-2.5 h-2.5 md:w-3 md:h-3" />
           </button>
         </div>
       </div>
 
       {/* Real-time Scrolling Radargram Screen */}
-      <div className="relative w-full h-24 bg-black overflow-hidden">
+      <div className="relative w-full h-16 md:h-24 bg-black overflow-hidden">
         <canvas
           ref={canvasRef}
           width={420}
@@ -145,52 +145,48 @@ export const RimfaxEchogramWidget: React.FC<RimfaxEchogramWidgetProps> = ({
         />
 
         {/* Live Depth Reticle */}
-        <div className="absolute top-1.5 right-2 text-[9px] text-cyan-300 bg-black/75 px-1.5 py-0.5 rounded border border-cyan-500/30 font-mono">
-          SCAN DEPTH: 0 to -10m
+        <div className="absolute top-1 right-1.5 md:top-1.5 md:right-2 text-[7.5px] md:text-[9px] text-cyan-300 bg-black/75 px-1 md:px-1.5 py-0.2 md:py-0.5 rounded border border-cyan-500/30 font-mono">
+          DEPTH: 0 to -10m
         </div>
 
         {/* Subsurface Stratum Label */}
-        <div className="absolute bottom-1.5 left-2 text-[9px] text-slate-300 bg-black/80 px-2 py-0.5 rounded border border-slate-700 font-mono flex items-center space-x-1">
-          <Activity className="w-2.5 h-2.5 text-emerald-400" />
-          <span>{telemetry.activeStratumName}</span>
+        <div className="absolute bottom-1 left-1.5 md:bottom-1.5 md:left-2 text-[7.5px] md:text-[9px] text-slate-300 bg-black/80 px-1 md:px-2 py-0.2 md:py-0.5 rounded border border-slate-700 font-mono flex items-center space-x-1 truncate max-w-[70%]">
+          <Activity className="w-2 h-2 md:w-2.5 md:h-2.5 text-emerald-400 shrink-0" />
+          <span className="truncate">{telemetry.activeStratumName}</span>
         </div>
       </div>
 
       {/* Subsurface Anomaly Alert & Core Drilling Prompt */}
       {anomaly && (
-        <div className="p-2.5 bg-gradient-to-r from-red-950/80 via-amber-950/70 to-black border-t border-amber-500/50 flex flex-col space-y-1.5">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-amber-300 font-bold flex items-center space-x-1">
-              <AlertCircle className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
-              <span>REFLECTOR ANOMALY DETECTED</span>
+        <div className="p-1.5 md:p-2.5 bg-gradient-to-r from-red-950/80 via-amber-950/70 to-black border-t border-amber-500/50 flex flex-col space-y-1 md:space-y-1.5">
+          <div className="flex items-center justify-between text-[9px] md:text-[11px]">
+            <span className="text-amber-300 font-bold flex items-center space-x-1 truncate">
+              <AlertCircle className="w-3 h-3 md:w-3.5 md:h-3.5 text-amber-400 animate-bounce shrink-0" />
+              <span className="truncate">REFLECTOR DETECTED</span>
             </span>
-            <span className="text-[10px] text-amber-200 bg-amber-900/80 px-1.5 py-0.5 rounded border border-amber-400/50 font-bold">
-              DEPTH -{anomaly.targetDepthMeters}m
+            <span className="text-[8px] md:text-[10px] text-amber-200 bg-amber-900/80 px-1 md:px-1.5 py-0.2 md:py-0.5 rounded border border-amber-400/50 font-bold shrink-0">
+              -{anomaly.targetDepthMeters}m
             </span>
           </div>
 
-          <div className="text-white text-[11px] font-sans font-semibold leading-tight line-clamp-1">
+          <div className="text-white text-[9.5px] md:text-[11px] font-sans font-semibold leading-tight line-clamp-1">
             {anomaly.name}
-          </div>
-
-          <div className="text-[10px] text-gray-300 font-mono line-clamp-1">
-            {anomaly.dielectricContrast}
           </div>
 
           <button
             onClick={onDeployCoreDrill}
             disabled={isDrilling}
-            className={`w-full py-1.5 px-3 rounded-lg font-bold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-lg ${
+            className={`w-full py-1 md:py-1.5 px-2 md:px-3 rounded-md md:rounded-lg font-bold text-[9px] md:text-xs flex items-center justify-center space-x-1.5 md:space-x-2 transition-all cursor-pointer shadow-lg ${
               isDrilling
                 ? 'bg-amber-600 text-white animate-pulse'
                 : 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 border border-amber-300'
             }`}
           >
-            <Drill className={`w-3.5 h-3.5 ${isDrilling ? 'animate-spin' : ''}`} />
-            <span>
+            <Drill className={`w-3 h-3 md:w-3.5 md:h-3.5 shrink-0 ${isDrilling ? 'animate-spin' : ''}`} />
+            <span className="truncate">
               {isDrilling
-                ? 'DRILLING ROTARY DEEP CORE (-' + anomaly.targetDepthMeters + 'm)...'
-                : 'EXTRACT PRISTINE CORE [G] (+' + anomaly.baseResearchPoints + ' RP)'}
+                ? 'DRILLING (-' + anomaly.targetDepthMeters + 'm)...'
+                : 'EXTRACT CORE (+' + anomaly.baseResearchPoints + ' RP)'}
             </span>
           </button>
         </div>
@@ -198,9 +194,9 @@ export const RimfaxEchogramWidget: React.FC<RimfaxEchogramWidgetProps> = ({
 
       {/* General Coring option in rich stratigraphy when no special anomaly */}
       {!anomaly && (
-        <div className="px-3 py-1.5 bg-black/60 border-t border-cyan-500/20 flex items-center justify-between text-[10px] text-gray-400">
+        <div className="px-2 md:px-3 py-1 md:py-1.5 bg-black/60 border-t border-cyan-500/20 flex items-center justify-between text-[8px] md:text-[10px] text-gray-400">
           <span className="line-clamp-1">{telemetry.activeFormation}</span>
-          <span className="text-cyan-400 font-mono shrink-0">150-1200 MHz UWB</span>
+          <span className="text-cyan-400 font-mono shrink-0 ml-1">UWB RADAR</span>
         </div>
       )}
     </div>

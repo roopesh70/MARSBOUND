@@ -22,6 +22,10 @@ import { StorageService } from './services/storageService';
 import { audioService } from './services/audioService';
 import { rimfaxService } from './services/rimfaxService';
 import { CheckCircle2 } from 'lucide-react';
+import { useMobileDetection } from './hooks/useMobileDetection';
+import { RotateDevicePrompt } from './components/ui/RotateDevicePrompt';
+import { MobileTouchControls } from './components/ui/MobileTouchControls';
+import { MobileActionWheel } from './components/ui/MobileActionWheel';
 
 type ActiveModal = 'none' | 'intro' | 'map' | 'discovery' | 'mission' | 'journal' | 'provenance' | 'settings' | 'library' | 'science_lab' | 'rimfax';
 
@@ -38,6 +42,11 @@ export const App: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isPointerLocked, setIsPointerLocked] = useState(false);
   const controllerRef = useRef<AstronautController | null>(null);
+
+  // Mobile detection & Touch UI states
+  const { isTouchDevice, isMobile, isPortrait } = useMobileDetection();
+  const [isPortraitPromptDismissed, setIsPortraitPromptDismissed] = useState(false);
+  const [isActionWheelOpen, setIsActionWheelOpen] = useState(false);
 
   // Build mode states
   const [isBuildMode, setIsBuildMode] = useState(false);
@@ -841,6 +850,76 @@ export const App: React.FC = () => {
           onClearCustomWaypoint={() => setCustomWaypoint(null)}
         />
       )}
+
+      {/* Mobile Landscape Orientation Advisory */}
+      {isMobile && isPortrait && !isPortraitPromptDismissed && (
+        <RotateDevicePrompt onDismiss={() => setIsPortraitPromptDismissed(true)} />
+      )}
+
+      {/* Mobile Dual-Touch Controls (Thumbstick + Camera Drag + Action Buttons) */}
+      {isTouchDevice && activeModal === 'none' && !isBuildMode && (
+        <MobileTouchControls
+          controller={controllerRef.current}
+          onOpenActionWheel={() => {
+            setIsActionWheelOpen(true);
+            audioService.playClick();
+          }}
+          onScan={() => setScanSignal((prev) => prev + 1)}
+          isDrivingRover={telemetry?.isDrivingRover}
+        />
+      )}
+
+      {/* Mobile EVA Action Wheel & Drawer */}
+      <MobileActionWheel
+        isOpen={isActionWheelOpen}
+        onClose={() => setIsActionWheelOpen(false)}
+        onOpenMap={handleOpenMap}
+        onToggleRover={() => {
+          setRoverSignal((prev) => prev + 1);
+        }}
+        isDrivingRover={telemetry?.isDrivingRover}
+        isNearRover={telemetry?.isNearRover}
+        onScan={() => setScanSignal((prev) => prev + 1)}
+        onOpenScienceLab={() => {
+          setActiveModal('science_lab');
+          completeObjective('mission_02_laboratory_assay', 0);
+          audioService.playClick();
+        }}
+        onOpenRimfaxRadar={() => {
+          if (telemetry?.isDrivingRover) {
+            setActiveModal('rimfax');
+            completeObjective('mission_03_rimfax_subsurface', 1);
+            audioService.playClick();
+          } else {
+            setMissionToast('MOUNT MARS ROVER TO ENGAGE RIMFAX GPR');
+          }
+        }}
+        onDeployCoreDrill={handleDeployCoreDrill}
+        onToggleBuildMode={() => {
+          setIsBuildMode(true);
+          completeObjective('mission_04_expand_outpost', 0);
+          audioService.playClick();
+        }}
+        onOpenLibrary={() => {
+          setActiveModal('library');
+          completeObjective('mission_06_cheyava_astrobiology', 0);
+          audioService.playClick();
+        }}
+        onOpenMission={() => {
+          setActiveModal('mission');
+          audioService.playClick();
+        }}
+        onOpenJournal={() => {
+          setActiveModal('journal');
+          audioService.playClick();
+        }}
+        onToggleLight={handleToggleLight}
+        onOpenSettings={() => {
+          setActiveModal('settings');
+          audioService.playClick();
+        }}
+        isFlashlightOn={telemetry?.isFlashlightOn}
+      />
 
       {/* Outpost Build Mode Overlay (active when pressing B) */}
       <OutpostBuildModal

@@ -36,6 +36,11 @@ export class AstronautController {
   public moveRight = false;
   public isSprinting = false;
 
+  // Virtual Touch Control states (Mobile)
+  public virtualMoveX = 0;
+  public virtualMoveY = 0;
+  public isTouchControlActive = false;
+
   // Mouse rotation
   private euler = new THREE.Euler(0, 0, 0, 'YXZ');
   public isLocked = false;
@@ -154,6 +159,51 @@ export class AstronautController {
     this.moveRight = false;
     this.isSprinting = false;
     this.isMouseDown = false;
+    this.virtualMoveX = 0;
+    this.virtualMoveY = 0;
+    this.isTouchControlActive = false;
+  }
+
+  /**
+   * Virtual touch joystick input for mobile navigation (-1.0 to 1.0)
+   */
+  public setVirtualMoveInput(x: number, y: number, sprint = false) {
+    this.virtualMoveX = Math.max(-1, Math.min(1, x));
+    this.virtualMoveY = Math.max(-1, Math.min(1, y));
+    this.isTouchControlActive = Math.hypot(x, y) > 0.08;
+    this.isSprinting = sprint;
+
+    // Synchronize boolean flags for telemetry and rover inputs
+    this.moveForward = this.virtualMoveY < -0.22;
+    this.moveBackward = this.virtualMoveY > 0.22;
+    this.moveLeft = this.virtualMoveX < -0.22;
+    this.moveRight = this.virtualMoveX > 0.22;
+  }
+
+  /**
+   * Low-gravity hop triggered via mobile touch or keyboard
+   */
+  public jump() {
+    if (this.isGrounded && !this.isPaused) {
+      this.velocity.y = this.jumpVelocity;
+      this.isGrounded = false;
+    }
+  }
+
+  /**
+   * Touch drag camera rotation for mobile look-around
+   */
+  public rotateCamera(deltaX: number, deltaY: number) {
+    if (this.isPaused) return;
+
+    this.euler.setFromQuaternion(this.camera.quaternion);
+    this.euler.y -= deltaX * 0.0035;
+    this.euler.x -= deltaY * 0.0035;
+
+    // Pitch limit: prevent flipping upside down
+    this.euler.x = Math.max(-Math.PI / 2 + 0.08, Math.min(Math.PI / 2 - 0.08, this.euler.x));
+
+    this.camera.quaternion.setFromEuler(this.euler);
   }
 
   public lockPointer() {
@@ -307,27 +357,46 @@ export class AstronautController {
     const speed = this.isSprinting ? this.sprintSpeed : this.walkSpeed;
     const moveVector = new THREE.Vector3();
 
-    if (this.moveForward) moveVector.z -= 1;
-    if (this.moveBackward) moveVector.z += 1;
-    if (this.moveLeft) moveVector.x -= 1;
-    if (this.moveRight) moveVector.x += 1;
+    if (this.isTouchControlActive) {
+      moveVector.x = this.virtualMoveX;
+      moveVector.z = this.virtualMoveY;
+      const mag = Math.min(1.0, moveVector.length());
 
-    if (moveVector.lengthSq() > 0) {
-      moveVector.normalize();
+      if (mag > 0.08) {
+        moveVector.normalize();
+        const yaw = this.euler.y;
+        const rotatedX = moveVector.x * Math.cos(yaw) + moveVector.z * Math.sin(yaw);
+        const rotatedZ = -moveVector.x * Math.sin(yaw) + moveVector.z * Math.cos(yaw);
 
-      // Rotate movement vector by player's yaw (camera Y rotation)
-      const yaw = this.euler.y;
-      const rotatedX = moveVector.x * Math.cos(yaw) + moveVector.z * Math.sin(yaw);
-      const rotatedZ = -moveVector.x * Math.sin(yaw) + moveVector.z * Math.cos(yaw);
-
-      this.velocity.x = rotatedX * speed;
-      this.velocity.z = rotatedZ * speed;
+        this.velocity.x = rotatedX * speed * mag;
+        this.velocity.z = rotatedZ * speed * mag;
+      } else {
+        this.velocity.x *= 0.8;
+        this.velocity.z *= 0.8;
+      }
     } else {
-      // Damping deceleration when no key is held
-      this.velocity.x *= 0.8;
-      this.velocity.z *= 0.8;
-      if (Math.abs(this.velocity.x) < 0.01) this.velocity.x = 0;
-      if (Math.abs(this.velocity.z) < 0.01) this.velocity.z = 0;
+      if (this.moveForward) moveVector.z -= 1;
+      if (this.moveBackward) moveVector.z += 1;
+      if (this.moveLeft) moveVector.x -= 1;
+      if (this.moveRight) moveVector.x += 1;
+
+      if (moveVector.lengthSq() > 0) {
+        moveVector.normalize();
+
+        // Rotate movement vector by player's yaw (camera Y rotation)
+        const yaw = this.euler.y;
+        const rotatedX = moveVector.x * Math.cos(yaw) + moveVector.z * Math.sin(yaw);
+        const rotatedZ = -moveVector.x * Math.sin(yaw) + moveVector.z * Math.cos(yaw);
+
+        this.velocity.x = rotatedX * speed;
+        this.velocity.z = rotatedZ * speed;
+      } else {
+        // Damping deceleration when no key is held
+        this.velocity.x *= 0.8;
+        this.velocity.z *= 0.8;
+        if (Math.abs(this.velocity.x) < 0.01) this.velocity.x = 0;
+        if (Math.abs(this.velocity.z) < 0.01) this.velocity.z = 0;
+      }
     }
 
     // 2. Apply Mars gravity when airborne

@@ -289,12 +289,17 @@ export const MarsCanvas: React.FC<MarsCanvasProps> = ({
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 800);
 
-    // 2. WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    // 2. WebGL Renderer (Auto-scaled for mobile thermal and battery efficiency)
+    const isTouchDevice = typeof window !== 'undefined' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth < 1024);
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isTouchDevice,
+      powerPreference: 'high-performance'
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const maxDevicePixelRatio = isTouchDevice ? 1.25 : 2.0;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDevicePixelRatio));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = isTouchDevice ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
 

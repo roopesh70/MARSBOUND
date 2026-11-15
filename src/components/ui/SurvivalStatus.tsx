@@ -13,34 +13,34 @@ export const SurvivalStatus: React.FC<SurvivalStatusProps> = ({ suit, environmen
   const isBatLow = suit.battery < 20;
 
   return (
-    <div className="bg-black/65 backdrop-blur-md p-4 rounded-xl border border-mars-border/70 space-y-3 font-mono shadow-2xl min-w-[280px]">
+    <div className="bg-black/65 backdrop-blur-md p-2 md:p-4 rounded-xl border border-mars-border/70 space-y-1.5 md:space-y-3 font-mono shadow-2xl min-w-[160px] sm:min-w-[210px] md:min-w-[280px]">
       {/* Header status badge */}
-      <div className="flex items-center justify-between pb-2 border-b border-mars-border/50 text-xs">
-        <span className="text-mars-sand font-bold tracking-wider uppercase text-[11px]">EVA LIFE SUPPORT</span>
+      <div className="flex items-center justify-between pb-1 md:pb-2 border-b border-mars-border/50 text-[9px] md:text-xs">
+        <span className="text-mars-sand font-bold tracking-wider uppercase text-[8.5px] md:text-[11px]">LIFE SUPPORT</span>
         {suit.isInSafeZone ? (
-          <span className="flex items-center text-emerald-400 bg-emerald-950/70 border border-emerald-500/50 px-2 py-0.5 rounded text-[10px] font-bold">
-            <ShieldCheck className="w-3 h-3 mr-1" />
-            OUTPOST RECHARGE ACTIVE
+          <span className="flex items-center text-emerald-400 bg-emerald-950/70 border border-emerald-500/50 px-1.5 py-0.2 md:px-2 md:py-0.5 rounded text-[8px] md:text-[10px] font-bold">
+            <ShieldCheck className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+            <span className="hidden sm:inline">OUTPOST </span>CHARGING
           </span>
         ) : (
-          <span className="flex items-center text-mars-orange bg-mars-surface px-2 py-0.5 rounded text-[10px]">
-            FIELD EXPEDITION ACTIVE
+          <span className="flex items-center text-mars-orange bg-mars-surface px-1.5 py-0.2 md:px-2 md:py-0.5 rounded text-[8px] md:text-[10px]">
+            FIELD EVA
           </span>
         )}
       </div>
 
       {/* Oxygen Bar */}
-      <div className="space-y-1">
-        <div className="flex justify-between text-xs">
+      <div className="space-y-0.5 md:space-y-1">
+        <div className="flex justify-between text-[9px] md:text-xs">
           <span className="flex items-center text-mars-dust">
-            <Activity className="w-3.5 h-3.5 mr-1.5 text-cyan-400" />
-            OXYGEN TANK
+            <Activity className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5 text-cyan-400" />
+            OXYGEN
           </span>
           <span className={`font-bold ${isO2Low ? 'text-rose-400 animate-pulse' : 'text-cyan-300'}`}>
             {Math.round(suit.oxygen)}%
           </span>
         </div>
-        <div className="w-full h-2.5 bg-black/60 rounded-full overflow-hidden border border-mars-border/60 p-0.5">
+        <div className="w-full h-1.5 md:h-2.5 bg-black/60 rounded-full overflow-hidden border border-mars-border/60 p-0.5">
           <div
             className={`h-full rounded-full transition-all duration-300 ${
               isO2Low ? 'bg-rose-500 animate-pulse' : suit.oxygen < 50 ? 'bg-amber-400' : 'bg-cyan-400'
@@ -51,17 +51,17 @@ export const SurvivalStatus: React.FC<SurvivalStatusProps> = ({ suit, environmen
       </div>
 
       {/* Battery Bar */}
-      <div className="space-y-1">
-        <div className="flex justify-between text-xs">
+      <div className="space-y-0.5 md:space-y-1">
+        <div className="flex justify-between text-[9px] md:text-xs">
           <span className="flex items-center text-mars-dust">
-            <Battery className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-            SUIT BATTERY
+            <Battery className="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5 text-amber-400" />
+            BATTERY
           </span>
           <span className={`font-bold ${isBatLow ? 'text-rose-400 animate-pulse' : 'text-amber-300'}`}>
             {Math.round(suit.battery)}%
           </span>
         </div>
-        <div className="w-full h-2.5 bg-black/60 rounded-full overflow-hidden border border-mars-border/60 p-0.5">
+        <div className="w-full h-1.5 md:h-2.5 bg-black/60 rounded-full overflow-hidden border border-mars-border/60 p-0.5">
           <div
             className={`h-full rounded-full transition-all duration-300 ${
               isBatLow ? 'bg-rose-500 animate-pulse' : 'bg-amber-400'
@@ -72,22 +72,22 @@ export const SurvivalStatus: React.FC<SurvivalStatusProps> = ({ suit, environmen
       </div>
 
       {/* Atmospheric readings from MEDA */}
-      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-mars-border/40 text-[11px] text-mars-dust">
-        <div className="flex items-center space-x-1.5 bg-mars-surface/70 px-2 py-1 rounded">
-          <Thermometer className="w-3 h-3 text-mars-orange" />
+      <div className="grid grid-cols-2 gap-1 md:gap-2 pt-0.5 md:pt-1 border-t border-mars-border/40 text-[8.5px] md:text-[11px] text-mars-dust">
+        <div className="flex items-center space-x-1 md:space-x-1.5 bg-mars-surface/70 px-1.5 py-0.5 md:px-2 md:py-1 rounded">
+          <Thermometer className="w-2.5 h-2.5 md:w-3 md:h-3 text-mars-orange" />
           <span>{environment.temperatureCelsius}°C</span>
         </div>
-        <div className="flex items-center space-x-1.5 bg-mars-surface/70 px-2 py-1 rounded">
-          <Wind className="w-3 h-3 text-sky-400" />
-          <span>{environment.surfacePressurePa} Pa (CO₂)</span>
+        <div className="flex items-center space-x-1 md:space-x-1.5 bg-mars-surface/70 px-1.5 py-0.5 md:px-2 md:py-1 rounded">
+          <Wind className="w-2.5 h-2.5 md:w-3 md:h-3 text-sky-400" />
+          <span>{environment.surfacePressurePa} Pa</span>
         </div>
       </div>
 
       {/* Warnings */}
       {suit.isSuffocating && (
-        <div className="flex items-center space-x-2 bg-rose-950/90 border border-rose-500 text-rose-200 p-2 rounded text-xs animate-bounce font-bold">
-          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-          <span>CRITICAL: OXYGEN DEPLETED! RETURN TO HABITAT</span>
+        <div className="flex items-center space-x-1.5 md:space-x-2 bg-rose-950/90 border border-rose-500 text-rose-200 p-1.5 md:p-2 rounded text-[9px] md:text-xs animate-bounce font-bold">
+          <AlertTriangle className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-400 shrink-0" />
+          <span className="truncate">CRITICAL: OXYGEN DEPLETED!</span>
         </div>
       )}
     </div>

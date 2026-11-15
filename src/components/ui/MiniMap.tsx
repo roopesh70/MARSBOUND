@@ -62,50 +62,50 @@ export const MiniMap: React.FC<MiniMapProps> = ({
     return (
       <button
         onClick={() => setIsCollapsed(false)}
-        className="flex items-center space-x-1.5 bg-black/85 backdrop-blur-md border border-mars-border/80 hover:border-mars-orange text-mars-sand hover:text-white px-3 py-1.5 rounded-xl text-xs font-mono shadow-2xl transition-all cursor-pointer pointer-events-auto"
+        className="flex items-center space-x-1 md:space-x-1.5 bg-black/85 backdrop-blur-md border border-mars-border/80 hover:border-mars-orange text-mars-sand hover:text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl text-[10px] md:text-xs font-mono shadow-2xl transition-all cursor-pointer pointer-events-auto"
         title="Expand Mini-Map Radar"
       >
-        <Navigation className="w-3.5 h-3.5 text-mars-orange" />
+        <Navigation className="w-3 h-3 md:w-3.5 md:h-3.5 text-mars-orange" />
         <span>RADAR HUD</span>
       </button>
     );
   }
 
   return (
-    <div className="relative bg-black/85 backdrop-blur-md border border-mars-border/80 rounded-2xl p-2.5 shadow-2xl font-mono text-[10px] pointer-events-auto select-none ring-1 ring-white/5 transition-all">
+    <div className="relative bg-black/85 backdrop-blur-md border border-mars-border/80 rounded-xl md:rounded-2xl p-1.5 md:p-2.5 shadow-2xl font-mono text-[9px] md:text-[10px] pointer-events-auto select-none ring-1 ring-white/5 transition-all">
       {/* Mini-map Header */}
-      <div className="flex items-center justify-between px-1 pb-1.5 border-b border-mars-border/50 text-mars-dust mb-1">
-        <div className="flex items-center space-x-1.5 text-mars-sand font-bold">
-          <Compass className="w-3 h-3 text-mars-orange" />
+      <div className="flex items-center justify-between px-1 pb-1 md:pb-1.5 border-b border-mars-border/50 text-mars-dust mb-1 gap-1">
+        <div className="flex items-center space-x-1 text-mars-sand font-bold text-[8.5px] md:text-[10px]">
+          <Compass className="w-2.5 h-2.5 md:w-3 md:h-3 text-mars-orange" />
           <span>RADAR • {zoomRangeMeters}M</span>
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-0.5 md:space-x-1">
           <button
             onClick={() => setZoomRangeMeters((prev) => (prev === 80 ? 160 : prev === 160 ? 320 : 80))}
-            className="px-1.5 py-0.5 rounded bg-mars-surface hover:bg-white/10 text-mars-sand hover:text-white border border-mars-border/50 text-[9px] transition-colors cursor-pointer"
+            className="px-1 md:px-1.5 py-0.5 rounded bg-mars-surface hover:bg-white/10 text-mars-sand hover:text-white border border-mars-border/50 text-[8px] md:text-[9px] transition-colors cursor-pointer"
             title="Cycle Radar Zoom Range"
           >
             {zoomRangeMeters}m
           </button>
           <button
             onClick={onOpenFullMap}
-            className="p-1 rounded bg-mars-surface hover:bg-white/10 text-mars-sand hover:text-white border border-mars-border/50 transition-colors cursor-pointer"
+            className="p-0.5 md:p-1 rounded bg-mars-surface hover:bg-white/10 text-mars-sand hover:text-white border border-mars-border/50 transition-colors cursor-pointer"
             title="Open Full Tactical GIS Map [M]"
           >
-            <Maximize2 className="w-3 h-3 text-cyan-400" />
+            <Maximize2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-cyan-400" />
           </button>
           <button
             onClick={() => setIsCollapsed(true)}
-            className="p-1 rounded bg-mars-surface hover:bg-white/10 text-mars-sand hover:text-white border border-mars-border/50 transition-colors cursor-pointer"
+            className="p-0.5 md:p-1 rounded bg-mars-surface hover:bg-white/10 text-mars-sand hover:text-white border border-mars-border/50 transition-colors cursor-pointer"
             title="Minimize Radar"
           >
-            <Minimize2 className="w-3 h-3" />
+            <Minimize2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
           </button>
         </div>
       </div>
 
       {/* Circular Radar Screen */}
-      <div className="relative w-[180px] h-[180px] rounded-full overflow-hidden border border-mars-border/80 bg-gradient-to-b from-[#130906] to-[#070302] shadow-inner flex items-center justify-center">
+      <div className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[180px] md:h-[180px] rounded-full overflow-hidden border border-mars-border/80 bg-gradient-to-b from-[#130906] to-[#070302] shadow-inner flex items-center justify-center">
         {/* Radar Sweep Rotating Line */}
         <div
           className="absolute inset-0 rounded-full pointer-events-none opacity-40 animate-spin"
@@ -115,7 +115,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({
           }}
         />
 
-        <svg className="w-full h-full pointer-events-none">
+        <svg className="w-full h-full pointer-events-none" viewBox="0 0 180 180">
           <defs>
             <radialGradient id="radarGridGlow" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#22110c" stopOpacity="0.8" />
@@ -379,20 +379,20 @@ export const MiniMap: React.FC<MiniMapProps> = ({
         </svg>
 
         {/* Hover / Status pill overlay */}
-        <div className="absolute bottom-1 text-[8.5px] font-mono text-mars-sand/80 bg-black/60 px-2 py-0.5 rounded-full border border-mars-border/40 pointer-events-none">
-          {isDrivingRover ? 'ROVER TRANSIT' : 'EVA ON FOOT'}
+        <div className="absolute bottom-1 text-[7px] md:text-[8.5px] font-mono text-mars-sand/80 bg-black/60 px-1.5 py-0.2 md:px-2 md:py-0.5 rounded-full border border-mars-border/40 pointer-events-none">
+          {isDrivingRover ? 'ROVER' : 'EVA'}
         </div>
       </div>
 
       {/* Mini-map Footer Quick Actions */}
-      <div className="mt-1.5 flex items-center justify-between text-[9px] text-mars-dust px-1">
+      <div className="mt-1 md:mt-1.5 flex items-center justify-between text-[7.5px] md:text-[9px] text-mars-dust px-0.5 md:px-1">
         <span>[M] FULL GIS MAP</span>
         <button
           onClick={onOpenFullMap}
-          className="text-mars-orange hover:text-white font-bold flex items-center space-x-1 cursor-pointer transition-colors"
+          className="text-mars-orange hover:text-white font-bold flex items-center space-x-0.5 md:space-x-1 cursor-pointer transition-colors"
         >
           <span>EXPAND</span>
-          <Maximize2 className="w-2.5 h-2.5" />
+          <Maximize2 className="w-2 md:w-2.5 h-2 md:h-2.5" />
         </button>
       </div>
     </div>
